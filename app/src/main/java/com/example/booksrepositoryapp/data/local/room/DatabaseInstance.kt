@@ -14,7 +14,7 @@ object DatabaseInstance {
                 context.applicationContext,
                 AppDatabase::class.java,
                 "UserDatabase"
-            ).build()
+            ).fallbackToDestructiveMigration(true).build()
 
             INSTANCE = instance
             instance

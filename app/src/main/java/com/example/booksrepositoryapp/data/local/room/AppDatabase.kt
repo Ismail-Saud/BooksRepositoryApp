@@ -7,7 +7,7 @@ import com.example.booksrepositoryapp.data.local.room.entity.UserModel
 
 @Database(
     entities = [UserModel::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 

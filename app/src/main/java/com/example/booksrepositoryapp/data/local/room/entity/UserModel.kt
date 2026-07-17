@@ -3,10 +3,10 @@ package com.example.booksrepositoryapp.data.local.room.entity
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(tableName = "userTable")
 data class UserModel (
-    @PrimaryKey
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int=0,
     val username: String,
     val email: String,
     val password: String
