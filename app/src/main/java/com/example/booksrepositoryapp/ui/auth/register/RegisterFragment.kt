@@ -13,6 +13,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.databinding.FragmentRegisterBinding
 import com.example.booksrepositoryapp.ui.auth.getstarted.GetStartedFragment
+import com.example.booksrepositoryapp.ui.book_category.BooksCategoryFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
 import kotlinx.coroutines.launch
 
@@ -48,7 +49,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
                         }
                         RegisterState.Success -> {
                             parentFragmentManager.beginTransaction().replace(
-                                R.id.fragmentContainer, LandingPageFragment()
+                                R.id.fragmentContainer, BooksCategoryFragment()
                             ).commit()
                         }
                     }

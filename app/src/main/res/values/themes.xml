@@ -2,6 +2,7 @@
 <resources>
 
     <style name="Theme.BooksRepositoryApp"
-        parent="Theme.MaterialComponents.Light.NoActionBar">
+        parent="Theme.Material3.Light.NoActionBar">
     </style>
+
 </resources>
