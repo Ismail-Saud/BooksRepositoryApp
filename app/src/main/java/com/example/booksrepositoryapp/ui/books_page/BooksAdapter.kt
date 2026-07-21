@@ -15,6 +15,7 @@ import com.bumptech.glide.request.target.Target
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.api.models.subjectsApiResponseModels.Work
 import com.example.booksrepositoryapp.databinding.ItemBooksBinding
+import kotlin.random.Random
 
 class BooksAdapter(
     private val categoryName: String,
@@ -29,6 +30,7 @@ class BooksAdapter(
             binding.bookCategory.text = categoryName
             binding.bookTitle.text = books.title
             binding.bookAuthor.text = books.authors.firstOrNull()?.name?.trim()?:"Unknown"
+            binding.bookPrice.text = "$${generateAmount()}"
             Glide.with(binding.root.context)
                 .load(imageUrl)
                 .listener(object : RequestListener<Drawable> {
@@ -70,6 +72,10 @@ class BooksAdapter(
 
     override fun onBindViewHolder(parent: CategoryViewHolder, position: Int) {
         parent.bind(getItem(position))
+    }
+
+    fun generateAmount(): Double {
+        return String.format("%.2f", Random.nextDouble(15.0, 36.0)).toDouble()
     }
 }
 

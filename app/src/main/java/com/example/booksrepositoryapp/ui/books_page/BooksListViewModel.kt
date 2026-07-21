@@ -12,9 +12,10 @@ import com.example.booksrepositoryapp.ui.book_category.BooksCategoryState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 class BooksListViewModel(application: Application) : AndroidViewModel(application) {
-    private var activeSearch = ""
+
     private val _bookState = MutableStateFlow<BooksListState>(BooksListState.Idle)
     val bookState = _bookState.asStateFlow()
     private val bookRepo = BooksRepository()
