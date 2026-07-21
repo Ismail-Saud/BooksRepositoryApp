@@ -28,6 +28,7 @@ class GetStartedViewModel (application: Application) : AndroidViewModel(applicat
                     val user = userRepo.loginUser(email, password)
                     if (user != null) {
                         _getStartedState.value = GetStartedState.Success
+                        userRepo.setLoggedIn(true)
                     } else {
                         _getStartedState.value = GetStartedState.Error("Invalid email or password")
                     }

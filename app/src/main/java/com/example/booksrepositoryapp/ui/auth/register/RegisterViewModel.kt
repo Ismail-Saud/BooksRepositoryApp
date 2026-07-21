@@ -39,6 +39,7 @@ class RegisterViewModel (application: Application) : AndroidViewModel(applicatio
             else -> {
                 val user = UserModel(username = userName, email = email, password = password)
                 userRepo.signupUser(user)
+                userRepo.setLoggedIn(true)
                 _registerUser.value = RegisterState.Success
             }
         }

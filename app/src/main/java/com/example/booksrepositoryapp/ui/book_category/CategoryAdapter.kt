@@ -6,14 +6,21 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booksrepositoryapp.data.api.models.Category
+import com.example.booksrepositoryapp.data.api.models.subjectsApiResponseModels.SubjectApiResponseModel
 import com.example.booksrepositoryapp.databinding.ItemCategoryBinding
 
-class CategoryAdapter : ListAdapter<Category, CategoryAdapter.CategoryViewHolder>(DiffCallback()) {
+class CategoryAdapter(
+    private val onClick: (Category) -> Unit
+) : ListAdapter<Category, CategoryAdapter.CategoryViewHolder>(DiffCallback()) {
     inner class CategoryViewHolder(
         private val binding: ItemCategoryBinding
     ): RecyclerView.ViewHolder(binding.root) {
         fun bind (category: Category) {
             binding.tvCategoryName.text = category.title
+            binding.ivCategory.setImageResource(category.imgSrc)
+            binding.root.setOnClickListener {
+                onClick(category)
+            }
         }
     }
 

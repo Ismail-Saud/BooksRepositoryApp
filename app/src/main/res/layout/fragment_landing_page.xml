@@ -15,7 +15,8 @@
 
     <ImageView
         android:id="@+id/getStartedImage"
-        android:layout_width="match_parent"
+        android:scaleType="fitXY"
+        android:layout_width="0dp"
         android:layout_height="0dp"
         android:src="@drawable/landing_bg"
         app:layout_constraintBottom_toTopOf="@+id/guideline"
