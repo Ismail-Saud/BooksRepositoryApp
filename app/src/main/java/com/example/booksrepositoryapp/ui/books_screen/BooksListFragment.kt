@@ -1,7 +1,8 @@
-package com.example.booksrepositoryapp.ui.books_page
+package com.example.booksrepositoryapp.ui.books_screen
 
 import androidx.fragment.app.viewModels
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,9 +11,9 @@ import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.booksrepositoryapp.R
-import com.example.booksrepositoryapp.databinding.FragmentBooksCategoryBinding
 import com.example.booksrepositoryapp.databinding.FragmentBooksListBinding
-import com.example.booksrepositoryapp.ui.shimmer.ShimmerAdapter
+import com.example.booksrepositoryapp.ui.book_details.BookDetailsFragment
+import com.example.booksrepositoryapp.ui.shimmer.BookListShimmerAdapter
 import kotlinx.coroutines.launch
 
 class BooksListFragment : Fragment() {
@@ -73,13 +74,27 @@ class BooksListFragment : Fragment() {
 
     private fun setupRecyclerView() {
         val subject = arguments?.getString("title") ?: "Unknown"
-        adapter = BooksAdapter(subject.replaceFirstChar { it.uppercase() }) { work ->
+        adapter = BooksAdapter(subject.replaceFirstChar { it.uppercase() }) { work, amount ->
             Toast.makeText(
                 requireContext(), "Navigated", Toast.LENGTH_SHORT
             ).show()
+            val fragment = BookDetailsFragment()
+            Log.d("BOOK", "Cover ID before navigation = ${work.cover_id}")
+
+            val bundle = Bundle().apply {
+                putString("subject", subject)
+                putString("key", work.key)
+                putString("amount", amount.toString())
+                putInt("cover_id", work.cover_id)
+                putString("author", work.authors.firstOrNull()?.name ?: "Unknown")
+            }
+            fragment.arguments = bundle
+            parentFragmentManager.beginTransaction().replace(
+                R.id.fragmentContainer, fragment)
+                .addToBackStack(null).commit()
         }
         binding.shimmerRecyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
-        binding.shimmerRecyclerView.adapter = ShimmerAdapter()
+        binding.shimmerRecyclerView.adapter = BookListShimmerAdapter()
         binding.booksRecyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.booksRecyclerView.adapter = adapter
     }

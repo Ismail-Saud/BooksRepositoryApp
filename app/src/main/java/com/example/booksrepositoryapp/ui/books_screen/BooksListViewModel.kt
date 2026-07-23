@@ -1,18 +1,12 @@
-package com.example.booksrepositoryapp.ui.books_page
+package com.example.booksrepositoryapp.ui.books_screen
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booksrepositoryapp.data.api.models.Category
 import com.example.booksrepositoryapp.data.repository.BooksRepository
-import com.example.booksrepositoryapp.ui.book_category.BooksCategoryState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 class BooksListViewModel(application: Application) : AndroidViewModel(application) {
 

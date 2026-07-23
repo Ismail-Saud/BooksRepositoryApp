@@ -1,4 +1,4 @@
-package com.example.booksrepositoryapp.ui.books_page
+package com.example.booksrepositoryapp.ui.books_screen
 
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
@@ -12,14 +12,13 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.api.models.subjectsApiResponseModels.Work
 import com.example.booksrepositoryapp.databinding.ItemBooksBinding
 import kotlin.random.Random
 
 class BooksAdapter(
     private val categoryName: String,
-    private val onClick: (Work) -> Unit
+    private val onClick: (Work, Double) -> Unit
 ): ListAdapter<Work, BooksAdapter.CategoryViewHolder>(DiffCallback()){
 
     inner class CategoryViewHolder(
@@ -30,7 +29,8 @@ class BooksAdapter(
             binding.bookCategory.text = categoryName
             binding.bookTitle.text = books.title
             binding.bookAuthor.text = books.authors.firstOrNull()?.name?.trim()?:"Unknown"
-            binding.bookPrice.text = "$${generateAmount()}"
+            val amount = generateAmount()
+            binding.bookPrice.text = "$${amount}"
             Glide.with(binding.root.context)
                 .load(imageUrl)
                 .listener(object : RequestListener<Drawable> {
@@ -56,7 +56,7 @@ class BooksAdapter(
                 })
                 .into(binding.bookImage)
             binding.root.setOnClickListener {
-                onClick(books)
+                onClick(books, amount)
             }
         }
     }

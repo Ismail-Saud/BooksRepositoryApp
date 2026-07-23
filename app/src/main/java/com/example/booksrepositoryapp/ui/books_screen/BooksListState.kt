@@ -1,6 +1,5 @@
-package com.example.booksrepositoryapp.ui.books_page
+package com.example.booksrepositoryapp.ui.books_screen
 
-import com.example.booksrepositoryapp.data.api.models.subjectsApiResponseModels.SubjectApiResponseModel
 import com.example.booksrepositoryapp.data.api.models.subjectsApiResponseModels.Work
 
 sealed class BooksListState {

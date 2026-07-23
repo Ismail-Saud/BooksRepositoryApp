@@ -10,11 +10,9 @@ import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.booksrepositoryapp.R
-import com.example.booksrepositoryapp.data.api.models.Category
 import com.example.booksrepositoryapp.data.api.models.categories
 import com.example.booksrepositoryapp.databinding.FragmentBooksCategoryBinding
-import com.example.booksrepositoryapp.databinding.FragmentRegisterBinding
-import com.example.booksrepositoryapp.ui.books_page.BooksListFragment
+import com.example.booksrepositoryapp.ui.books_screen.BooksListFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
 
 class BooksCategoryFragment : Fragment(R.layout.fragment_books_category) {

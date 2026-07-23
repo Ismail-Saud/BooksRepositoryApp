@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booksrepositoryapp.R
 
-class ShimmerAdapter: RecyclerView.Adapter<ShimmerAdapter.ShimmerViewHolder>() {
+class BookListShimmerAdapter: RecyclerView.Adapter<BookListShimmerAdapter.ShimmerViewHolder>() {
     inner class ShimmerViewHolder(view: View): RecyclerView.ViewHolder(view)
 
     override fun onCreateViewHolder(p0: ViewGroup, p1: Int): ShimmerViewHolder {
@@ -14,7 +14,7 @@ class ShimmerAdapter: RecyclerView.Adapter<ShimmerAdapter.ShimmerViewHolder>() {
         return ShimmerViewHolder(view)
     }
 
-    override fun onBindViewHolder(p0: ShimmerAdapter.ShimmerViewHolder, p1: Int) {
+    override fun onBindViewHolder(p0: BookListShimmerAdapter.ShimmerViewHolder, p1: Int) {
 
     }
 
