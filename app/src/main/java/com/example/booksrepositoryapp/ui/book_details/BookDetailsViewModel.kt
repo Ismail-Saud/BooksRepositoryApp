@@ -12,11 +12,12 @@ class BookDetailsViewModel(application: Application) : AndroidViewModel(applicat
 
     private val _bookDetailState = MutableStateFlow<BookDetailsState>(BookDetailsState.Idle)
     val bookDetailState = _bookDetailState.asStateFlow()
-    private val bookRepo = BooksRepository()
+    private val bookRepo = BooksRepository(application)
 
     fun getBookDetails(key: String) {
         viewModelScope.launch {
             _bookDetailState.value = BookDetailsState.Loading
+            bookRepo.updateBook(key)
             val response = bookRepo.getBookDetails(key)
             _bookDetailState.value = BookDetailsState.Success(response)
         }

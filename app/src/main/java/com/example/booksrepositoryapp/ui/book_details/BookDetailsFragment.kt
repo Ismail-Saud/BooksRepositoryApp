@@ -62,25 +62,19 @@ class BookDetailsFragment : Fragment() {
                         binding.shimmerLayout.visibility = View.GONE
                         binding.contentLayout.visibility = View.VISIBLE
 
-                        val amount = arguments?.getString("amount") ?: "0"
-                        val author = arguments?.getString("author") ?: "Unknown"
-                        val category = arguments?.getString("subject") ?: "Unknown"
-                        val coverId = arguments?.getInt("cover_id") ?: 0
-                        Log.d("BOOK", "Received Cover ID = $coverId")
-
                         val book = state.books
 
                         binding.tvBookTitle.text = book.title
                         binding.tvDescription.text = book.description
-                        binding.tvCategory.text = category
-                        binding.tvGenre.text = "Category: $category"
-                        binding.tvAuthor.text = "Author: $author"
-                        binding.tvPrice.text = "$$amount"
-                        binding.tvRating.text = "Rating: ${generateAmount()}/5"
-                        if (coverId != 0) {
+                        binding.tvCategory.text = book.category.replaceFirstChar { it.uppercaseChar() }
+                        binding.tvGenre.text = "Category: ${book.category}"
+                        binding.tvAuthor.text = "Author: ${book.author}"
+                        binding.tvPrice.text = "$${book.price}"
+                        binding.tvRating.text = "Rating: ${book.rating}/5"
+                        if (book.coverId != 0) {
                             binding.progressBar.visibility = View.VISIBLE
                             Glide.with(this@BookDetailsFragment)
-                                .load("https://covers.openlibrary.org/b/id/$coverId-L.jpg")
+                                .load("https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg")
                                 .error(R.drawable.book_cover_img)
                                 .listener(object : RequestListener<Drawable> {
                                     override fun onLoadFailed(

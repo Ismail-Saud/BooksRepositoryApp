@@ -1,6 +1,8 @@
 package com.example.booksrepositoryapp.ui.books_screen
 
 import android.app.Application
+import android.os.Build
+import androidx.annotation.RequiresExtension
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.repository.BooksRepository
@@ -12,13 +14,18 @@ class BooksListViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _bookState = MutableStateFlow<BooksListState>(BooksListState.Idle)
     val bookState = _bookState.asStateFlow()
-    private val bookRepo = BooksRepository()
+    private val bookRepo = BooksRepository(application)
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getBooksByCategory(subject: String) {
         viewModelScope.launch {
-            val response = bookRepo.getBooksByCategory(subject)
-            _bookState.value = BooksListState.Success(response.works)
+            bookRepo.refreshBooks(subject)
+
+            bookRepo.getBooks(subject).collect { books ->
+                _bookState.value = BooksListState.Success(books)
+            }
         }
+
     }
 
     fun resetState () {

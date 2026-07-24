@@ -27,9 +27,9 @@ class BooksListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val subject = arguments?.getString("subject") ?: "Unknown"
+        viewModel.getBooksByCategory(subject)
         setupRecyclerView()
         setupObservers()
-        viewModel.getBooksByCategory(subject)
     }
 
     override fun onCreateView(
@@ -67,6 +67,7 @@ class BooksListFragment : Fragment() {
                         binding.booksRecyclerView.visibility = View.VISIBLE
                         adapter.submitList(state.books)
                     }
+                    else -> {}
                 }
             }
         }
@@ -74,19 +75,15 @@ class BooksListFragment : Fragment() {
 
     private fun setupRecyclerView() {
         val subject = arguments?.getString("title") ?: "Unknown"
-        adapter = BooksAdapter(subject.replaceFirstChar { it.uppercase() }) { work, amount ->
+        adapter = BooksAdapter(subject.replaceFirstChar { it.uppercase() }) { work ->
             Toast.makeText(
                 requireContext(), "Navigated", Toast.LENGTH_SHORT
             ).show()
             val fragment = BookDetailsFragment()
-            Log.d("BOOK", "Cover ID before navigation = ${work.cover_id}")
+            Log.d("BOOK", "Cover ID before navigation = ${work.coverId}")
 
             val bundle = Bundle().apply {
-                putString("subject", subject)
-                putString("key", work.key)
-                putString("amount", amount.toString())
-                putInt("cover_id", work.cover_id)
-                putString("author", work.authors.firstOrNull()?.name ?: "Unknown")
+                putString("key", work.workId)
             }
             fragment.arguments = bundle
             parentFragmentManager.beginTransaction().replace(

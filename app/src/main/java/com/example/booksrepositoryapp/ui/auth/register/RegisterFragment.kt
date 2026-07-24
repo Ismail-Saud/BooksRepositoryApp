@@ -50,7 +50,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
                         RegisterState.Success -> {
                             parentFragmentManager.beginTransaction().replace(
                                 R.id.fragmentContainer, BooksCategoryFragment()
-                            ).commit()
+                            ).addToBackStack(null).remove(RegisterFragment()).commit()
                         }
                     }
                 }

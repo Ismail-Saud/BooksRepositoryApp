@@ -14,6 +14,7 @@ import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.databinding.FragmentGetStartedBinding
 import com.example.booksrepositoryapp.databinding.FragmentLandingPageBinding
 import com.example.booksrepositoryapp.ui.auth.getstarted.GetStartedViewModel
+import com.example.booksrepositoryapp.ui.auth.register.RegisterFragment
 import com.example.booksrepositoryapp.ui.book_category.BooksCategoryFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
 import kotlinx.coroutines.launch
@@ -50,7 +51,7 @@ class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
                         GetStartedState.Success -> {
                             parentFragmentManager.beginTransaction().replace(
                                 R.id.fragmentContainer, BooksCategoryFragment()
-                            ).addToBackStack(null).commit()
+                            ).addToBackStack(null).remove(RegisterFragment()).commit()
                         }
                     }
                 }
@@ -60,7 +61,7 @@ class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
 
     private fun setupListeners() {
         binding.btnBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
+            parentFragmentManager.beginTransaction().remove(GetStartedFragment())
         }
         binding.btnGetStarted.setOnClickListener {
             lifecycleScope.launch {

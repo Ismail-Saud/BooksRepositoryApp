@@ -13,24 +13,24 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.booksrepositoryapp.data.api.models.subjectsApiResponseModels.Work
+import com.example.booksrepositoryapp.data.local.room.entity.BookDetailsModel
 import com.example.booksrepositoryapp.databinding.ItemBooksBinding
 import kotlin.random.Random
 
 class BooksAdapter(
     private val categoryName: String,
-    private val onClick: (Work, Double) -> Unit
-): ListAdapter<Work, BooksAdapter.CategoryViewHolder>(DiffCallback()){
+    private val onClick: (BookDetailsModel) -> Unit
+): ListAdapter<BookDetailsModel, BooksAdapter.CategoryViewHolder>(DiffCallback()){
 
     inner class CategoryViewHolder(
         private val binding: ItemBooksBinding
     ): RecyclerView.ViewHolder(binding.root) {
-        fun bind (books: Work) {
-            val imageUrl = "https://covers.openlibrary.org/b/id/${books.cover_id}-M.jpg"
+        fun bind (books: BookDetailsModel) {
+            val imageUrl = "https://covers.openlibrary.org/b/id/${books.coverId}-M.jpg"
             binding.bookCategory.text = categoryName
             binding.bookTitle.text = books.title
-            binding.bookAuthor.text = books.authors.firstOrNull()?.name?.trim()?:"Unknown"
-            val amount = generateAmount()
-            binding.bookPrice.text = "$${amount}"
+            binding.bookAuthor.text = books.author
+            binding.bookPrice.text = "$${books.price}"
             Glide.with(binding.root.context)
                 .load(imageUrl)
                 .listener(object : RequestListener<Drawable> {
@@ -56,7 +56,7 @@ class BooksAdapter(
                 })
                 .into(binding.bookImage)
             binding.root.setOnClickListener {
-                onClick(books, amount)
+                onClick(books)
             }
         }
     }
@@ -73,17 +73,13 @@ class BooksAdapter(
     override fun onBindViewHolder(parent: CategoryViewHolder, position: Int) {
         parent.bind(getItem(position))
     }
-
-    fun generateAmount(): Double {
-        return String.format("%.2f", Random.nextDouble(15.0, 36.0)).toDouble()
-    }
 }
 
-class DiffCallback : DiffUtil.ItemCallback<Work>() {
-    override fun areItemsTheSame(oldItem: Work, newItem: Work): Boolean {
-        return oldItem.key == newItem.key
+class DiffCallback : DiffUtil.ItemCallback<BookDetailsModel>() {
+    override fun areItemsTheSame(oldItem: BookDetailsModel, newItem: BookDetailsModel): Boolean {
+        return oldItem.workId == newItem.workId
     }
-    override fun areContentsTheSame(oldItem: Work, newItem: Work): Boolean {
+    override fun areContentsTheSame(oldItem: BookDetailsModel, newItem: BookDetailsModel): Boolean {
         return oldItem == newItem
     }
 }

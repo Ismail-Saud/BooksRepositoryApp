@@ -2,15 +2,18 @@ package com.example.booksrepositoryapp.data.local.room
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.example.booksrepositoryapp.data.local.room.dao.BooksDao
 import com.example.booksrepositoryapp.data.local.room.dao.UserDao
+import com.example.booksrepositoryapp.data.local.room.entity.BookDetailsModel
 import com.example.booksrepositoryapp.data.local.room.entity.UserModel
 
 @Database(
-    entities = [UserModel::class],
-    version = 2,
+    entities = [UserModel::class, BookDetailsModel::class],
+    version = 4,
     exportSchema = false
 )
 
 abstract class AppDatabase: RoomDatabase() {
     abstract fun UserDao(): UserDao
+    abstract fun BooksDao() : BooksDao
 }
