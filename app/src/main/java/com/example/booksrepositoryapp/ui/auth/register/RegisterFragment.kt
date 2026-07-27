@@ -73,7 +73,8 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
                 viewModel.register(
                     userName = binding.etUsername.text?.trim().toString(),
                     email = binding.etEmail.text.toString(),
-                    password = binding.etPassword.text.toString()
+                    password = binding.etPassword.text.toString(),
+                    confirmPass = binding.etConfirmPassword.text.toString()
                 )
             }
         }

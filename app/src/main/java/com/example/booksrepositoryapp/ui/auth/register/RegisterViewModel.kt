@@ -15,8 +15,9 @@ class RegisterViewModel (application: Application) : AndroidViewModel(applicatio
 
     private val usernamePattern = Regex("^[A-Za-z0-9!@#$]+$")
     private val passwordPattern = Regex("^[A-Za-z0-9!@#$]{8,}$")
+    private val emailPattern = Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
 
-    suspend fun register (userName: String, email: String, password:String) {
+    suspend fun register (userName: String, email: String, password:String, confirmPass: String) {
         when {
             userName.isBlank() -> {
                 _registerUser.value = RegisterState.Error("Enter username")
@@ -27,6 +28,9 @@ class RegisterViewModel (application: Application) : AndroidViewModel(applicatio
             email.isBlank() -> {
                 _registerUser.value = RegisterState.Error("Enter email")
             }
+            !emailPattern.matches(email) -> {
+                _registerUser.value = RegisterState.Error("Enter valid email")
+            }
             password.isBlank() -> {
                 _registerUser.value = RegisterState.Error("Enter username")
             }
@@ -36,10 +40,14 @@ class RegisterViewModel (application: Application) : AndroidViewModel(applicatio
             userRepo.doesEmailExist(email) -> {
                 _registerUser.value = RegisterState.Error("User already exists")
             }
+            password != confirmPass -> {
+                _registerUser.value = RegisterState.Error("Password does not match")
+            }
             else -> {
                 val user = UserModel(username = userName, email = email, password = password)
                 userRepo.signupUser(user)
                 userRepo.setLoggedIn(true)
+                userRepo.setUserSaved(user.id)
                 _registerUser.value = RegisterState.Success
             }
         }

@@ -22,6 +22,6 @@ interface BooksDao {
     @Query("SELECT * FROM book_details WHERE workId = :workId")
     fun getBooks (workId: String) : Flow<List<BookDetailsModel?>>
 
-    @Query("SELECT * FROM book_details WHERE workId = :workId LIMIT 1")
-    suspend fun getBookDetails (workId: String) : BookDetailsModel
+    @Query("SELECT * FROM book_details WHERE workId = :workId")
+    suspend fun getBookDetails (workId: String) : BookDetailsModel?
 }

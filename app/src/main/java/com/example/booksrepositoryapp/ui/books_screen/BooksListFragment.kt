@@ -1,5 +1,6 @@
 package com.example.booksrepositoryapp.ui.books_screen
 
+import android.os.Build
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresExtension
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.booksrepositoryapp.R
@@ -24,6 +26,7 @@ class BooksListFragment : Fragment() {
 
     private val viewModel: BooksListViewModel by viewModels()
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val subject = arguments?.getString("subject") ?: "Unknown"

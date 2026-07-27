@@ -2,6 +2,7 @@ package com.example.booksrepositoryapp.ui.book_details
 
 import android.R.attr.onClick
 import android.graphics.drawable.Drawable
+import android.os.Build
 import androidx.fragment.app.viewModels
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresExtension
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -17,10 +19,14 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.example.booksrepositoryapp.R
+import com.example.booksrepositoryapp.data.repository.UserRepository
 import com.example.booksrepositoryapp.databinding.FragmentBookDetailsBinding
 import com.example.booksrepositoryapp.databinding.FragmentBooksListBinding
 import com.example.booksrepositoryapp.ui.books_screen.BooksListState
+import com.example.booksrepositoryapp.ui.cart_screen.AddToCartFragment
+import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
 import kotlinx.coroutines.launch
+import java.nio.file.attribute.UserPrincipal
 import kotlin.random.Random
 
 class BookDetailsFragment : Fragment() {
@@ -38,12 +44,13 @@ class BookDetailsFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val key = arguments?.getString("key") ?: "Unknown"
         viewModel.getBookDetails(key)
         setupObservers()
-        setupBackBtn()
+        setupBtn()
     }
 
     private fun setupObservers() {
@@ -64,17 +71,17 @@ class BookDetailsFragment : Fragment() {
 
                         val book = state.books
 
-                        binding.tvBookTitle.text = book.title
-                        binding.tvDescription.text = book.description
-                        binding.tvCategory.text = book.category.replaceFirstChar { it.uppercaseChar() }
-                        binding.tvGenre.text = "Category: ${book.category}"
-                        binding.tvAuthor.text = "Author: ${book.author}"
-                        binding.tvPrice.text = "$${book.price}"
-                        binding.tvRating.text = "Rating: ${book.rating}/5"
-                        if (book.coverId != 0) {
+                        binding.tvBookTitle.text = book?.title
+                        binding.tvDescription.text = book?.description
+                        binding.tvCategory.text = book?.category?.replaceFirstChar { it.uppercaseChar() }
+                        binding.tvGenre.text = "Category: ${book?.category}"
+                        binding.tvAuthor.text = "Author: ${book?.author}"
+                        binding.tvPrice.text = "$${book?.price}"
+                        binding.tvRating.text = "Rating: ${book?.rating}/5"
+                        if (book?.coverId != 0) {
                             binding.progressBar.visibility = View.VISIBLE
                             Glide.with(this@BookDetailsFragment)
-                                .load("https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg")
+                                .load("https://covers.openlibrary.org/b/id/${book?.coverId}-L.jpg")
                                 .error(R.drawable.book_cover_img)
                                 .listener(object : RequestListener<Drawable> {
                                     override fun onLoadFailed(
@@ -122,13 +129,20 @@ class BookDetailsFragment : Fragment() {
         }
     }
 
-    private fun generateAmount(): Double {
-        return String.format("%.2f", Random.nextDouble(3.0, 4.99)).toDouble()
-    }
-
-    private fun setupBackBtn() {
+    private fun setupBtn() {
         binding.btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
+        }
+
+        binding.btnCart.setOnClickListener {
+            parentFragmentManager.beginTransaction().replace(
+                R.id.fragmentContainer, AddToCartFragment()
+            ).addToBackStack(null).commit()
+        }
+
+        val key = arguments?.getString("key") ?: "Unknown"
+        binding.btnAddToCart.setOnClickListener {
+            viewModel.addToCart( key)
         }
     }
 

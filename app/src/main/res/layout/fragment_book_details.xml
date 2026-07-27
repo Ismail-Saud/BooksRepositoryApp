@@ -180,6 +180,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
                     android:lineSpacingExtra="4dp"
+                    android:justificationMode="inter_character"
                     android:text="Oscar Wilde’s only novel is the dreamlike story of a young man who sells his soul for eternal youth and beauty. In this celebrated work Wilde forged a devastating portrait of the effects of evil and debauchery on a young aesthete in late-19th-century England..."
                     android:textColor="#424242"
                     android:textSize="18sp"/>

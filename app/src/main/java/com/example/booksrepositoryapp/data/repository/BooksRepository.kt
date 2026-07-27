@@ -38,11 +38,12 @@ class BooksRepository(context: Context) {
                     workId = work.key,
                     category = subject,
                     title = work.title,
-                    author = work.authors.firstOrNull()?.name?:"Unknown",
+                    author = work.authors.firstOrNull()?.name ?: "Unknown",
                     coverId = work.cover_id,
-                    rating = existingBook.rating ?: generateRandomRating(),
-                    price = existingBook.price ?: generateRandomAmount(),
-                    description = existingBook.description)
+                    rating = existingBook?.rating ?: generateRandomRating(),
+                    price = existingBook?.price ?: generateRandomAmount(),
+                    description = existingBook?.description
+                )
             }
             dao.insertBooks(books)
             RefreshResult.Success
@@ -57,7 +58,11 @@ class BooksRepository(context: Context) {
         }
     }
 
-    suspend fun getBookDetails(key: String) : BookDetailsModel {
+    suspend fun getBooksApi (subject: String) {
+        booksApi.getBooksByCategory(subject)
+    }
+
+    suspend fun getBookDetails(key: String) : BookDetailsModel? {
         return dao.getBookDetails(key)
     }
 
