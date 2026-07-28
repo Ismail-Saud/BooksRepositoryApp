@@ -38,10 +38,6 @@ class BooksCategoryViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    fun logout() {
-        userRepo.setLoggedIn(false)
-    }
-
     fun resetState () {
         _categoryState.value = BooksCategoryState.Idle
     }

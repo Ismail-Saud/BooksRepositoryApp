@@ -13,6 +13,9 @@ import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.uiModels.CartItem
 import com.example.booksrepositoryapp.databinding.FragmentAddToCartBinding
 import com.example.booksrepositoryapp.databinding.FragmentBooksCategoryBinding
+import com.example.booksrepositoryapp.ui.checkout_screen.CheckoutFragment
+import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
 class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
@@ -20,6 +23,7 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
     private var _binding: FragmentAddToCartBinding? = null
     private val binding get() = _binding!!
     private lateinit var cartAdapter: CartAdapter
+    private lateinit var bundle: Bundle
     private val viewModel: AddToCartViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -28,6 +32,7 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
         setupObservers()
         viewModel.getCartItems(1)
         setupBackBtn()
+        setupCheckoutBtn()
     }
 
     override fun onCreateView(
@@ -44,18 +49,37 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
                 viewModel.increaseQuantity(cartItem)
             },
             onDecreaseClick = { cartItem ->
-                viewModel.decreaseQuantity(cartItem)
+                if (cartItem.quantity > 1) {
+                    viewModel.decreaseQuantity(cartItem)
+                }
+                else {
+                    MaterialAlertDialogBuilder(requireContext())
+                        .setTitle("Remove Item")
+                        .setMessage("Remove this item from your cart?")
+                        .setPositiveButton("Remove") { _,_ ->
+                            viewModel.removeCartItem(cartItem)
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .show()
+                }
             },
             onRemoveClick = { cartItem ->
-                viewModel.removeCartItem(cartItem)
+                MaterialAlertDialogBuilder(requireContext())
+                    .setTitle("Remove Item")
+                    .setMessage("Remove this item from your cart?")
+                    .setPositiveButton("Remove") { _,_ ->
+                        viewModel.removeCartItem(cartItem)
+                    }
+                    .setNegativeButton("Cancel", null)
+                    .show()
             }
         )
 
         binding.rvCartItems.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = cartAdapter
-            setHasFixedSize(true)
         }
+        binding.rvCartItems.itemAnimator = null
     }
 
     private fun setupObservers() {
@@ -89,11 +113,24 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
         binding.tvSubtotalAmount.text = "$%.2f".format(subTotal)
         binding.tvShippingAmount.text = "$%.2f".format(shipping)
         binding.tvTotalAmount.text = "$%.2f".format(total)
+        bundle = Bundle().apply {
+            putDouble("amount", total)
+        }
     }
 
     private fun setupBackBtn () {
         binding.btnBack.setOnClickListener {
             parentFragmentManager.popBackStack()
+        }
+    }
+
+    private fun setupCheckoutBtn () {
+        val fragment = CheckoutFragment()
+        binding.btnCheckout.setOnClickListener {
+            fragment.arguments = bundle
+            parentFragmentManager.beginTransaction().replace(
+                R.id.fragmentContainer, fragment)
+                .addToBackStack(null).commit()
         }
     }
 

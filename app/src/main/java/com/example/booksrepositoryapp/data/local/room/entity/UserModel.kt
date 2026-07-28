@@ -9,5 +9,6 @@ data class UserModel (
     val id: Int=0,
     val username: String,
     val email: String,
-    val password: String
+    val password: String,
+    val address: String?=null
 )

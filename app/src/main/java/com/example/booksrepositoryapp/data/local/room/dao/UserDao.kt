@@ -18,4 +18,13 @@ interface UserDao {
     @Query("""SELECT * FROM userTable WHERE email = :email AND password = :password LIMIT 1""")
     suspend fun loginUser (email: String, password: String) : UserModel?
 
+    @Query("""SELECT * FROM userTable WHERE id = :id""")
+    fun getUserDetails(id: Int): Flow<UserModel?>
+
+    @Query("""
+    UPDATE userTable
+    SET address = :address
+    WHERE id = :id
+""")
+    suspend fun updateAddress(id: Int, address: String)
 }

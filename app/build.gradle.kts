@@ -76,4 +76,9 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("com.facebook.shimmer:shimmer:0.5.0")
+
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
+    implementation("com.google.android.gms:play-services-maps:19.0.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }

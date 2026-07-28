@@ -13,6 +13,7 @@ import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.api.models.categories
 import com.example.booksrepositoryapp.databinding.FragmentBooksCategoryBinding
 import com.example.booksrepositoryapp.ui.books_screen.BooksListFragment
+import com.example.booksrepositoryapp.ui.cart_screen.AddToCartFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
 
 class BooksCategoryFragment : Fragment(R.layout.fragment_books_category) {
@@ -66,12 +67,6 @@ class BooksCategoryFragment : Fragment(R.layout.fragment_books_category) {
             viewModel.searchTodos(
                 it.toString().trim()
             )
-        }
-        binding.logoutBtn.setOnClickListener {
-            viewModel.logout()
-            parentFragmentManager.beginTransaction().replace(
-                R.id.fragmentContainer, LandingPageFragment()
-            ).addToBackStack(null).commit()
         }
     }
 

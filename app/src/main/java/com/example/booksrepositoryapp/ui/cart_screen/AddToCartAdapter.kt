@@ -1,6 +1,7 @@
 package com.example.booksrepositoryapp.ui.cart_screen
 
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,13 +40,14 @@ class CartAdapter(
             binding.btnRemove.setOnClickListener {
                 onRemoveClick(book)
             }
+            Log.d("Cart Adapter", "Binding ${book.cartId}")
             Glide.with(binding.root.context)
                 .load(imageUrl)
                 .listener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(
                         p0: GlideException?,
                         p1: Any?,
-                        p2: com.bumptech.glide.request.target.Target<Drawable?>,
+                        p2: Target<Drawable?>,
                         p3: Boolean
                     ): Boolean {
                         binding.progressBar.visibility = View.GONE

@@ -42,20 +42,15 @@ class AddToCartViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun decreaseQuantity (cartItem: CartItem) {
-        if (cartItem.quantity > 1) {
-            viewModelScope.launch {
-                cartRepo.updateCartItem(
-                    CartModel(
-                        cartId = cartItem.cartId,
-                        workId = cartItem.bookId,
-                        id = cartItem.userId,
-                        quantity = cartItem.quantity - 1
-                    )
+        viewModelScope.launch {
+            cartRepo.updateCartItem(
+                CartModel(
+                    cartId = cartItem.cartId,
+                    workId = cartItem.bookId,
+                    id = cartItem.userId,
+                    quantity = cartItem.quantity - 1
                 )
-            }
-        }
-        else {
-            removeCartItem(cartItem)
+            )
         }
     }
 

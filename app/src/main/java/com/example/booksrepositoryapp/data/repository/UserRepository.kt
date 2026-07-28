@@ -5,6 +5,7 @@ import com.example.booksrepositoryapp.data.local.prefManager.GsonManager
 import com.example.booksrepositoryapp.data.local.room.DatabaseInstance
 import com.example.booksrepositoryapp.data.local.room.entity.UserModel
 import com.example.booksrepositoryapp.data.local.sharedPref.PrefManager
+import kotlinx.coroutines.flow.Flow
 
 class UserRepository(private val context: Context) {
     private val dao = DatabaseInstance.getDatabase(context).UserDao()
@@ -24,6 +25,10 @@ class UserRepository(private val context: Context) {
         dao.insert(user)
     }
 
+    fun getUserDetails (id: Int): Flow<UserModel?> {
+        return dao.getUserDetails(id)
+    }
+
     fun setLoggedIn(isLoggedIn: Boolean) {
         PrefManager.saveJson(context, isLoggedInKey, GsonManager.toJson(isLoggedIn))
     }
@@ -38,5 +43,9 @@ class UserRepository(private val context: Context) {
 
     fun getSavedUser() : String? {
         return prefs().getString(saveUserId, null)
+    }
+
+    suspend fun updateAddress(id: Int, address: String) {
+        dao.updateAddress(id, address)
     }
 }

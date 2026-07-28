@@ -1,0 +1,56 @@
+package com.example.booksrepositoryapp.ui.account_details
+
+import androidx.fragment.app.viewModels
+import android.os.Bundle
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
+import com.example.booksrepositoryapp.R
+import com.example.booksrepositoryapp.databinding.FragmentAccountDetailsBinding
+import com.example.booksrepositoryapp.databinding.FragmentAddToCartBinding
+import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
+import kotlinx.coroutines.launch
+
+class AccountDetailsFragment : Fragment() {
+
+    private var _binding: FragmentAccountDetailsBinding? = null
+    private val binding get() = _binding!!
+
+    private val viewModel: AccountDetailsViewModel by viewModels()
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        lifecycleScope.launch {
+            viewModel.user.collect { user ->
+                user?.let {
+                    binding.tvName.text = it.username
+                    binding.tvEmail.text = it.email
+                    binding.etPassword.setText(user.password)
+                    binding.tvAddress.text = it.address
+                }
+            }
+        }
+        viewModel.getUser()
+        binding.btnLogout.setOnClickListener {
+            viewModel.logout()
+            parentFragmentManager.beginTransaction().replace(
+                R.id.fragmentContainer, LandingPageFragment()
+            ).addToBackStack(null).commit()
+        }
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAccountDetailsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+}

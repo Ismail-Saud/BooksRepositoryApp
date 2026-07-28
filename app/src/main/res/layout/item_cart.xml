@@ -16,7 +16,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <!-- Book Cover Container -->
         <FrameLayout
             android:id="@+id/bookImageLayout"
             android:layout_width="84dp"
@@ -27,7 +26,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <!-- Book Cover -->
             <ImageView
                 android:id="@+id/ivBookCover"
                 android:layout_width="match_parent"
@@ -35,7 +33,6 @@
                 android:scaleType="centerCrop"
                 android:src="@drawable/book_cover_img" />
 
-            <!-- Loading Indicator -->
             <ProgressBar
                 android:id="@+id/progressBar"
                 android:layout_width="40dp"
@@ -46,7 +43,6 @@
         </FrameLayout>
 
 
-        <!-- Category -->
         <TextView
             android:id="@+id/tvCategory"
             android:layout_width="0dp"
@@ -62,7 +58,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
 
-        <!-- Book Title -->
         <TextView
             android:id="@+id/tvBookTitle"
             android:layout_width="0dp"
@@ -81,7 +76,6 @@
             app:layout_constraintTop_toBottomOf="@id/tvCategory" />
 
 
-        <!-- Author -->
         <TextView
             android:id="@+id/tvAuthor"
             android:layout_width="0dp"
@@ -99,7 +93,6 @@
             app:layout_constraintTop_toBottomOf="@id/tvBookTitle" />
 
 
-        <!-- Remove Button -->
         <ImageButton
             android:id="@+id/btnRemove"
             android:layout_width="32dp"
@@ -114,7 +107,6 @@
             app:tint="@android:color/white" />
 
 
-        <!-- Quantity Controls -->
         <LinearLayout
             android:id="@+id/layoutQuantity"
             android:layout_width="wrap_content"
@@ -127,7 +119,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/bookImageLayout">
 
-            <!-- Decrease -->
             <ImageButton
                 android:id="@+id/btnDecrease"
                 android:layout_width="24dp"
@@ -139,8 +130,6 @@
 
                 app:tint="#111111" />
 
-
-            <!-- Quantity -->
             <TextView
                 android:id="@+id/tvQuantity"
                 android:layout_width="28dp"
@@ -150,8 +139,6 @@
                 android:textColor="@android:color/white"
                 android:textSize="14sp" />
 
-
-            <!-- Increase -->
             <ImageButton
                 android:id="@+id/btnIncrease"
                 android:layout_width="24dp"
@@ -166,7 +153,6 @@
         </LinearLayout>
 
 
-        <!-- Price -->
         <TextView
             android:id="@+id/tvPrice"
             android:layout_width="wrap_content"

@@ -122,7 +122,6 @@ class BookDetailsFragment : Fragment() {
                         ).show()
                         viewModel.resetState()
                     }
-
                     else -> {}
                 }
             }
