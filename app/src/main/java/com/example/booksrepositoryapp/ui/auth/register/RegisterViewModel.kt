@@ -45,9 +45,9 @@ class RegisterViewModel (application: Application) : AndroidViewModel(applicatio
             }
             else -> {
                 val user = UserModel(username = userName, email = email, password = password)
-                userRepo.signupUser(user)
+                val id = userRepo.signupUser(user)
                 userRepo.setLoggedIn(true)
-                userRepo.setUserSaved(user.id)
+                userRepo.setUserSaved(id.toInt())
                 _registerUser.value = RegisterState.Success
             }
         }

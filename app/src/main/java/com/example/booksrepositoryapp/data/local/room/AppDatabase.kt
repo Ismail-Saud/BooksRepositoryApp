@@ -11,7 +11,7 @@ import com.example.booksrepositoryapp.data.local.room.entity.UserModel
 
 @Database(
     entities = [UserModel::class, BookDetailsModel::class, CartModel::class],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 

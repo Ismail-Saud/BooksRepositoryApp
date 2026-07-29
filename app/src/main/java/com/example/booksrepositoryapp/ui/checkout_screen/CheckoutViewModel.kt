@@ -16,4 +16,9 @@ class CheckoutViewModel(application: Application) : AndroidViewModel(application
             userRepo.updateAddress(userId, address)
         }
     }
+
+    suspend fun getAddress() : String? {
+        val userId = userRepo.getSavedUser()?.toInt() ?: 1
+        return userRepo.getAddress(userId)
+    }
 }

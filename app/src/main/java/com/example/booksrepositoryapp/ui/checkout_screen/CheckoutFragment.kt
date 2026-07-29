@@ -2,22 +2,28 @@ package com.example.booksrepositoryapp.ui.checkout_screen
 
 import android.Manifest
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.net.Uri
 import androidx.fragment.app.viewModels
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.databinding.DialogueAddressBinding
 import com.example.booksrepositoryapp.databinding.FragmentCheckoutBinding
+import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheet
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -44,46 +50,41 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
     private val locationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                Toast.makeText(
-                    requireContext(),
-                    "Location permission granted",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(requireContext(), "Location permission granted", Toast.LENGTH_SHORT).show()
                 getCurrentLocation()
             } else {
-                Toast.makeText(
-                    requireContext(),
-                    "Location permission denied",
-                    Toast.LENGTH_SHORT
-                ).show()
+                showGoToSettingsDialog()
             }
         }
 
     private fun checkLocationPermission() {
         when {
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
+            ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED -> {
                 getCurrentLocation()
             }
             shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION
             ) -> {
-                Toast.makeText(
-                    requireContext(),
-                    "Location permission is required to get your current address.",
-                    Toast.LENGTH_LONG
-                ).show()
-                locationPermissionLauncher.launch(
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
+                Toast.makeText(requireContext(), "Location permission is required to get your current address.", Toast.LENGTH_LONG).show()
+                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
             else -> {
-                locationPermissionLauncher.launch(
-                    Manifest.permission.ACCESS_FINE_LOCATION
-                )
+                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
         }
+    }
+
+    private fun showGoToSettingsDialog() {
+        ConfirmationBottomSheet(
+            title = "Permission Required",
+            message = "Camera access was permanently denied. Please enable it in Settings to continue.",
+            positiveButtonText = "Go to Settings"
+        ) {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.fromParts("package", requireContext().packageName, null)
+            }
+            startActivity(intent)
+        }.show(parentFragmentManager, "CameraPermissionBottomSheet")
     }
 
     private fun getCurrentLocation() {
@@ -224,13 +225,16 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
         binding.ivBack.setOnClickListener {
             parentFragmentManager.popBackStack()
         }
-        binding.tvAddress.setOnClickListener {
+        binding.btnCurrentLocation.setOnClickListener {
             checkLocationPermission()
         }
         binding.tvChange.setOnClickListener {
             showAddressDialog()
         }
         binding.btnPay.text = "$%.2f".format(total)
+        viewModel.viewModelScope.launch {
+            binding.tvAddress.text = viewModel.getAddress() ?: "No Delivery Address Added"
+        }
     }
 
     override fun onDestroyView() {

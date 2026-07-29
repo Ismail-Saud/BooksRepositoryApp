@@ -133,12 +133,6 @@ class BookDetailsFragment : Fragment() {
             parentFragmentManager.popBackStack()
         }
 
-        binding.btnCart.setOnClickListener {
-            parentFragmentManager.beginTransaction().replace(
-                R.id.fragmentContainer, AddToCartFragment()
-            ).addToBackStack(null).commit()
-        }
-
         val key = arguments?.getString("key") ?: "Unknown"
         binding.btnAddToCart.setOnClickListener {
             viewModel.addToCart( key)

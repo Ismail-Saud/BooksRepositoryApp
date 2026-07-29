@@ -30,7 +30,7 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
         super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
         setupObservers()
-        viewModel.getCartItems(1)
+        viewModel.getCartItems()
         setupBackBtn()
         setupCheckoutBtn()
     }
