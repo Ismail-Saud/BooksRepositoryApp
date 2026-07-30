@@ -8,13 +8,31 @@ import com.example.booksrepositoryapp.data.local.room.DatabaseInstance
 import com.example.booksrepositoryapp.data.local.room.entity.UserModel
 import com.example.booksrepositoryapp.data.local.sharedPref.PrefManager
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
-class UserRepository(private val context: Context) {
-    private val dao = DatabaseInstance.getDatabase(context).UserDao()
+class UserRepository private constructor(context: Context) {
+    private val appContext = context.applicationContext
+    private val dao = DatabaseInstance.getDatabase(appContext).UserDao()
     private val isLoggedInKey = "isLoggedIn"
     private val saveUserId = "User_Id"
 
-    suspend fun doesEmailExist (email: String): Boolean {
+    private val _loginState = MutableStateFlow(isLoggedIn())
+    val loginState: StateFlow<Boolean> = _loginState
+
+    companion object {
+        @Volatile
+        private var INSTANCE: UserRepository? = null
+        fun getInstance(context: Context): UserRepository {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: UserRepository(context).also {
+                    INSTANCE = it
+                }
+            }
+        }
+    }
+
+    suspend fun doesEmailExist(email: String): Boolean {
         return dao.doesEmailExists(email)
     }
 
@@ -22,44 +40,47 @@ class UserRepository(private val context: Context) {
         return dao.loginUser(email, password)
     }
 
-    suspend fun signupUser (user: UserModel): Long {
+    suspend fun signupUser(user: UserModel): Long {
         return dao.insert(user)
     }
 
-    fun getUserDetails (id: Int): Flow<UserModel?> {
+    fun getUserDetails(id: Int): Flow<UserModel?> {
         return dao.getUserDetails(id)
     }
 
     fun setLoggedIn(isLoggedIn: Boolean) {
-        PrefManager.saveJson(context, isLoggedInKey, GsonManager.toJson(isLoggedIn))
+        PrefManager.saveJson(appContext, isLoggedInKey, GsonManager.toJson(isLoggedIn))
         if (!isLoggedIn) {
-            PrefManager.remove(context, saveUserId)
+            PrefManager.remove(appContext, saveUserId)
         }
+        _loginState.value = isLoggedIn
     }
 
     fun isLoggedIn(): Boolean {
-        return GsonManager.fromJson(PrefManager.getJson(context, isLoggedInKey), Boolean::class.java) ?: false
+        return GsonManager.fromJson(
+            PrefManager.getJson(appContext, isLoggedInKey),
+            Boolean::class.java
+        ) ?: false
     }
 
     fun setUserSaved(userId: Int) {
-        PrefManager.saveJson(context, saveUserId, GsonManager.toJson(userId))
+        PrefManager.saveJson(appContext, saveUserId, GsonManager.toJson(userId))
     }
 
-    fun getSavedUser() : String? {
-        return PrefManager.getJson(context, saveUserId)
+    fun getSavedUser(): String? {
+        return PrefManager.getJson(appContext, saveUserId)
     }
 
     suspend fun updateAddress(id: Int, address: String) {
         dao.updateAddress(id, address)
     }
 
-    suspend fun getAddress(id: Int) : String? {
+    suspend fun getAddress(id: Int): String? {
         return dao.getAddress(id)
     }
 
     suspend fun saveUserProfilePicture(id: Int, uri: Uri) {
-        val rows = dao.updateProfilePicture(id, uri.toString())
-        Log.d("PROFILE", "Rows updated = $rows")
+        dao.updateProfilePicture(id, uri.toString())
     }
 
     suspend fun removeUserProfilePicture(id: Int) {

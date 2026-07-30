@@ -44,4 +44,7 @@ interface CartDao {
         LIMIT 1
     """)
     suspend fun getCartEntity (userId: Int, bookId: String): CartModel?
+
+    @Query("DELETE FROM cart")
+    suspend fun clearCart()
 }

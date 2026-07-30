@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 class AddToCartViewModel(application: Application) : AndroidViewModel(application) {
     private val cartRepo = CartRepository(application)
-    private val userRepo = UserRepository(application)
+    private val userRepo = UserRepository.getInstance(application)
     private val _addToCartState = MutableStateFlow<AddToCartState>(AddToCartState.Idle)
     val addToCartState = _addToCartState.asStateFlow()
 

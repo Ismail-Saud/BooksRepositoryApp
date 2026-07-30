@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class AccountDetailsViewModel(application: Application) : AndroidViewModel(application) {
-    private val userRepo = UserRepository(application)
+    private val userRepo = UserRepository.getInstance(application)
     private val _userState = MutableStateFlow<AccountDetailsState>(AccountDetailsState.Idle)
     val userState: StateFlow<AccountDetailsState> = _userState
     private val _user = MutableStateFlow<UserModel?>(null)

@@ -29,7 +29,9 @@ class ProfilePictureBottomSheet : BottomSheetDialogFragment() {
     }
 
     private fun setupCloseBtn() {
-        binding.closeBtn.setOnClickListener { dismiss() }
+        binding.closeBtn.setOnClickListener {
+            dismiss()
+        }
     }
 
     private fun setupButtons() {

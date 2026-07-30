@@ -1,11 +1,13 @@
 package com.example.booksrepositoryapp.ui.auth.getstarted
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -17,12 +19,13 @@ import com.example.booksrepositoryapp.ui.auth.getstarted.GetStartedViewModel
 import com.example.booksrepositoryapp.ui.auth.register.RegisterFragment
 import com.example.booksrepositoryapp.ui.book_category.BooksCategoryFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
+import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 import kotlinx.coroutines.launch
 
 class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
     private var _binding: FragmentGetStartedBinding? = null
     private val binding get() = _binding!!
-
+    private lateinit var navigator: NavigationUtil
     private val viewModel: GetStartedViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -40,6 +43,7 @@ class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
     }
 
     private fun setupObservers() {
+        navigator = NavigationUtil(parentFragmentManager)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.getStartedState.collect { state ->
@@ -49,9 +53,7 @@ class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
                             Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
                         }
                         GetStartedState.Success -> {
-                            parentFragmentManager.beginTransaction().replace(
-                                R.id.fragmentContainer, BooksCategoryFragment()
-                            ).addToBackStack(null).remove(RegisterFragment()).commit()
+                            navigator.navigateAsRoot(BooksCategoryFragment())
                         }
                     }
                 }
@@ -60,8 +62,12 @@ class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
     }
 
     private fun setupListeners() {
+        navigator = NavigationUtil(parentFragmentManager)
         binding.btnBack.setOnClickListener {
-            parentFragmentManager.beginTransaction().remove(GetStartedFragment())
+            navigator.navigateAsRoot(LandingPageFragment())
+        }
+        binding.tvRegister.setOnClickListener {
+            navigator.replace(RegisterFragment())
         }
         binding.btnGetStarted.setOnClickListener {
             lifecycleScope.launch {

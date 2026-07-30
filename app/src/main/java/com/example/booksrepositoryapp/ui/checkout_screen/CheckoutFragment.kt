@@ -8,6 +8,8 @@ import android.location.Geocoder
 import android.net.Uri
 import androidx.fragment.app.viewModels
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -23,7 +25,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.databinding.DialogueAddressBinding
 import com.example.booksrepositoryapp.databinding.FragmentCheckoutBinding
+import com.example.booksrepositoryapp.ui.book_category.BooksCategoryFragment
 import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheet
+import com.example.booksrepositoryapp.ui.loading_screen.LoadingFragment
+import com.example.booksrepositoryapp.ui.success_payment.PaymentSuccessFragment
+import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -38,7 +44,7 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
     private var _binding: FragmentCheckoutBinding? = null
     private val binding get() = _binding!!
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-
+    private lateinit var navigator: NavigationUtil
     private val viewModel: CheckoutViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -221,9 +227,11 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
     }
 
     private fun setupListeners () {
+        val fragmentManager = parentFragmentManager
+        navigator = NavigationUtil(fragmentManager)
         val total = arguments?.getDouble("amount") ?: 0.00
         binding.ivBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
+            navigator.goBack()
         }
         binding.btnCurrentLocation.setOnClickListener {
             checkLocationPermission()
@@ -234,6 +242,27 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
         binding.btnPay.text = "$%.2f".format(total)
         viewModel.viewModelScope.launch {
             binding.tvAddress.text = viewModel.getAddress() ?: "No Delivery Address Added"
+        }
+        binding.btnPay.setOnClickListener {
+            viewModel.viewModelScope.launch {
+                val address = viewModel.getAddress()
+                if (address == null) {
+                    Toast.makeText(
+                        requireContext(),
+                        "No address found",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+                else {
+                    val loading = LoadingFragment()
+                    loading.show(fragmentManager, "loading")
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        loading.dismiss()
+                        navigator.navigateTo(PaymentSuccessFragment())
+                    }, 2000)
+                    viewModel.clearCart()
+                }
+            }
         }
     }
 

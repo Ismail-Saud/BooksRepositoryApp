@@ -18,4 +18,5 @@ val categories = listOf(
     Category("Sci-fi","sci_fi", R.drawable.sci_fi_bg),
     Category("Drama","drama", R.drawable.drama_bg),
     Category("Young Adult","young_adult", R.drawable.young_adult_bg),
+    Category("History","history", R.drawable.young_adult_bg),
 )

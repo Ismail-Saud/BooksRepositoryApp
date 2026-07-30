@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class GetStartedViewModel (application: Application) : AndroidViewModel(application) {
-    private val userRepo = UserRepository(application)
-
+    private val userRepo = UserRepository.getInstance(application)
     private val _getStartedState = MutableStateFlow<GetStartedState>(GetStartedState.Idle)
     val getStartedState: Flow<GetStartedState> = _getStartedState.asStateFlow()
 

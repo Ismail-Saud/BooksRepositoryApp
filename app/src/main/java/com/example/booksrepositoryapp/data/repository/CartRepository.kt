@@ -43,4 +43,8 @@ class CartRepository(context: Context) {
         dao.delete(cart)
     }
 
+    suspend fun clearCart() {
+        dao.clearCart()
+    }
+
 }

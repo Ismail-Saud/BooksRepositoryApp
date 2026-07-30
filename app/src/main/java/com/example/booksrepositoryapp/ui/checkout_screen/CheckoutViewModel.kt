@@ -8,7 +8,8 @@ import com.example.booksrepositoryapp.data.repository.UserRepository
 import kotlinx.coroutines.launch
 
 class CheckoutViewModel(application: Application) : AndroidViewModel(application) {
-    val userRepo = UserRepository(application)
+    val userRepo = UserRepository.getInstance(application)
+    val cartRepo = CartRepository(application)
 
     fun saveAddress(address: String) {
         val userId = userRepo.getSavedUser()?.toInt() ?: 1
@@ -20,5 +21,11 @@ class CheckoutViewModel(application: Application) : AndroidViewModel(application
     suspend fun getAddress() : String? {
         val userId = userRepo.getSavedUser()?.toInt() ?: 1
         return userRepo.getAddress(userId)
+    }
+
+    fun clearCart() {
+        viewModelScope.launch {
+            cartRepo.clearCart()
+        }
     }
 }

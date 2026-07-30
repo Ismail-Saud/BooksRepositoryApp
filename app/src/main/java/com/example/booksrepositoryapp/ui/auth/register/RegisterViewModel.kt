@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class RegisterViewModel (application: Application) : AndroidViewModel(application) {
-    private val userRepo = UserRepository(application)
+    private val userRepo = UserRepository.getInstance(application)
     private val _registerUser = MutableStateFlow<RegisterState>(RegisterState.Idle)
     val registerUser: Flow<RegisterState> = _registerUser.asStateFlow()
 

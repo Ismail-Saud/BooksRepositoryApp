@@ -16,7 +16,7 @@ class BookDetailsViewModel(application: Application) : AndroidViewModel(applicat
 
     private val _bookDetailState = MutableStateFlow<BookDetailsState>(BookDetailsState.Idle)
     val bookDetailState = _bookDetailState.asStateFlow()
-    private val userRepo = UserRepository(application)
+    private val userRepo = UserRepository.getInstance(application)
     private val bookRepo = BooksRepository(application)
     private val cartRepo = CartRepository(application)
 

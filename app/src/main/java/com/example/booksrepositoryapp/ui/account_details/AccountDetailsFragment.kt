@@ -29,16 +29,25 @@ import java.io.File
 import androidx.core.net.toUri
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.booksrepositoryapp.MainActivity
+import com.example.booksrepositoryapp.ui.utils.NavigationUtil
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class AccountDetailsFragment : Fragment(), OnPictureOptionSelected {
 
     private var _binding: FragmentAccountDetailsBinding? = null
     private val binding get() = _binding!!
-    var listener: OnPictureOptionSelected? = null
+    private lateinit var navigator: NavigationUtil
     private val viewModel: AccountDetailsViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupObservers()
+        setupListeners()
+        viewModel.getUser()
+    }
+
+    private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.userState.collect { state ->
@@ -52,7 +61,7 @@ class AccountDetailsFragment : Fragment(), OnPictureOptionSelected {
                             binding.shimmerLayout.stopShimmer()
                             binding.shimmerLayout.visibility = View.GONE
                             binding.contentLayout.visibility = View.VISIBLE
-                            
+
                             val user = state.user
                             Log.d("PROFILE", "profile = ${user?.profilePicture}")
                             user?.let {
@@ -67,8 +76,6 @@ class AccountDetailsFragment : Fragment(), OnPictureOptionSelected {
                                     Glide.with(this@AccountDetailsFragment)
                                         .load(it.profilePicture)
                                         .circleCrop()
-                                        .diskCacheStrategy(DiskCacheStrategy.NONE)
-                                        .skipMemoryCache(true)
                                         .placeholder(R.drawable.ic_account)
                                         .error(R.drawable.ic_account)
                                         .into(binding.profileImage)
@@ -91,19 +98,18 @@ class AccountDetailsFragment : Fragment(), OnPictureOptionSelected {
                 }
             }
         }
-        viewModel.getUser()
+    }
+
+    private fun setupListeners() {
+        navigator = NavigationUtil(parentFragmentManager)
         binding.btnLogout.setOnClickListener {
             viewModel.logout()
-            parentFragmentManager.beginTransaction().replace(
-                R.id.fragmentContainer, LandingPageFragment()
-            ).addToBackStack(null).commit()
+            navigator.navigateAsRoot(LandingPageFragment())
         }
         binding.profileImage.setOnClickListener {
             val hasProfilePicture = !viewModel.user.value?.profilePicture.isNullOrEmpty()
             val sheet = ProfilePictureBottomSheet().apply {
-                arguments = Bundle().apply {
-                    putBoolean("showRemove", hasProfilePicture)
-                }
+                arguments = Bundle().apply { putBoolean("showRemove", hasProfilePicture) }
             }
             sheet.listener = this
             sheet.show(parentFragmentManager, "ProfilePicture")
@@ -159,7 +165,6 @@ class AccountDetailsFragment : Fragment(), OnPictureOptionSelected {
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
             else -> {
-                // Either first-time ask, or permanently denied
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
         }

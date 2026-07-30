@@ -7,7 +7,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.uiModels.CartItem
@@ -15,6 +17,7 @@ import com.example.booksrepositoryapp.databinding.FragmentAddToCartBinding
 import com.example.booksrepositoryapp.databinding.FragmentBooksCategoryBinding
 import com.example.booksrepositoryapp.ui.checkout_screen.CheckoutFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
+import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
@@ -24,15 +27,15 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
     private val binding get() = _binding!!
     private lateinit var cartAdapter: CartAdapter
     private lateinit var bundle: Bundle
+    private lateinit var navigator: NavigationUtil
     private val viewModel: AddToCartViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupRecyclerView()
         setupObservers()
+        setupRecyclerView()
         viewModel.getCartItems()
-        setupBackBtn()
-        setupCheckoutBtn()
+        setupListeners()
     }
 
     override fun onCreateView(
@@ -83,21 +86,23 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
     }
 
     private fun setupObservers() {
-        lifecycleScope.launch {
-            viewModel.addToCartState.collect { state ->
-                when (state) {
-                    AddToCartState.Idle -> {}
-                    AddToCartState.Loading -> {}
-                    is AddToCartState.Error -> {
-                        Toast.makeText(
-                            requireContext(),
-                            state.message,
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    is AddToCartState.Success -> {
-                        cartAdapter.submitList(state.cartItem)
-                        updateSummary(state.cartItem)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.addToCartState.collect { state ->
+                    when (state) {
+                        AddToCartState.Idle -> {}
+                        AddToCartState.Loading -> {}
+                        is AddToCartState.Error -> {
+                            Toast.makeText(
+                                requireContext(),
+                                state.message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        is AddToCartState.Success -> {
+                            cartAdapter.submitList(state.cartItem)
+                            updateSummary(state.cartItem)
+                        }
                     }
                 }
             }
@@ -118,21 +123,19 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
         }
     }
 
-    private fun setupBackBtn () {
-        binding.btnBack.setOnClickListener {
-            parentFragmentManager.popBackStack()
-        }
-    }
-
-    private fun setupCheckoutBtn () {
+    private fun setupListeners() {
+        navigator = NavigationUtil(parentFragmentManager)
         val fragment = CheckoutFragment()
         binding.btnCheckout.setOnClickListener {
             fragment.arguments = bundle
-            parentFragmentManager.beginTransaction().replace(
-                R.id.fragmentContainer, fragment)
-                .addToBackStack(null).commit()
+            navigator.navigateTo(fragment)
+        }
+        binding.btnBack.setOnClickListener {
+            navigator.goBack()
         }
     }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
