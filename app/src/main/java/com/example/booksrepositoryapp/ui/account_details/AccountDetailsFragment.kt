@@ -27,17 +27,16 @@ import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
 import kotlinx.coroutines.launch
 import java.io.File
 import androidx.core.net.toUri
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.booksrepositoryapp.MainActivity
-import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class AccountDetailsFragment : Fragment(), OnPictureOptionSelected {
 
     private var _binding: FragmentAccountDetailsBinding? = null
     private val binding get() = _binding!!
-    private lateinit var navigator: NavigationUtil
     private val viewModel: AccountDetailsViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -101,10 +100,9 @@ class AccountDetailsFragment : Fragment(), OnPictureOptionSelected {
     }
 
     private fun setupListeners() {
-        navigator = NavigationUtil(parentFragmentManager)
         binding.btnLogout.setOnClickListener {
             viewModel.logout()
-            navigator.navigateAsRoot(LandingPageFragment())
+            findNavController().navigate(R.id.app_to_auth)
         }
         binding.profileImage.setOnClickListener {
             val hasProfilePicture = !viewModel.user.value?.profilePicture.isNullOrEmpty()

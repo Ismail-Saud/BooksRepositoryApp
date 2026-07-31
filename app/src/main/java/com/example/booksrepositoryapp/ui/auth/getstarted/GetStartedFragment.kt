@@ -12,6 +12,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.databinding.FragmentGetStartedBinding
 import com.example.booksrepositoryapp.databinding.FragmentLandingPageBinding
@@ -19,13 +20,11 @@ import com.example.booksrepositoryapp.ui.auth.getstarted.GetStartedViewModel
 import com.example.booksrepositoryapp.ui.auth.register.RegisterFragment
 import com.example.booksrepositoryapp.ui.book_category.BooksCategoryFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
-import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 import kotlinx.coroutines.launch
 
 class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
     private var _binding: FragmentGetStartedBinding? = null
     private val binding get() = _binding!!
-    private lateinit var navigator: NavigationUtil
     private val viewModel: GetStartedViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -43,7 +42,6 @@ class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
     }
 
     private fun setupObservers() {
-        navigator = NavigationUtil(parentFragmentManager)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.getStartedState.collect { state ->
@@ -53,7 +51,7 @@ class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
                             Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
                         }
                         GetStartedState.Success -> {
-                            navigator.navigateAsRoot(BooksCategoryFragment())
+                            findNavController().navigate(R.id.getStarted_to_app)
                         }
                     }
                 }
@@ -62,12 +60,13 @@ class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
     }
 
     private fun setupListeners() {
-        navigator = NavigationUtil(parentFragmentManager)
         binding.btnBack.setOnClickListener {
-            navigator.navigateAsRoot(LandingPageFragment())
+            findNavController().navigateUp()
         }
         binding.tvRegister.setOnClickListener {
-            navigator.replace(RegisterFragment())
+            findNavController().navigate(
+                R.id.get_started_to_register
+            )
         }
         binding.btnGetStarted.setOnClickListener {
             lifecycleScope.launch {

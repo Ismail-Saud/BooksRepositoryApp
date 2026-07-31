@@ -12,19 +12,18 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.databinding.FragmentRegisterBinding
 import com.example.booksrepositoryapp.ui.auth.getstarted.GetStartedFragment
 import com.example.booksrepositoryapp.ui.book_category.BooksCategoryFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
-import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment(R.layout.fragment_register) {
 
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
-    private lateinit var navigator: NavigationUtil
     private val viewModel: RegisterViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -42,7 +41,6 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
     }
 
     private fun setupObservers() {
-        navigator = NavigationUtil(parentFragmentManager)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.registerUser.collect { state ->
@@ -52,7 +50,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
                             Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
                         }
                         RegisterState.Success -> {
-                            navigator.navigateAsRoot(BooksCategoryFragment())
+                            findNavController().navigate(R.id.getStarted_to_app)
                         }
                     }
                 }
@@ -62,12 +60,11 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
     }
 
     private fun setupListeners() {
-        navigator = NavigationUtil(parentFragmentManager)
         binding.btnBack.setOnClickListener {
-            navigator.navigateAsRoot(LandingPageFragment())
+            findNavController().navigateUp()
         }
         binding.tvSignIn.setOnClickListener {
-            navigator.replace(GetStartedFragment())
+            findNavController().navigate(R.id.register_to_get_started)
         }
         binding.btnRegister.setOnClickListener {
             lifecycleScope.launch {

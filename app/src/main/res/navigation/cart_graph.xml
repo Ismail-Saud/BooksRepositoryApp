@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cart_graph"
+    app:startDestination="@id/addToCartFragment">
+
+    <fragment
+        android:id="@+id/addToCartFragment"
+        android:name="com.example.booksrepositoryapp.ui.cart_screen.AddToCartFragment"
+        android:label="Cart">
+        <action
+            android:id="@+id/add_to_cart_to_checkout"
+            app:destination="@id/checkoutFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/checkoutFragment"
+        android:name="com.example.booksrepositoryapp.ui.checkout_screen.CheckoutFragment"
+        android:label="Cart"/>
+
+    <action
+        android:id="@+id/add_to_cart_to_checkout"
+        app:destination="@id/checkoutFragment"/>
+
+    <fragment
+        android:id="@+id/successFragment"
+        android:name="com.example.booksrepositoryapp.ui.success_payment.PaymentSuccessFragment"
+        android:label="Cart"/>
+
+    <action
+        android:id="@+id/checkout_to_success"
+        app:destination="@id/successFragment"/>
+</navigation>

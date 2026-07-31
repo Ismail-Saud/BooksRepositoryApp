@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/auth_graph"
+    app:startDestination="@id/landingPageFragment">
+    <fragment
+        android:id="@+id/landingPageFragment"
+        android:name="com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment"
+        android:label="Landing">
+
+        <action
+            android:id="@+id/landing_to_get_started"
+            app:destination="@id/getStartedFragment"/>
+        <action
+            android:id="@+id/landing_to_register"
+            app:destination="@id/registerFragment"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.example.booksrepositoryapp.ui.auth.register.RegisterFragment"
+        android:label="Register">
+
+        <action
+            android:id="@+id/register_to_get_started"
+            app:destination="@id/getStartedFragment"
+            app:popUpTo="@id/registerFragment"
+            app:popUpToInclusive="true"/>
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/getStartedFragment"
+        android:name="com.example.booksrepositoryapp.ui.auth.getstarted.GetStartedFragment"
+        android:label="Get Started">
+
+        <action
+            android:id="@+id/get_started_to_register"
+            app:destination="@id/registerFragment"
+            app:popUpTo="@id/getStartedFragment"
+            app:popUpToInclusive="true"/>
+
+
+        <action
+            android:id="@+id/getStarted_to_app"
+            app:destination="@id/app_graph"
+            app:popUpTo="@id/auth_graph"
+            app:popUpToInclusive="true"/>
+    </fragment>
+
+
+</navigation>

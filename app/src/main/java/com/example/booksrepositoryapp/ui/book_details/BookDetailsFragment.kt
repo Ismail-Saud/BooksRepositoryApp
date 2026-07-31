@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
@@ -25,7 +26,6 @@ import com.example.booksrepositoryapp.databinding.FragmentBooksListBinding
 import com.example.booksrepositoryapp.ui.books_screen.BooksListState
 import com.example.booksrepositoryapp.ui.cart_screen.AddToCartFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
-import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 import kotlinx.coroutines.launch
 import java.nio.file.attribute.UserPrincipal
 import kotlin.random.Random
@@ -33,7 +33,6 @@ import kotlin.random.Random
 class BookDetailsFragment : Fragment() {
     private var _binding: FragmentBookDetailsBinding? = null
     private val binding get() = _binding!!
-    private lateinit var navigator: NavigationUtil
     private val viewModel: BookDetailsViewModel by viewModels()
 
 
@@ -130,9 +129,8 @@ class BookDetailsFragment : Fragment() {
     }
 
     private fun setupBtn() {
-        navigator = NavigationUtil(parentFragmentManager)
         binding.btnBack.setOnClickListener {
-            navigator.goBack()
+            findNavController().navigateUp()
         }
 
         val key = arguments?.getString("key") ?: "Unknown"

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/home_graph"
+    app:startDestination="@id/booksCategoryFragment">
+
+    <fragment
+        android:id="@+id/booksCategoryFragment"
+        android:name="com.example.booksrepositoryapp.ui.book_category.BooksCategoryFragment"
+        android:label="Books">
+        <action
+            android:id="@+id/action_category_to_booksList"
+            app:destination="@id/booksListFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/booksListFragment"
+        android:name="com.example.booksrepositoryapp.ui.books_screen.BooksListFragment"
+        android:label="Books">
+        <action
+            android:id="@+id/action_booksList_to_bookDetails"
+            app:destination="@id/booksDetailsFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/booksDetailsFragment"
+        android:name="com.example.booksrepositoryapp.ui.book_details.BookDetailsFragment"
+        android:label="Books"/>
+</navigation>

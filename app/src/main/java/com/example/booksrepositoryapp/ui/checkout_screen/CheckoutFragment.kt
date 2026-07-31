@@ -22,6 +22,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.fragment.findNavController
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.databinding.DialogueAddressBinding
 import com.example.booksrepositoryapp.databinding.FragmentCheckoutBinding
@@ -29,7 +30,6 @@ import com.example.booksrepositoryapp.ui.book_category.BooksCategoryFragment
 import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheet
 import com.example.booksrepositoryapp.ui.loading_screen.LoadingFragment
 import com.example.booksrepositoryapp.ui.success_payment.PaymentSuccessFragment
-import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -44,7 +44,6 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
     private var _binding: FragmentCheckoutBinding? = null
     private val binding get() = _binding!!
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var navigator: NavigationUtil
     private val viewModel: CheckoutViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -228,10 +227,9 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
 
     private fun setupListeners () {
         val fragmentManager = parentFragmentManager
-        navigator = NavigationUtil(fragmentManager)
         val total = arguments?.getDouble("amount") ?: 0.00
         binding.ivBack.setOnClickListener {
-            navigator.goBack()
+            findNavController().navigateUp()
         }
         binding.btnCurrentLocation.setOnClickListener {
             checkLocationPermission()
@@ -258,7 +256,9 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
                     loading.show(fragmentManager, "loading")
                     Handler(Looper.getMainLooper()).postDelayed({
                         loading.dismiss()
-                        navigator.navigateTo(PaymentSuccessFragment())
+                        findNavController().navigate(
+                            R.id.successFragment
+                        )
                     }, 2000)
                     viewModel.clearCart()
                 }

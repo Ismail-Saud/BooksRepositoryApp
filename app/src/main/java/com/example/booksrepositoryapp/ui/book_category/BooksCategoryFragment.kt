@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.api.models.categories
@@ -15,13 +16,11 @@ import com.example.booksrepositoryapp.databinding.FragmentBooksCategoryBinding
 import com.example.booksrepositoryapp.ui.books_screen.BooksListFragment
 import com.example.booksrepositoryapp.ui.cart_screen.AddToCartFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
-import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 
 class BooksCategoryFragment : Fragment(R.layout.fragment_books_category) {
 
     private var _binding: FragmentBooksCategoryBinding? = null
     private val binding get() = _binding!!
-    private lateinit var navigator: NavigationUtil
     private lateinit var adapter: CategoryAdapter
 
     private val viewModel: BooksCategoryViewModel by viewModels()
@@ -72,16 +71,15 @@ class BooksCategoryFragment : Fragment(R.layout.fragment_books_category) {
     }
 
     private fun setupRecyclerView() {
-        navigator = NavigationUtil(parentFragmentManager)
         adapter = CategoryAdapter { category ->
-            val fragment = BooksListFragment()
             val bundle = Bundle().apply {
                 putString("subject", category.apiValue)
                 putString("title", category.title)
             }
-
-            fragment.arguments = bundle
-            navigator.navigateTo(fragment)
+            findNavController().navigate(
+                R.id.action_category_to_booksList,
+                bundle
+            )
         }
 
         binding.recyclerView.layoutManager = GridLayoutManager(requireContext(), 2)

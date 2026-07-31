@@ -8,16 +8,16 @@ import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
 import com.example.booksrepositoryapp.MainActivity
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.databinding.FragmentSuccessBinding
 import com.example.booksrepositoryapp.ui.book_category.BooksCategoryFragment
-import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 
 class PaymentSuccessFragment : Fragment() {
     private var _binding: FragmentSuccessBinding? = null
     private val binding get() = _binding!!
-    private lateinit var navigator: NavigationUtil
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,19 +34,31 @@ class PaymentSuccessFragment : Fragment() {
     }
 
     private fun setupClickListeners() {
-        navigator = NavigationUtil(parentFragmentManager)
         binding.btnClose.setOnClickListener {
-            navigator.navigateAsRoot(BooksCategoryFragment())
+            goToHome()
             (requireActivity() as MainActivity)
-                .updateSelectedBottomNav(R.id.nav_home)
+                .selectBottomNavItem(R.id.nav_home)
         }
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner
         ) {
-            navigator.navigateAsRoot(BooksCategoryFragment())
+            goToHome()
             (requireActivity() as MainActivity)
-                .updateSelectedBottomNav(R.id.nav_home)
+                .selectBottomNavItem(R.id.nav_home)
         }
+    }
+
+    private fun goToHome(){
+        findNavController().navigate(
+            R.id.home_graph,
+            null,
+            NavOptions.Builder()
+                .setPopUpTo(
+                    R.id.cart_graph,
+                    true
+                )
+                .build()
+        )
     }
 
     override fun onDestroyView() {

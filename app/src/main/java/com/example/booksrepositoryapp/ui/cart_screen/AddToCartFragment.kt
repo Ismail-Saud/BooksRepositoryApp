@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.uiModels.CartItem
@@ -17,7 +18,6 @@ import com.example.booksrepositoryapp.databinding.FragmentAddToCartBinding
 import com.example.booksrepositoryapp.databinding.FragmentBooksCategoryBinding
 import com.example.booksrepositoryapp.ui.checkout_screen.CheckoutFragment
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
-import com.example.booksrepositoryapp.ui.utils.NavigationUtil
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
@@ -27,7 +27,6 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
     private val binding get() = _binding!!
     private lateinit var cartAdapter: CartAdapter
     private lateinit var bundle: Bundle
-    private lateinit var navigator: NavigationUtil
     private val viewModel: AddToCartViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -124,14 +123,15 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
     }
 
     private fun setupListeners() {
-        navigator = NavigationUtil(parentFragmentManager)
-        val fragment = CheckoutFragment()
         binding.btnCheckout.setOnClickListener {
-            fragment.arguments = bundle
-            navigator.navigateTo(fragment)
+            findNavController().navigate(
+                R.id.add_to_cart_to_checkout,
+                bundle
+            )
+
         }
         binding.btnBack.setOnClickListener {
-            navigator.goBack()
+            findNavController().navigateUp()
         }
     }
 
