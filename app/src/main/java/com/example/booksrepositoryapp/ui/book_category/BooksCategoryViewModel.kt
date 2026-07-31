@@ -16,7 +16,6 @@ class BooksCategoryViewModel(application: Application) : AndroidViewModel(applic
     private var allCategories: List<Category> = emptyList()
     private val _categoryState = MutableLiveData<BooksCategoryState>(BooksCategoryState.Idle)
     val categoryState: LiveData<BooksCategoryState> = _categoryState
-    val userRepo = UserRepository.getInstance(application)
 
     fun setCategories(categories: List<Category>) {
         allCategories = categories

@@ -7,6 +7,7 @@ import androidx.annotation.RequiresExtension
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.api.refreshResult.RefreshResult
+import com.example.booksrepositoryapp.data.local.room.entity.BookDetailsModel
 import com.example.booksrepositoryapp.data.repository.BooksRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +17,8 @@ class BooksListViewModel(application: Application) : AndroidViewModel(applicatio
 
     private val _bookState = MutableStateFlow<BooksListState>(BooksListState.Idle)
     val bookState = _bookState.asStateFlow()
+    private var allBooks: List<BookDetailsModel> = emptyList()
+    private var activeSearch = ""
     private val bookRepo = BooksRepository(application)
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -33,8 +36,25 @@ class BooksListViewModel(application: Application) : AndroidViewModel(applicatio
             }
 
             bookRepo.getBooks(subject).collect { books ->
+                allBooks = books
                 _bookState.value = BooksListState.Success(books)
             }
+        }
+    }
+
+    fun searchTodos (query: String) {
+        activeSearch = query
+        viewModelScope.launch {
+            val searchResult = allBooks
+            val result = if (activeSearch.isEmpty()) {
+                searchResult
+            } else {
+                searchResult.filter { book ->
+                    book.title.contains(activeSearch, ignoreCase = true) ||
+                    book.author.contains(activeSearch, ignoreCase = true)
+                }
+            }
+            _bookState.value = BooksListState.Success(result)
         }
     }
 

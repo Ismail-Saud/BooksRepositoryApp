@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.annotation.RequiresExtension
+import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -33,6 +34,7 @@ class BooksListFragment : Fragment() {
         viewModel.getBooksByCategory(subject)
         setupRecyclerView()
         setupObservers()
+        setupListeners()
     }
 
     override fun onCreateView(
@@ -82,7 +84,6 @@ class BooksListFragment : Fragment() {
             Toast.makeText(
                 requireContext(), "Navigated", Toast.LENGTH_SHORT
             ).show()
-            Log.d("BOOK", "Cover ID before navigation = ${work.coverId}")
 
             val bundle = Bundle().apply {
                 putString("key", work.workId)
@@ -96,6 +97,12 @@ class BooksListFragment : Fragment() {
         binding.shimmerRecyclerView.adapter = BookListShimmerAdapter()
         binding.booksRecyclerView.layoutManager = GridLayoutManager(requireContext(), 2)
         binding.booksRecyclerView.adapter = adapter
+    }
+
+    private fun setupListeners() {
+        binding.etSearch.addTextChangedListener {
+            viewModel.searchTodos(it.toString().trim())
+        }
     }
 
     override fun onDestroyView() {
