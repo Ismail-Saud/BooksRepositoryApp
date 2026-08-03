@@ -21,6 +21,9 @@
         app:boxCornerRadiusTopStart="12dp"
         app:endIconMode="clear_text"
         app:startIconDrawable="@android:drawable/ic_menu_search"
+        app:cursorColor="@android:color/black"
+        app:hintTextColor="@android:color/black"
+        app:boxStrokeColor="@android:color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">

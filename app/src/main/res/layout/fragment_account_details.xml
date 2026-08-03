@@ -109,55 +109,6 @@
 
         </androidx.cardview.widget.CardView>
 
-        <!-- Password Card -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/passwordCard"
-            android:layout_width="0dp"
-            android:layout_height="55dp"
-            android:layout_marginTop="16dp"
-            app:cardBackgroundColor="#E0E0E0"
-            app:cardCornerRadius="6dp"
-            app:cardElevation="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/emailCard">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingHorizontal="12dp">
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:layout_width="80dp"
-                    android:layout_height="wrap_content"
-                    android:text="Password:" />
-
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    app:boxBackgroundMode="none"
-                    app:endIconMode="password_toggle">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etPassword"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@null"
-                        android:includeFontPadding="true"
-                        android:inputType="textPassword"
-                        android:minHeight="48dp"
-                        android:paddingVertical="8dp"
-                        android:textSize="16sp" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-            </LinearLayout>
-
-        </androidx.cardview.widget.CardView>
-
         <!-- Address Card -->
         <androidx.cardview.widget.CardView
             android:id="@+id/addressCard"
@@ -169,7 +120,7 @@
             app:cardElevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/passwordCard">
+            app:layout_constraintTop_toBottomOf="@id/emailCard">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -252,13 +203,6 @@
                 android:background="@drawable/shimmer_rect" />
 
             <!-- Email -->
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="55dp"
-                android:layout_marginTop="16dp"
-                android:background="@drawable/shimmer_rect" />
-
-            <!-- Password -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="55dp"

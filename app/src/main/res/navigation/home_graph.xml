@@ -27,4 +27,33 @@
         android:id="@+id/booksDetailsFragment"
         android:name="com.example.booksrepositoryapp.ui.book_details.BookDetailsFragment"
         android:label="Books"/>
+
+    <fragment
+        android:id="@+id/addToCartFragment"
+        android:name="com.example.booksrepositoryapp.ui.cart_screen.AddToCartFragment"
+        android:label="Cart">
+        <action
+            android:id="@+id/add_to_cart_to_checkout"
+            app:destination="@id/checkoutFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/checkoutFragment"
+        android:name="com.example.booksrepositoryapp.ui.checkout_screen.CheckoutFragment"
+        android:label="Cart">
+        <action
+            android:id="@+id/checkout_to_success"
+            app:destination="@id/successFragment"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/successFragment"
+        android:name="com.example.booksrepositoryapp.ui.success_payment.PaymentSuccessFragment"
+        android:label="Cart"/>
+
+
+    <fragment
+        android:id="@+id/accountDetailsFragment"
+        android:name="com.example.booksrepositoryapp.ui.account_details.AccountDetailsFragment"
+        android:label="Account"/>
 </navigation>

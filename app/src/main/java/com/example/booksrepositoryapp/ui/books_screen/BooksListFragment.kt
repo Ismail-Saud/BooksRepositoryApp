@@ -101,7 +101,16 @@ class BooksListFragment : Fragment() {
 
     private fun setupListeners() {
         binding.etSearch.addTextChangedListener {
-            viewModel.searchTodos(it.toString().trim())
+            viewModel.searchBooks(it.toString().trim())
+        }
+        binding.filterButton.setOnClickListener {
+            BottomSheetPriceFilter { min, max ->
+                viewModel.filterByPrice(min, max)
+            }.show(
+                parentFragmentManager,
+                "PriceFilter"
+            )
+
         }
     }
 

@@ -30,6 +30,12 @@
             app:popUpTo="@id/registerFragment"
             app:popUpToInclusive="true"/>
 
+        <action
+            android:id="@+id/register_to_app"
+            app:destination="@id/app_graph"
+            app:popUpTo="@id/auth_graph"
+            app:popUpToInclusive="true"/>
+
     </fragment>
 
     <fragment

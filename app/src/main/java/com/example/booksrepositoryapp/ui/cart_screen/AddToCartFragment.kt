@@ -15,9 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.uiModels.CartItem
 import com.example.booksrepositoryapp.databinding.FragmentAddToCartBinding
-import com.example.booksrepositoryapp.databinding.FragmentBooksCategoryBinding
-import com.example.booksrepositoryapp.ui.checkout_screen.CheckoutFragment
-import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
@@ -101,6 +98,13 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
                         is AddToCartState.Success -> {
                             cartAdapter.submitList(state.cartItem)
                             updateSummary(state.cartItem)
+
+                            binding.btnCheckout.isEnabled = state.cartItem.isNotEmpty()
+                            if (state.cartItem.isEmpty()) {
+                                binding.btnCheckout.alpha = 0.5f
+                            } else {
+                                binding.btnCheckout.alpha = 1f
+                            }
                         }
                     }
                 }
@@ -128,7 +132,6 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
                 R.id.add_to_cart_to_checkout,
                 bundle
             )
-
         }
         binding.btnBack.setOnClickListener {
             findNavController().navigateUp()

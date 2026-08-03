@@ -225,9 +225,15 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
         return binding.root
     }
 
-    private fun setupListeners () {
+    private fun setupListeners() {
         val fragmentManager = parentFragmentManager
-        val total = arguments?.getDouble("amount") ?: 0.00
+        val total = arguments?.getDouble("amount") ?: 0.0
+        binding.btnPay.text = "Pay $%.2f".format(total)
+        viewLifecycleOwner.lifecycleScope.launch {
+            val address = viewModel.getAddress()
+            binding.tvAddress.text = address ?: "No Delivery Address Added"
+            updatePayButton(total)
+        }
         binding.ivBack.setOnClickListener {
             findNavController().navigateUp()
         }
@@ -237,33 +243,27 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
         binding.tvChange.setOnClickListener {
             showAddressDialog()
         }
-        binding.btnPay.text = "$%.2f".format(total)
-        viewModel.viewModelScope.launch {
-            binding.tvAddress.text = viewModel.getAddress() ?: "No Delivery Address Added"
-        }
         binding.btnPay.setOnClickListener {
-            viewModel.viewModelScope.launch {
+            viewLifecycleOwner.lifecycleScope.launch {
                 val address = viewModel.getAddress()
-                if (address == null) {
-                    Toast.makeText(
-                        requireContext(),
-                        "No address found",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-                else {
-                    val loading = LoadingFragment()
-                    loading.show(fragmentManager, "loading")
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        loading.dismiss()
-                        findNavController().navigate(
-                            R.id.successFragment
-                        )
-                    }, 2000)
-                    viewModel.clearCart()
-                }
+                if (address == null || total <= 0.0) return@launch
+                val loading = LoadingFragment()
+                loading.show(fragmentManager, "loading")
+                Handler(Looper.getMainLooper()).postDelayed({
+                    loading.dismiss()
+                    findNavController().navigate(R.id.successFragment)
+                }, 2000)
+                viewModel.clearCart()
             }
         }
+    }
+
+    private suspend fun updatePayButton(total: Double) {
+        val hasAddress = viewModel.getAddress() != null
+        val enabled = total > 0.0 && hasAddress
+
+        binding.btnPay.isEnabled = enabled
+        binding.btnPay.alpha = if (enabled) 1f else 0.5f
     }
 
     override fun onDestroyView() {

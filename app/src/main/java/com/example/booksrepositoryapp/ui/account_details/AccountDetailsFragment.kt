@@ -66,7 +66,6 @@ class AccountDetailsFragment : Fragment(), OnPictureOptionSelected {
                             user?.let {
                                 binding.tvName.text = it.username
                                 binding.tvEmail.text = it.email
-                                binding.etPassword.setText(it.password)
                                 binding.tvAddress.text = it.address
 
                                 if (!it.profilePicture.isNullOrEmpty()) {

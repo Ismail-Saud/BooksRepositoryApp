@@ -14,13 +14,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class BooksListViewModel(application: Application) : AndroidViewModel(application) {
-
     private val _bookState = MutableStateFlow<BooksListState>(BooksListState.Idle)
     val bookState = _bookState.asStateFlow()
     private var allBooks: List<BookDetailsModel> = emptyList()
     private var activeSearch = ""
-    private val bookRepo = BooksRepository(application)
+    private var minPrice = 0
+    private var maxPrice = Int.MAX_VALUE
 
+    private val bookRepo = BooksRepository(application)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getBooksByCategory(subject: String) {
         viewModelScope.launch {
@@ -29,36 +30,45 @@ class BooksListViewModel(application: Application) : AndroidViewModel(applicatio
                     _bookState.value = BooksListState.Offline
                 }
                 is RefreshResult.Error -> {
-                    _bookState.value = BooksListState.Error(result.message)
-                    Log.d("Api Error", result.message)
+                    _bookState.value =
+                        BooksListState.Error(result.message)
                 }
                 else -> {}
             }
-
             bookRepo.getBooks(subject).collect { books ->
                 allBooks = books
-                _bookState.value = BooksListState.Success(books)
+                applyFilters()
             }
         }
     }
 
-    fun searchTodos (query: String) {
+    fun filterByPrice(min: Int, max: Int) {
+        minPrice = min
+        maxPrice = max
+        applyFilters()
+    }
+
+    fun searchBooks(query: String) {
         activeSearch = query
-        viewModelScope.launch {
-            val searchResult = allBooks
-            val result = if (activeSearch.isEmpty()) {
-                searchResult
-            } else {
-                searchResult.filter { book ->
+        applyFilters()
+    }
+
+    private fun applyFilters() {
+        val result = allBooks.filter { book ->
+            val matchesSearch = activeSearch.isEmpty() ||
                     book.title.contains(activeSearch, ignoreCase = true) ||
                     book.author.contains(activeSearch, ignoreCase = true)
-                }
-            }
-            _bookState.value = BooksListState.Success(result)
+            val matchesPrice = book.price?.toInt() in (minPrice..maxPrice)
+            matchesSearch && matchesPrice
         }
+        _bookState.value = BooksListState.Success(result)
     }
 
-    fun resetState () {
+
+    fun resetState() {
+        activeSearch = ""
+        minPrice = 0
+        maxPrice = Int.MAX_VALUE
         _bookState.value = BooksListState.Idle
     }
 }

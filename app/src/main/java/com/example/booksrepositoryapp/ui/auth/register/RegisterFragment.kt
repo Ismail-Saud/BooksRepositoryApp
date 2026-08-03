@@ -50,7 +50,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
                             Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
                         }
                         RegisterState.Success -> {
-                            findNavController().navigate(R.id.getStarted_to_app)
+                            findNavController().navigate(R.id.register_to_app)
                         }
                     }
                 }

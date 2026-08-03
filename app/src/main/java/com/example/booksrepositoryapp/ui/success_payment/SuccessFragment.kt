@@ -37,14 +37,14 @@ class PaymentSuccessFragment : Fragment() {
         binding.btnClose.setOnClickListener {
             goToHome()
             (requireActivity() as MainActivity)
-                .selectBottomNavItem(R.id.nav_home)
+                .selectBottomNavItem(R.id.home_graph)
         }
         requireActivity().onBackPressedDispatcher.addCallback(
             viewLifecycleOwner
         ) {
             goToHome()
             (requireActivity() as MainActivity)
-                .selectBottomNavItem(R.id.nav_home)
+                .selectBottomNavItem(R.id.home_graph)
         }
     }
 

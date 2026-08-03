@@ -7,10 +7,6 @@
 
     <include app:graph="@navigation/home_graph"/>
 
-    <include app:graph="@navigation/cart_graph"/>
-
-    <include app:graph="@navigation/account_graph"/>
-
     <action
         android:id="@+id/app_to_auth"
         app:destination="@id/auth_graph"
