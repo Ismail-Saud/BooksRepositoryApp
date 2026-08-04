@@ -4,6 +4,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteException
 import android.net.http.HttpException
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresExtension
 import com.example.booksrepositoryapp.data.api.RetrofitInstance
 import com.example.booksrepositoryapp.data.api.models.bookDetailsResponse.BookDetailsResponse
@@ -48,6 +49,7 @@ class BooksRepository(context: Context) {
             dao.insertBooks(books)
             RefreshResult.Success
         } catch (e: IOException) {
+            Log.e("Offline","${e.message}")
             RefreshResult.Error("No internet connection ${e.message}")
         } catch (e: HttpException) {
             RefreshResult.Error("Server error: ${e.message}")

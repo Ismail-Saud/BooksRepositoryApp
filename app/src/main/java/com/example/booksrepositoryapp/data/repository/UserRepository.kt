@@ -71,13 +71,13 @@ class UserRepository private constructor(context: Context) {
         return PrefManager.getJson(appContext, saveUserId)
     }
 
-    suspend fun updateAddress(id: Int, address: String) {
-        dao.updateAddress(id, address)
-    }
-
-    suspend fun getAddress(id: Int): String? {
-        return dao.getAddress(id)
-    }
+//    suspend fun updateAddress(id: Int, address: String) {
+//        dao.updateAddress(id, address)
+//    }
+//
+//    suspend fun getAddress(id: Int): List<String>? {
+//        return dao.getAddress(id)
+//    }
 
     suspend fun saveUserProfilePicture(id: Int, uri: Uri) {
         dao.updateProfilePicture(id, uri.toString())

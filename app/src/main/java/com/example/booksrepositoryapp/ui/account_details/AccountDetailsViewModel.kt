@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.local.room.entity.UserModel
+import com.example.booksrepositoryapp.data.repository.AddressRepository
 import com.example.booksrepositoryapp.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 
 class AccountDetailsViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepo = UserRepository.getInstance(application)
+    private val addressRepo = AddressRepository(application)
     private val _userState = MutableStateFlow<AccountDetailsState>(AccountDetailsState.Idle)
     val userState: StateFlow<AccountDetailsState> = _userState
     private val _user = MutableStateFlow<UserModel?>(null)
@@ -49,6 +51,10 @@ class AccountDetailsViewModel(application: Application) : AndroidViewModel(appli
             userRepo.saveUserProfilePicture(id, uri)
         }
     }
+
+//    fun getAddress() {
+//        addressRepo.
+//    }
 
     fun removeUserProfilePicture() {
         val id = userRepo.getSavedUser()?.toInt() ?: return

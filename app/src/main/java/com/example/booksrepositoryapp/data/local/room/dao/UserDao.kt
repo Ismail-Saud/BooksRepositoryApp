@@ -21,11 +21,11 @@ interface UserDao {
     @Query("""SELECT * FROM userTable WHERE id = :id""")
     fun getUserDetails(id: Int): Flow<UserModel?>
 
-    @Query("""UPDATE userTable SET address = :address WHERE id = :id""")
-    suspend fun updateAddress(id: Int, address: String)
-
-    @Query("""SELECT address FROM userTable WHERE id = :id""")
-    suspend fun getAddress(id: Int): String?
+//    @Query("""UPDATE userTable SET address = :address WHERE id = :id""")
+//    suspend fun updateAddress(id: Int, address: String)
+//
+//    @Query("""SELECT address FROM userTable WHERE id = :id""")
+//    suspend fun getAddress(id: Int): List<String>?
 
     @Query("""UPDATE userTable SET profilePicture = :uri WHERE id = :id""")
     suspend fun updateProfilePicture(id: Int, uri: String?): Int

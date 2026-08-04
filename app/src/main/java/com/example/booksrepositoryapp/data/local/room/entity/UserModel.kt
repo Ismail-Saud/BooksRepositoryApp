@@ -10,6 +10,5 @@ data class UserModel (
     val username: String,
     val email: String,
     val password: String,
-    val address: String?=null,
     val profilePicture: String? = null
 )

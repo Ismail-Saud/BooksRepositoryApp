@@ -66,7 +66,7 @@ class AccountDetailsFragment : Fragment(), OnPictureOptionSelected {
                             user?.let {
                                 binding.tvName.text = it.username
                                 binding.tvEmail.text = it.email
-                                binding.tvAddress.text = it.address
+//                                binding.tvAddress.text = it.address?.first()
 
                                 if (!it.profilePicture.isNullOrEmpty()) {
                                     binding.profileImage.setPadding(0, 0, 0, 0)
