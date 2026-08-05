@@ -30,5 +30,8 @@ data class AddressModel(
     var fullAddress: String,
     var latitude: Double,
     var longitude: Double,
-    var isSelected: Boolean = false
+    var isSelected: Boolean = false,
+
+    var isFetchingLocation: Boolean = false,
+    var isSaving: Boolean = false
 )

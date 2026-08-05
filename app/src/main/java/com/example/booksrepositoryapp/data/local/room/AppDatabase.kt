@@ -15,7 +15,7 @@ import com.example.booksrepositoryapp.data.local.room.entity.UserModel
 
 @Database(
     entities = [UserModel::class, BookDetailsModel::class, CartModel::class, AddressModel::class],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

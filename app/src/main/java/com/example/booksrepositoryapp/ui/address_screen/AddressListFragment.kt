@@ -22,7 +22,7 @@ import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
 import com.example.booksrepositoryapp.databinding.FragmentAddressListBinding
 import com.example.booksrepositoryapp.databinding.FragmentCheckoutBinding
-import com.example.booksrepositoryapp.ui.checkout_screen.AddressAdapter
+import com.example.booksrepositoryapp.ui.address_screen.AddressAdapter
 import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheet
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -39,6 +39,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
     private val viewModel: AddressListViewModel by viewModels()
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var addressAdapter: AddressAdapter
+    private lateinit var addressShimmerAdapter: AddressShimmerAdapter
     companion object {
         private const val MAX_ADDRESSES = 5
     }
@@ -159,10 +160,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
         }
     }
 
-    private fun getLocationFromAddress(
-        address: AddressModel,
-        fullAddress: String
-    ) {
+    private fun getLocationFromAddress(address: AddressModel, fullAddress: String) {
         viewLifecycleOwner.lifecycleScope.launch {
             val location = withContext(Dispatchers.IO) {
                 try {
@@ -203,6 +201,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
     }
 
     private fun setupRecycler() {
+        addressShimmerAdapter = AddressShimmerAdapter()
         addressAdapter = AddressAdapter(
             onLocationClick = { address ->
                 checkLocationPermission(address)
@@ -211,17 +210,25 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
                 getLocationFromAddress(address, fullAddress)
             },
             onDeleteClick = { address ->
-                viewLifecycleOwner.lifecycleScope.launch {
-                    viewModel.deleteAddress(address)
-                }
+                ConfirmationBottomSheet(
+                    title = "Delete Address?",
+                    message = "Are you sure you want to delete the address? \n This action cannot be undone",
+                    positiveButtonText = "Delete"
+                ) {
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        viewModel.deleteAddress(address)
+                    }
+                }.show(parentFragmentManager, "Confirmation")
             }
         )
-        binding.rvAddresses.adapter = addressAdapter
+        binding.rvAddresses.adapter = addressShimmerAdapter
     }
+
     private fun observeAllAddresses() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.addresses.collect { addresses ->
                 addressAdapter.submitList(addresses)
+                binding.rvAddresses.adapter = addressAdapter
                 binding.btnAddAddress.isEnabled = addresses.size < MAX_ADDRESSES
                 if (addresses.size >= MAX_ADDRESSES) {
                     binding.btnAddAddress.alpha = 0.5f
@@ -237,7 +244,31 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
             findNavController().navigateUp()
         }
         binding.btnAddAddress.setOnClickListener {
-
+            val newAddress = AddressModel(
+                userId = viewModel.userId,
+                house = "",
+                street = "",
+                area = "",
+                city = "",
+                postalCode = "",
+                country = "",
+                fullAddress = "",
+                latitude = 0.0,
+                longitude = 0.0,
+                isSelected = false
+            )
+            viewModel.addAddress(newAddress)
+        }
+        binding.btnDeleteAddresses.setOnClickListener {
+            ConfirmationBottomSheet(
+                title = "Delete All Addresses?",
+                message = "Are you sure you want to delete all addresses? \n This action cannot be undone",
+                positiveButtonText = "Delete"
+            ) {
+                viewLifecycleOwner.lifecycleScope.launch {
+                    viewModel.deleteAllAddresses()
+                }
+            }.show(parentFragmentManager, "Confirmation")
         }
     }
 

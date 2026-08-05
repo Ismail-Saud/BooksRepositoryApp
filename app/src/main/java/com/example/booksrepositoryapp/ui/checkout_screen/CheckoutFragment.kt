@@ -43,7 +43,7 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        observeAddresses()
+        observeCheckoutState()
         setupListeners()
     }
 
@@ -97,13 +97,50 @@ class CheckoutFragment : Fragment(R.layout.fragment_checkout) {
         binding.btnPay.alpha = if (enabled) 1f else 0.5f
     }
 
-    private fun observeAddresses() {
+    private fun showShimmer() {
+        binding.shimmerCheckout.visibility = View.VISIBLE
+        binding.scrollContent.visibility = View.GONE
+        binding.btnPay.visibility = View.GONE
+        binding.shimmerCheckout.startShimmer()
+    }
+    private fun hideShimmer() {
+        binding.shimmerCheckout.stopShimmer()
+        binding.shimmerCheckout.visibility = View.GONE
+        binding.scrollContent.visibility = View.VISIBLE
+        binding.btnPay.visibility = View.VISIBLE
+    }
+
+    private fun observeCheckoutState() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.address.collect { address ->
-                updatePayButton(
-                    arguments?.getDouble("amount") ?: 0.0
-                )
-                binding.tvAddress.text = address?.fullAddress ?: "Address not found"
+            viewModel.checkoutState.collect { state ->
+                when(state) {
+                    CheckoutState.Idle -> {
+                        hideShimmer()
+                        binding.tvAddress.text = "Address not found"
+                        updatePayButton(
+                            arguments?.getDouble("amount") ?: 0.0
+                        )
+                    }
+                    CheckoutState.Loading -> {
+                        showShimmer()
+                    }
+                    is CheckoutState.Success -> {
+                        hideShimmer()
+                        val address = state.address
+                        binding.tvAddress.text = address?.fullAddress ?: "Address not found"
+                        updatePayButton(
+                            arguments?.getDouble("amount") ?: 0.0
+                        )
+                    }
+                    is CheckoutState.Error -> {
+                        hideShimmer()
+                        Toast.makeText(
+                            requireContext(),
+                            state.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
             }
         }
     }

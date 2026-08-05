@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.uiModels.CartItem
 import com.example.booksrepositoryapp.databinding.FragmentAddToCartBinding
+import com.example.booksrepositoryapp.ui.address_screen.AddressShimmerAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
@@ -23,6 +24,7 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
     private var _binding: FragmentAddToCartBinding? = null
     private val binding get() = _binding!!
     private lateinit var cartAdapter: CartAdapter
+    private lateinit var cartShimmerAdapter: AddToCartShimmerAdapter
     private lateinit var bundle: Bundle
     private val viewModel: AddToCartViewModel by viewModels()
 
@@ -43,6 +45,7 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
     }
 
     private fun setupRecyclerView() {
+        cartShimmerAdapter = AddToCartShimmerAdapter()
         cartAdapter = CartAdapter(
             onIncreaseClick = { cartItem ->
                 viewModel.increaseQuantity(cartItem)
@@ -74,10 +77,7 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
             }
         )
 
-        binding.rvCartItems.apply {
-            layoutManager = LinearLayoutManager(requireContext())
-            adapter = cartAdapter
-        }
+        binding.rvCartItems.adapter = cartShimmerAdapter
         binding.rvCartItems.itemAnimator = null
     }
 
@@ -97,6 +97,7 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
                         }
                         is AddToCartState.Success -> {
                             cartAdapter.submitList(state.cartItem)
+                            binding.rvCartItems.adapter = cartAdapter
                             updateSummary(state.cartItem)
 
                             binding.btnCheckout.isEnabled = state.cartItem.isNotEmpty()

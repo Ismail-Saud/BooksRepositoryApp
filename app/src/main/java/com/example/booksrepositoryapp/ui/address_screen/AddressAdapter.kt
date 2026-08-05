@@ -1,14 +1,11 @@
-package com.example.booksrepositoryapp.ui.checkout_screen
+package com.example.booksrepositoryapp.ui.address_screen
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
-import com.example.booksrepositoryapp.data.local.uiModels.AddressItem
 import com.example.booksrepositoryapp.databinding.ItemAddressBinding
 
 class AddressAdapter(
