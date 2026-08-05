@@ -44,48 +44,47 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/ivBack" />
 
-        <!-- Address Recycler View -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvAddresses"
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardSelectedAddress"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:nestedScrollingEnabled="false"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:cardCornerRadius="12dp"
+            app:cardBackgroundColor="#151515"
             app:layout_constraintTop_toBottomOf="@id/tvAddressTitle"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TextView
+                android:id="@+id/tvAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="No address found"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:maxLines="3"
+                android:ellipsize="end"/>
+
+        </com.google.android.material.card.MaterialCardView>
+
+
 
         <!-- Add Address -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddAddress"
+            android:id="@+id/btnSelectAddress"
             android:layout_width="0dp"
             android:layout_height="48dp"
             android:layout_marginTop="18dp"
-            android:text="Add New Delivery Address"
+            android:text="Select Delivery Address"
             android:textAllCaps="false"
             android:textColor="#333333"
             app:backgroundTint="@android:color/white"
             app:strokeColor="#555555"
             app:strokeWidth="1dp"
             app:cornerRadius="6dp"
-            app:layout_constraintTop_toBottomOf="@id/rvAddresses"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeleteAddresses"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="18dp"
-            android:text="Delete Addresses"
-            android:textAllCaps="false"
-            android:textColor="#333333"
-            app:backgroundTint="@android:color/white"
-            app:strokeColor="#555555"
-            app:strokeWidth="1dp"
-            app:cornerRadius="6dp"
-            app:layout_constraintTop_toBottomOf="@id/btnAddAddress"
+            app:layout_constraintTop_toBottomOf="@id/cardSelectedAddress"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -98,7 +97,7 @@
             android:text="Payment Method"
             android:textStyle="bold"
             android:textSize="24sp"
-            app:layout_constraintTop_toBottomOf="@id/btnDeleteAddresses"
+            app:layout_constraintTop_toBottomOf="@id/btnSelectAddress"
             app:layout_constraintStart_toStartOf="parent" />
 
         <RadioGroup
@@ -129,87 +128,96 @@
 
         </RadioGroup>
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilCardNumber"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cardCreditDetails"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:hint="Card Number"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/rgPaymentMethod"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCardNumber"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:maxLength="16" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilCardHolder"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:hint="Card Holder Name"
-            app:layout_constraintTop_toBottomOf="@id/tilCardNumber"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etCardHolder"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <LinearLayout
-            android:id="@+id/layoutCardDetails"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="16dp"
-            android:orientation="horizontal"
-            android:weightSum="2"
-            app:layout_constraintTop_toBottomOf="@id/tilCardHolder"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCardNumber"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:hint="MM/YY">
+                android:layout_marginTop="24dp"
+                android:hint="Card Number"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etExpiry"
+                    android:id="@+id/etCardNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="datetime"
-                    android:maxLength="5" />
+                    android:inputType="number"
+                    android:maxLength="16" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilCardHolder"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:hint="CVV">
+                android:layout_marginTop="16dp"
+                android:hint="Card Holder Name"
+                app:layout_constraintTop_toBottomOf="@id/tilCardNumber"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCVV"
+                    android:id="@+id/etCardHolder"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="numberPassword"
-                    android:maxLength="3" />
+                    android:inputType="textPersonName" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/layoutCardDetails"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="16dp"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                app:layout_constraintTop_toBottomOf="@id/tilCardHolder"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="8dp"
+                    android:hint="MM/YY">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etExpiry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="datetime"
+                        android:maxLength="5" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="8dp"
+                    android:hint="CVV">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etCVV"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberPassword"
+                        android:maxLength="3" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 
@@ -225,7 +233,7 @@
             android:textSize="16sp"
             app:cornerRadius="6dp"
             app:backgroundTint="#111111"
-            app:layout_constraintTop_toBottomOf="@id/layoutCardDetails"
+            app:layout_constraintTop_toBottomOf="@id/cardCreditDetails"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />

@@ -14,7 +14,7 @@ import com.example.booksrepositoryapp.databinding.ItemAddressBinding
 class AddressAdapter(
     private val onLocationClick: (AddressModel) -> Unit,
     private val onCheckClick: (AddressModel, String) -> Unit,
-    private val onSelectAddress: (AddressModel) -> Unit
+    private val onDeleteClick: (AddressModel) -> Unit
 ) : ListAdapter<AddressModel, AddressAdapter.AddressViewHolder>(DiffCallback()) {
     inner class AddressViewHolder(
         private val binding: ItemAddressBinding
@@ -24,12 +24,12 @@ class AddressAdapter(
             binding.btnCurrentLocation.setOnClickListener {
                 onLocationClick(item)
             }
-            binding.root.setOnClickListener {
-                onSelectAddress(item)
-            }
             binding.btnSaveAddress.setOnClickListener {
                 val fullAddress = binding.etAddress.text.toString().trim()
                 onCheckClick(item, fullAddress)
+            }
+            binding.btnDeleteAddress.setOnClickListener {
+                onDeleteClick(item)
             }
         }
     }

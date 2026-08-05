@@ -118,6 +118,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.successFragment -> {
                     binding.bottomNav.visibility = View.GONE
                 }
+                R.id.addressListFragment -> {
+                    binding.bottomNav.visibility = View.GONE
+                }
                 else -> {
                     binding.bottomNav.visibility = View.VISIBLE
                 }

@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.booksrepositoryapp.data.local.room.DatabaseInstance
 import com.example.booksrepositoryapp.data.local.room.dao.AddressDao
 import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
+import kotlinx.coroutines.flow.Flow
 
 class AddressRepository(context: Context) {
     private val dao =  DatabaseInstance.getDatabase(context).AddressDao()
@@ -18,12 +19,18 @@ class AddressRepository(context: Context) {
         dao.updateAddress(address)
     }
 
-    suspend fun deleteAddress() {
+    suspend fun deleteAddress(address: AddressModel) {
+        dao.deleteAddress(address)
+    }
+
+    suspend fun deleteAllAddresses() {
         dao.deleteAll()
     }
-
-    fun getAddresses(userId: Int) {
-        dao.getAddresses(userId)
+    suspend fun updateSelectedAddress(userId: Int, addressId: Int) {
+        dao.updateSelectedAddress(userId, addressId)
     }
 
+    fun getSelectedAddress(userId: Int): Flow<AddressModel?> {
+        return dao.getSelectedAddress(userId)
+    }
 }
