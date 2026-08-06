@@ -248,6 +248,8 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
                 } else {
                     binding.btnAddAddress.alpha = 1f
                 }
+                binding.btnDeleteAddresses.isEnabled = addresses.isNotEmpty()
+                binding.btnDeleteAddresses.alpha = if (addresses.isNotEmpty()) 1f else 0.5f
             }
         }
     }
