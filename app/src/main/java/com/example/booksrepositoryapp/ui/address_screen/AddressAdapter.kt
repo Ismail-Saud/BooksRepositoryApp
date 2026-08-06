@@ -1,6 +1,7 @@
 package com.example.booksrepositoryapp.ui.address_screen
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -18,6 +19,17 @@ class AddressAdapter(
     ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(item: AddressModel) {
             binding.etAddress.setText(item.fullAddress)
+            val isLoading = item.isFetchingLocation || item.isSaving
+
+            binding.btnCurrentLocation.isEnabled = !isLoading
+            binding.btnCurrentLocation.alpha = if (isLoading) 0.5f else 1f
+            binding.btnCurrentLocation.visibility = if (item.isFetchingLocation) View.INVISIBLE else View.VISIBLE
+            binding.progressLocation.visibility = if (item.isFetchingLocation) View.VISIBLE else View.GONE
+
+            binding.btnSaveAddress.isEnabled = !isLoading
+            binding.btnSaveAddress.alpha = if (isLoading) 0.5f else 1f
+            binding.btnSaveAddress.visibility = if (item.isSaving) View.INVISIBLE else View.VISIBLE
+            binding.progressSave.visibility = if (item.isSaving) View.VISIBLE else View.GONE
             binding.btnCurrentLocation.setOnClickListener {
                 onLocationClick(item)
             }
@@ -30,7 +42,6 @@ class AddressAdapter(
             }
         }
     }
-
 
     override fun onCreateViewHolder(
         parent: ViewGroup,

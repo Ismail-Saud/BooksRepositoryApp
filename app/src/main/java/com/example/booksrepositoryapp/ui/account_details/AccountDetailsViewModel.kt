@@ -7,16 +7,22 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
 import com.example.booksrepositoryapp.data.local.room.entity.UserModel
 import com.example.booksrepositoryapp.data.repository.AddressRepository
 import com.example.booksrepositoryapp.data.repository.UserRepository
+import com.example.booksrepositoryapp.ui.checkout_screen.CheckoutState
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class AccountDetailsViewModel(application: Application) : AndroidViewModel(application) {
     private val userRepo = UserRepository.getInstance(application)
     private val addressRepo = AddressRepository(application)
+    private val id = userRepo.getSavedUser()?.toInt() ?: 1
     private val _userState = MutableStateFlow<AccountDetailsState>(AccountDetailsState.Idle)
     val userState: StateFlow<AccountDetailsState> = _userState
     private val _user = MutableStateFlow<UserModel?>(null)
@@ -25,7 +31,6 @@ class AccountDetailsViewModel(application: Application) : AndroidViewModel(appli
     val imageUri: LiveData<Uri?> = _imageUri
 
     fun getUser() {
-        val id = userRepo.getSavedUser()?.toInt() ?: 1
         Log.d("PROFILE", "Loading user id = $id")
         _userState.value = AccountDetailsState.Loading
         viewModelScope.launch {
@@ -35,6 +40,7 @@ class AccountDetailsViewModel(application: Application) : AndroidViewModel(appli
             }
         }
     }
+    val selectedAddress: Flow<AddressModel?> = addressRepo.getSelectedAddress(id)
 
     fun logout() {
         userRepo.setLoggedIn(false)
@@ -51,10 +57,6 @@ class AccountDetailsViewModel(application: Application) : AndroidViewModel(appli
             userRepo.saveUserProfilePicture(id, uri)
         }
     }
-
-//    fun getAddress() {
-//        addressRepo.
-//    }
 
     fun removeUserProfilePicture() {
         val id = userRepo.getSavedUser()?.toInt() ?: return

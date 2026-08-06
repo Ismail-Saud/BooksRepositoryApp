@@ -135,7 +135,12 @@ class BookDetailsFragment : Fragment() {
 
         val key = arguments?.getString("key") ?: "Unknown"
         binding.btnAddToCart.setOnClickListener {
-            viewModel.addToCart( key)
+            Toast.makeText(
+                requireContext(),
+                "Added to Cart",
+                Toast.LENGTH_SHORT
+            ).show()
+            viewModel.addToCart(key)
         }
     }
 

@@ -49,49 +49,61 @@ class AccountDetailsFragment : Fragment(), OnPictureOptionSelected {
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.userState.collect { state ->
-                    when (state) {
-                        is AccountDetailsState.Loading -> {
-                            binding.shimmerLayout.startShimmer()
-                            binding.shimmerLayout.visibility = View.VISIBLE
-                            binding.contentLayout.visibility = View.GONE
-                        }
-                        is AccountDetailsState.Success -> {
-                            binding.shimmerLayout.stopShimmer()
-                            binding.shimmerLayout.visibility = View.GONE
-                            binding.contentLayout.visibility = View.VISIBLE
-
-                            val user = state.user
-                            Log.d("PROFILE", "profile = ${user?.profilePicture}")
-                            user?.let {
-                                binding.tvName.text = it.username
-                                binding.tvEmail.text = it.email
-//                                binding.tvAddress.text = it.address?.first()
-
-                                if (!it.profilePicture.isNullOrEmpty()) {
-                                    binding.profileImage.setPadding(0, 0, 0, 0)
-                                    binding.profileImage.background = null
-                                    Glide.with(this@AccountDetailsFragment)
-                                        .load(it.profilePicture)
-                                        .circleCrop()
-                                        .placeholder(R.drawable.ic_account)
-                                        .error(R.drawable.ic_account)
-                                        .into(binding.profileImage)
-                                } else {
-                                    val padding = (20 * resources.displayMetrics.density).toInt()
-                                    binding.profileImage.setPadding(padding, padding, padding, padding)
-                                    binding.profileImage.setBackgroundResource(R.drawable.circle_black)
-                                    binding.profileImage.setImageResource(R.drawable.ic_account)
+                launch {
+                    viewModel.userState.collect { state ->
+                        when (state) {
+                            is AccountDetailsState.Loading -> {
+                                binding.shimmerLayout.startShimmer()
+                                binding.shimmerLayout.visibility = View.VISIBLE
+                                binding.contentLayout.visibility = View.GONE
+                            }
+                            is AccountDetailsState.Success -> {
+                                binding.shimmerLayout.stopShimmer()
+                                binding.shimmerLayout.visibility = View.GONE
+                                binding.contentLayout.visibility = View.VISIBLE
+                                val user = state.user
+                                user?.let {
+                                    binding.tvName.text = it.username
+                                    binding.tvEmail.text = it.email
+                                    if (!it.profilePicture.isNullOrEmpty()) {
+                                        binding.profileImage.setPadding(0, 0, 0, 0)
+                                        binding.profileImage.background = null
+                                        Glide.with(this@AccountDetailsFragment)
+                                            .load(it.profilePicture)
+                                            .circleCrop()
+                                            .placeholder(R.drawable.ic_account)
+                                            .error(R.drawable.ic_account)
+                                            .into(binding.profileImage)
+                                    } else {
+                                        val padding = (20 * resources.displayMetrics.density).toInt()
+                                        binding.profileImage.setPadding(
+                                            padding,
+                                            padding,
+                                            padding,
+                                            padding
+                                        )
+                                        binding.profileImage.setBackgroundResource(R.drawable.circle_black)
+                                        binding.profileImage.setImageResource(R.drawable.ic_account)
+                                    }
                                 }
                             }
+                            is AccountDetailsState.Error -> {
+                                binding.shimmerLayout.stopShimmer()
+                                binding.shimmerLayout.visibility = View.GONE
+                                binding.contentLayout.visibility = View.VISIBLE
+                                Toast.makeText(
+                                    requireContext(),
+                                    state.message,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            else -> {}
                         }
-                        is AccountDetailsState.Error -> {
-                            binding.shimmerLayout.stopShimmer()
-                            binding.shimmerLayout.visibility = View.GONE
-                            binding.contentLayout.visibility = View.VISIBLE
-                            Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
-                        }
-                        else -> {}
+                    }
+                }
+                launch {
+                    viewModel.selectedAddress.collect { address ->
+                        binding.tvAddress.text = address?.fullAddress ?: "No address selected"
                     }
                 }
             }

@@ -27,7 +27,10 @@ class CheckoutViewModel(application: Application) : AndroidViewModel(application
     val checkoutState: StateFlow<CheckoutState> = _checkoutState.asStateFlow()
 
     private val _selectedAddress = MutableStateFlow<AddressModel?>(null)
-    val selectedAddress: StateFlow<AddressModel?> = _selectedAddress.asStateFlow()
+    private val creditCardNumberRegex = Regex("^(\\d{4}\\s?){3}\\d{4}$")
+    private val creditCardNameHolderRegex = Regex("^[A-Za-z ]{2,50}$")
+    private val creditCardExpiryRegex = Regex("^(0[1-9]|1[0-2])/\\d{2}$")
+    private val creditCardCVVRegex = Regex("^\\d{3,4}$")
 
     init {
         getSelectedAddress()
@@ -49,6 +52,23 @@ class CheckoutViewModel(application: Application) : AndroidViewModel(application
                 }
         }
     }
+
+    fun isValidCardNumber(cardNumber: String): Boolean {
+        return creditCardNumberRegex.matches(cardNumber.trim())
+    }
+
+    fun isValidCardHolderName(holderName: String): Boolean {
+        return creditCardNameHolderRegex.matches(holderName.trim())
+    }
+
+    fun isValidExpiryDate(expiryDate: String): Boolean {
+        return creditCardExpiryRegex.matches(expiryDate.trim())
+    }
+
+    fun isValidCVV(cvv: String): Boolean {
+        return creditCardCVVRegex.matches(cvv.trim())
+    }
+
     fun clearCart() {
         viewModelScope.launch {
             try {

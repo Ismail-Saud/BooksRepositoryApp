@@ -81,10 +81,6 @@ class BooksListFragment : Fragment() {
     private fun setupRecyclerView() {
         val subject = arguments?.getString("title") ?: "Unknown"
         adapter = BooksAdapter(subject.replaceFirstChar { it.uppercase() }) { work ->
-            Toast.makeText(
-                requireContext(), "Navigated", Toast.LENGTH_SHORT
-            ).show()
-
             val bundle = Bundle().apply {
                 putString("key", work.workId)
             }

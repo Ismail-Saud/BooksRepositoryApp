@@ -31,19 +31,25 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-        checkLoginState()
+        if (savedInstanceState == null) {
+            checkLoginState()
+        }
         observeLoginState()
         setupBottomNavigation()
         setupBottomNavVisibility()
         setupBackPress()
     }
 
-    private fun checkLoginState(){
-        val destination = if(viewModel.isLoggedIn.value) R.id.app_graph
-        else R.id.auth_graph
+    private fun checkLoginState() {
+        val destination = if (viewModel.isLoggedIn.value) {
+            R.id.app_graph
+        } else {
+            R.id.auth_graph
+        }
         navController.navigate(destination, null,
             navOptions {
-                popUpTo(R.id.main_nav_graph){
+                launchSingleTop = true
+                popUpTo(R.id.main_nav_graph) {
                     inclusive = true
                 }
             }

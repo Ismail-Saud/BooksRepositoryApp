@@ -30,15 +30,12 @@ interface AddressDao {
     @Query("DELETE FROM address_table")
     suspend fun deleteAll()
 
-    // Make every address of the user unselected
     @Query("UPDATE address_table SET isSelected = 0 WHERE userId = :userId")
     suspend fun clearSelection(userId: Int)
 
-    // Select a specific address
     @Query("UPDATE address_table SET isSelected = 1 WHERE id = :addressId")
     suspend fun selectAddress(addressId: Int)
 
-    // Update selection atomically
     @Transaction
     suspend fun updateSelectedAddress(userId: Int, addressId: Int) {
         clearSelection(userId)

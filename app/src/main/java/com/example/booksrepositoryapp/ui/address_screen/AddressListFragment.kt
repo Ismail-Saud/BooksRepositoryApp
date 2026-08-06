@@ -82,7 +82,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
     private fun showGoToSettingsDialog() {
         ConfirmationBottomSheet(
             title = "Permission Required",
-            message = "Camera access was permanently denied. Please enable it in Settings to continue.",
+            message = "Location access was permanently denied. Please enable it in Settings to continue.",
             positiveButtonText = "Go to Settings"
         ) {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
@@ -109,12 +109,12 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
                 val longitude = location.longitude
                 getAddressFromLocation(latitude, longitude)
                 Log.d("Location", "Lat: $latitude\nLng: $longitude")
-                Toast.makeText(
-                    requireContext(),
-                    "Lat: $latitude\nLng: $longitude",
-                    Toast.LENGTH_LONG
-                ).show()
             } else {
+                addressBeingLocated?.let {
+                    viewModel.updateAddress(
+                        it.copy(isFetchingLocation = false)
+                    )
+                }
                 Toast.makeText(
                     requireContext(),
                     "Unable to get current location",
@@ -122,6 +122,11 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
                 ).show()
             }
         }.addOnFailureListener {
+            addressBeingLocated?.let {
+                viewModel.updateAddress(
+                    it.copy(isFetchingLocation = false)
+                )
+            }
             Toast.makeText(
                 requireContext(),
                 "Failed to get location",
@@ -140,6 +145,9 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
                 } catch (e: Exception) { null }
             }
             if (locationAddress == null) {
+                viewModel.updateAddress(
+                    target.copy(isFetchingLocation = false)
+                )
                 Toast.makeText(requireContext(), "Unable to get address", Toast.LENGTH_SHORT).show()
                 return@launch
             }
@@ -152,7 +160,9 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
                 country = locationAddress.countryName ?: "",
                 fullAddress = locationAddress.getAddressLine(0) ?: "",
                 latitude = latitude,
-                longitude = longitude
+                longitude = longitude,
+                isFetchingLocation = false,
+                isSelected = true
             )
             viewModel.updateAddress(updated)
             addressBeingLocated = null
@@ -204,6 +214,9 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
         addressShimmerAdapter = AddressShimmerAdapter()
         addressAdapter = AddressAdapter(
             onLocationClick = { address ->
+                viewModel.updateAddress(
+                    address.copy(isFetchingLocation = true)
+                )
                 checkLocationPermission(address)
             },
             onCheckClick = { address, fullAddress ->

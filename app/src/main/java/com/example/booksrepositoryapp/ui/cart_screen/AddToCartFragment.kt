@@ -76,9 +76,12 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
                     .show()
             }
         )
-
-        binding.rvCartItems.adapter = cartShimmerAdapter
-        binding.rvCartItems.itemAnimator = null
+        binding.rvCartItems.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = cartAdapter
+            isNestedScrollingEnabled = true
+            itemAnimator = null
+        }
     }
 
     private fun setupObservers() {
@@ -99,7 +102,6 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
                             cartAdapter.submitList(state.cartItem)
                             binding.rvCartItems.adapter = cartAdapter
                             updateSummary(state.cartItem)
-
                             binding.btnCheckout.isEnabled = state.cartItem.isNotEmpty()
                             if (state.cartItem.isEmpty()) {
                                 binding.btnCheckout.alpha = 0.5f

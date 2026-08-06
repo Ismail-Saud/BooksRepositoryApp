@@ -12,7 +12,6 @@ class RegisterViewModel (application: Application) : AndroidViewModel(applicatio
     private val userRepo = UserRepository.getInstance(application)
     private val _registerUser = MutableStateFlow<RegisterState>(RegisterState.Idle)
     val registerUser: Flow<RegisterState> = _registerUser.asStateFlow()
-
     private val usernamePattern = Regex("^[A-Za-z0-9!@#$]+$")
     private val passwordPattern = Regex("^[A-Za-z0-9!@#$]{8,}$")
     private val emailPattern = Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
