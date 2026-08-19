@@ -90,4 +90,7 @@ dependencies {
     implementation("androidx.navigation:navigation-ui-ktx:2.9.3")
 
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+
+    implementation("androidx.navigation:navigation-compose:2.9.3")
 }

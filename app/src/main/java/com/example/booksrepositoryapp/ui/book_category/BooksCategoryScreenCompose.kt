@@ -36,33 +36,37 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.booksrepositoryapp.R
+import com.example.booksrepositoryapp.data.api.models.Category
+import com.example.booksrepositoryapp.data.api.models.categories
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @Composable
 fun BookCategoryScreen(
+    categories: List<Category>,
     onBackClick: () -> Unit,
-    onCardClick: () -> Unit
+    onCardClick: (Category) -> Unit,
+    onSearch: (String) -> Unit
 ) {
-    val categories = listOf(
-        "Fiction",
-        "Non-Fiction",
-        "Mystery",
-        "History",
-        "Romance",
-        "Science",
-        "Fantasy",
-        "Classic",
-        "Crime",
-        "Young Adult",
-        "Adventure",
-        "Comedy",
-        "Rom-Com",
-        "Sci-fi",
-        "Novels",
-        "Children"
-    )
+//    val categories = listOf(
+//        "Fiction",
+//        "Non-Fiction",
+//        "Mystery",
+//        "History",
+//        "Romance",
+//        "Science",
+//        "Fantasy",
+//        "Classic",
+//        "Crime",
+//        "Young Adult",
+//        "Adventure",
+//        "Comedy",
+//        "Rom-Com",
+//        "Sci-fi",
+//        "Novels",
+//        "Children"
+//    )
     var name by remember {
-        mutableStateOf("name")
+        mutableStateOf("")
     }
     Column(
         horizontalAlignment = Alignment.Start,
@@ -81,9 +85,10 @@ fun BookCategoryScreen(
             value = name,
             onValueChange = {
                 name = it.trim()
+                onSearch(it.trim())
             },
             label = {
-                Text("Name")
+                Text("Search Category")
             },
             trailingIcon = {
                 Icon(
@@ -103,26 +108,25 @@ fun BookCategoryScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(categories) { category ->
-
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp)
                         .clickable {
-                            onCardClick()
+                            onCardClick(category)
                         }
                 ) {
                     Box {
                         Image(
                             painter = painterResource(R.drawable.classic_bg),
-                            contentDescription = category,
+                            contentDescription = category.title,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,
                             alpha = 0.5f
                         )
 
                         Text(
-                            text = category,
+                            text = category.title,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
@@ -142,8 +146,10 @@ fun BookCategoryScreen(
 fun BooksCategoryScreenComposePreview() {
     BooksRepositoryAppTheme {
         BookCategoryScreen(
+            categories = categories,
             onBackClick = {},
-            onCardClick = {}
+            onCardClick = { category -> },
+            onSearch = { category -> }
         )
     }
 }

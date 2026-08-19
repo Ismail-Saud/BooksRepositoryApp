@@ -40,7 +40,7 @@ fun LandingPageScreen(
             painter = painterResource(R.drawable.ic_launcher_foreground),
             contentDescription = "App Logo",
             modifier = Modifier
-                .size(220.dp)
+                .size(250.dp)
                 .align(Alignment.Center)
         )
         Column(
@@ -49,7 +49,6 @@ fun LandingPageScreen(
                 .align(Alignment.BottomCenter)
                 .padding(horizontal = 25.dp)
         ) {
-
             Text(
                 text = "Read more and stress less with our online book shopping app. Shop from anywhere you are and discover titles that you love. Happy reading!",
                 textAlign = TextAlign.Center,
@@ -75,7 +74,6 @@ fun LandingPageScreen(
                     text = "Get Started"
                 )
             }
-
             TextButton(
                 onClick = onRegisterClick,
                 modifier = Modifier

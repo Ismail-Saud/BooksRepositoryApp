@@ -27,13 +27,13 @@ import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 @Composable
 fun GetStartedScreen(
     onBackClick: () -> Unit,
-    onGetStartedClick: () -> Unit,
+    onGetStartedClick: (String, String) -> Unit,
     onForgotPasswordClick: () -> Unit,
     onRegisterClick: () -> Unit
 ) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
+    var passwordVisibility by remember { mutableStateOf(false) }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -78,9 +78,9 @@ fun GetStartedScreen(
                 )
         )
         OutlinedTextField(
-            value = username,
+            value = email,
             onValueChange = {
-                username = it
+                email = it
             },
             label = {
                 Text("Username/email")
@@ -155,7 +155,9 @@ fun GetStartedScreen(
                 )
         )
         Button(
-            onClick = onGetStartedClick,
+            onClick = {
+                onGetStartedClick(email, password)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -219,7 +221,7 @@ fun GetStartedScreenPreview() {
     BooksRepositoryAppTheme {
         GetStartedScreen (
             onBackClick = {},
-            onGetStartedClick = {},
+            onGetStartedClick = { username, password -> } ,
             onForgotPasswordClick = {},
             onRegisterClick = {},
         )

@@ -27,7 +27,7 @@ import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 @Composable
 fun RegisterScreen(
     onBackClick: () -> Unit,
-    onRegisterClick: () -> Unit,
+    onRegisterClick: (String, String, String, String) -> Unit,
     onGetStartedClick: () -> Unit
 ) {
     var username by remember { mutableStateOf("") }
@@ -237,7 +237,9 @@ fun RegisterScreen(
                 )
         )
         Button(
-            onClick = onRegisterClick,
+            onClick = {
+                onRegisterClick(username, email, password, confirmPassword)
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(
@@ -290,7 +292,7 @@ fun RegisterScreenPreview() {
         RegisterScreen (
             onBackClick = {},
             onGetStartedClick = {},
-            onRegisterClick = {},
+            onRegisterClick = { username, email, password, confirmPassword -> },
         )
     }
 }
