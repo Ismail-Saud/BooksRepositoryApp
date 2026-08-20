@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,37 +30,52 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @Composable
 fun CheckoutScreen(
+    total: Double,
+    selectedAddress: AddressModel?,
     onBackClick: () -> Unit,
     onSelectAddressClick: () -> Unit,
-    onPayClick: () -> Unit
+    onPayClick: () -> Unit,
+    viewModel: CheckoutViewModel
 ) {
-    var selectedPayment by remember {
+    var selectedPayment by rememberSaveable {
         mutableStateOf("COD")
     }
-
-    var cardNumber by remember {
+    var cardNumber by rememberSaveable {
         mutableStateOf("")
     }
-
-    var cardHolder by remember {
+    var cardHolder by rememberSaveable {
         mutableStateOf("")
     }
-
-    var expiry by remember {
+    var expiry by rememberSaveable {
         mutableStateOf("")
     }
-
-    var cvv by remember {
+    var cvv by rememberSaveable {
         mutableStateOf("")
     }
-
+    var showCardErrors by rememberSaveable {
+        mutableStateOf(false)
+    }
+    val hasSelectedAddress = selectedAddress != null
+    val isCardValid = remember(
+        cardNumber,
+        cardHolder,
+        expiry,
+        cvv
+    ) {
+        viewModel.isValidCardNumber(cardNumber) &&
+                viewModel.isValidCardHolderName(cardHolder) &&
+                viewModel.isValidExpiryDate(expiry) &&
+                viewModel.isValidCVV(cvv)
+    }
+    val isPayEnabled = total > 0.0 &&
+            hasSelectedAddress && (selectedPayment == "COD" || isCardValid)
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         LazyColumn(
             modifier = Modifier
@@ -68,13 +84,11 @@ fun CheckoutScreen(
                 .padding(horizontal = 20.dp)
         ) {
             item {
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(24.dp)
                 ) {
-
                     IconButton(
                         onClick = onBackClick,
                         modifier = Modifier
@@ -87,7 +101,6 @@ fun CheckoutScreen(
                             tint = Color.Black
                         )
                     }
-
                     Text(
                         text = "Checkout",
                         fontSize = 18.sp,
@@ -108,14 +121,18 @@ fun CheckoutScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp, bottom = 16.dp),
+                        .padding(
+                            top = 16.dp,
+                            bottom = 16.dp
+                        ),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = Color(0xFF151515)
                     )
                 ) {
                     Text(
-                        text = "No address found",
+                        text = selectedAddress?.fullAddress
+                            ?: "Address not found",
                         color = Color.White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
@@ -130,8 +147,7 @@ fun CheckoutScreen(
                     onClick = onSelectAddressClick,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp)
-                        .padding(top = 0.dp),
+                        .height(48.dp),
                     shape = RoundedCornerShape(6.dp),
                     border = BorderStroke(
                         1.dp,
@@ -174,11 +190,11 @@ fun CheckoutScreen(
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-
                         RadioButton(
                             selected = selectedPayment == "COD",
                             onClick = {
                                 selectedPayment = "COD"
+                                showCardErrors = false
                             }
                         )
                         Text(
@@ -191,13 +207,15 @@ fun CheckoutScreen(
             if (selectedPayment == "CARD") {
                 item {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         OutlinedTextField(
                             value = cardNumber,
                             onValueChange = {
-                                if (it.length <= 16) {
+                                if (
+                                    it.length <= 16 &&
+                                    it.all(Char::isDigit)
+                                ) {
                                     cardNumber = it
                                 }
                             },
@@ -210,8 +228,24 @@ fun CheckoutScreen(
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number
                             ),
-                            singleLine = true
+                            singleLine = true,
+                            isError = showCardErrors &&
+                                    !viewModel.isValidCardNumber(cardNumber)
                         )
+                        if (
+                            showCardErrors &&
+                            !viewModel.isValidCardNumber(cardNumber)
+                        ) {
+                            Text(
+                                text = "Invalid card number",
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    top = 4.dp
+                                )
+                            )
+                        }
                         OutlinedTextField(
                             value = cardHolder,
                             onValueChange = {
@@ -226,8 +260,24 @@ fun CheckoutScreen(
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Text
                             ),
-                            singleLine = true
+                            singleLine = true,
+                            isError = showCardErrors &&
+                                    !viewModel.isValidCardHolderName(cardHolder)
                         )
+                        if (
+                            showCardErrors &&
+                            !viewModel.isValidCardHolderName(cardHolder)
+                        ) {
+                            Text(
+                                text = "Invalid card holder name",
+                                color = Color.Red,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    top = 4.dp
+                                )
+                            )
+                        }
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -239,7 +289,14 @@ fun CheckoutScreen(
                             OutlinedTextField(
                                 value = expiry,
                                 onValueChange = {
-                                    if (it.length <= 5) {
+                                    if (
+                                        it.length <= 5 &&
+                                        it.all {
+                                                char ->
+                                            char.isDigit() ||
+                                                    char == '/'
+                                        }
+                                    ) {
                                         expiry = it
                                     }
                                 },
@@ -252,12 +309,17 @@ fun CheckoutScreen(
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Number
                                 ),
-                                singleLine = true
+                                singleLine = true,
+                                isError = showCardErrors &&
+                                        !viewModel.isValidExpiryDate(expiry)
                             )
                             OutlinedTextField(
                                 value = cvv,
                                 onValueChange = {
-                                    if (it.length <= 3) {
+                                    if (
+                                        it.length <= 3 &&
+                                        it.all(Char::isDigit)
+                                    ) {
                                         cvv = it
                                     }
                                 },
@@ -268,9 +330,12 @@ fun CheckoutScreen(
                                     Text("CVV")
                                 },
                                 keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.NumberPassword
+                                    keyboardType =
+                                        KeyboardType.NumberPassword
                                 ),
-                                singleLine = true
+                                singleLine = true,
+                                isError = showCardErrors &&
+                                        !viewModel.isValidCVV(cvv)
                             )
                         }
                     }
@@ -278,7 +343,16 @@ fun CheckoutScreen(
             }
         }
         Button(
-            onClick = onPayClick,
+            onClick = {
+                if (selectedPayment == "CARD") {
+                    if (!isCardValid) {
+                        showCardErrors = true
+                        return@Button
+                    }
+                }
+                onPayClick()
+            },
+            enabled = isPayEnabled,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp)
@@ -289,12 +363,14 @@ fun CheckoutScreen(
                 ),
             shape = RoundedCornerShape(6.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Gray,
-                contentColor = Color.White
+                containerColor = Color.Black,
+                contentColor = Color.White,
+                disabledContainerColor = Color.Gray,
+                disabledContentColor = Color.White
             )
         ) {
             Text(
-                text = "Pay $60.00",
+                text = "Pay $%.2f".format(total),
                 fontSize = 16.sp
             )
         }
@@ -305,10 +381,12 @@ fun CheckoutScreen(
 @Composable
 fun CheckoutScreenPreview() {
     BooksRepositoryAppTheme {
-        CheckoutScreen (
-            onBackClick = {},
-            onSelectAddressClick = {},
-            onPayClick = {}
-        )
+//        CheckoutScreen (
+//            total = 0.0,
+//            onBackClick = {},
+//            onSelectAddressClick = {},
+//            onPayClick = {},
+//
+//        )
     }
 }

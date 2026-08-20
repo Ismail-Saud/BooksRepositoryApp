@@ -1,5 +1,7 @@
 package com.example.booksrepositoryapp.ui.books_screen
 
+import android.os.Build
+import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,7 +22,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -29,9 +30,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,210 +44,305 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booksrepositoryapp.R
-import com.example.booksrepositoryapp.ui.book_category.BookCategoryScreen
+import com.example.booksrepositoryapp.data.local.room.entity.BookDetailsModel
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
-data class Book(
-    val name: String,
-    val author: String,
-    val price: Double,
-    val rating: Double,
-    val category: String
-)
-
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
-fun BooksListScreen (
-    onBackClick: () -> Unit
+fun BooksListScreen(
+    apiValue: String,
+    title: String,
+    viewModel: BooksListViewModel,
+    onBackClick: () -> Unit,
+    onBookClick: (String) -> Unit
 ) {
-    var name by remember {
-        mutableStateOf("name")
+    val state by viewModel.bookState.collectAsStateWithLifecycle()
+    var searchQuery by rememberSaveable {
+        mutableStateOf("")
     }
-    val books = listOf(
-        Book(
-            name = "1984",
-            author = "George Orwell",
-            price = 18.0,
-            rating = 4.6,
-            category = "Classic"
-        ),
-        Book(
-            name = "1984",
-            author = "George Orwell",
-            price = 18.0,
-            rating = 4.6,
-            category = "Classic"
-        ),
-        Book(
-            name = "1984",
-            author = "George Orwell",
-            price = 18.0,
-            rating = 4.6,
-            category = "Classic"
-        ),
-        Book(
-            name = "1984",
-            author = "George Orwell",
-            price = 18.0,
-            rating = 4.6,
-            category = "Classic"
-        ),
-        Book(
-            name = "1984",
-            author = "George Orwell",
-            price = 18.0,
-            rating = 4.6,
-            category = "Classic"
-        ),Book(
-            name = "1984",
-            author = "George Orwell",
-            price = 18.0,
-            rating = 4.6,
-            category = "Classic"
-        ),
-        Book(
-            name = "1984",
-            author = "George Orwell",
-            price = 18.0,
-            rating = 4.6,
-            category = "Classic"
-        ),
-        Book(
-            name = "1984",
-            author = "George Orwell",
-            price = 18.0,
-            rating = 4.6,
-            category = "Classic"
-        ),
-        Book(
-            name = "1984",
-            author = "George Orwell",
-            price = 18.0,
-            rating = 4.6,
-            category = "Classic"
-        ),
-        Book(
-            name = "1984",
-            author = "George Orwell",
-            price = 18.0,
-            rating = 4.6,
-            category = "Classic"
-        ),
-    )
+    var showFilterSheet by rememberSaveable {
+        mutableStateOf(false)
+    }
+    LaunchedEffect(apiValue) {
+        viewModel.getBooksByCategory(apiValue)
+    }
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        IconButton(
-            onClick = onBackClick
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back"
+            IconButton(
+                onClick = onBackClick
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back"
+                )
+            }
+            Text(
+                text = title,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
             )
         }
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
-                value = name,
-                onValueChange = {
-                    name = it.trim()
+                value = searchQuery,
+                onValueChange = { query ->
+                    searchQuery = query
+                    viewModel.searchBooks(
+                        query.trim()
+                    )
                 },
                 label = {
-                    Text("Name")
+                    Text("Search")
                 },
                 trailingIcon = {
                     Icon(
-                        Icons.Default.Search,
+                        imageVector = Icons.Default.Search,
                         contentDescription = "Search"
                     )
                 },
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(12.dp, 0.dp)
+                singleLine = true,
+                modifier = Modifier.weight(1f)
             )
             IconButton(
-                onClick = {}
+                onClick = {
+                    showFilterSheet = true
+                }
             ) {
                 Icon(
-                    Icons.Default.FilterAlt,
+                    imageVector = Icons.Default.FilterAlt,
                     contentDescription = "Filter"
                 )
             }
         }
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(books) { book ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-//                        .clickable {
-//                            onCardClick()
-//                        }
-                    ,shape = RoundedCornerShape(8.dp)
+        Spacer(
+            modifier = Modifier.height(8.dp)
+        )
+        when (val currentState = state) {
+            BooksListState.Idle -> {}
+            BooksListState.Loading -> {
+                BooksGridLoading()
+            }
+
+            is BooksListState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
                 ) {
+                    Text(
+                        text = currentState.message,
+                        fontSize = 16.sp
+                    )
+                }
+            }
+
+            is BooksListState.Success -> {
+                if (currentState.books.isEmpty()) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No books found",
+                            fontSize = 16.sp
+                        )
+                    }
+                } else {
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier
+                            .background(Color.Gray)
+                            .padding(4.dp)
+                            .fillMaxSize(),
+                        contentPadding = PaddingValues(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        items(
+                            items = currentState.books,
+                            key = { book ->
+                                book.workId
+                            }
+                        ) { book ->
+                            BookCard(
+                                book = book,
+                                onClick = {
+                                    onBookClick(book.workId)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            else -> {}
+        }
+    }
+    if (showFilterSheet) {
+        PriceFilterBottomSheet(
+            onDismiss = {
+                showFilterSheet = false
+            },
+            onApply = { min, max ->
+                viewModel.filterByPrice(
+                    min,
+                    max
+                )
+                showFilterSheet = false
+            }
+        )
+    }
+}
+
+
+@Composable
+fun BookCard(
+    book: BookDetailsModel,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(250.dp)
+            .clickable {
+                onClick()
+            },
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .background(Color.LightGray),
+                contentAlignment = Alignment.Center
+            ) {
+
+                Image(
+                    painter = painterResource(
+                        id = R.drawable.book_cover_img
+                    ),
+                    contentDescription = book.title,
+                    modifier = Modifier
+                        .height(115.dp)
+                        .width(85.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .background(Color(0xFF151515))
+                    .padding(8.dp)
+            ) {
+                Text(
+                    text = book.category,
+                    fontSize = 12.sp,
+                    color = Color.Gray,
+                    maxLines = 1
+                )
+                Text(
+                    text = book.title,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    maxLines = 2
+                )
+                Text(
+                    text = book.author,
+                    fontSize = 12.sp,
+                    color = Color.LightGray,
+                    maxLines = 1,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+                Spacer(
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "$${book.price}",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+fun BooksGridLoading() {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(6) {
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(250.dp),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                            .background(Color.LightGray)
+                    )
                     Column(
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(8.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp)
-                                .background(Color.LightGray),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                painter = painterResource(R.drawable.book_cover_img),
-                                contentDescription = book.name,
-                                modifier = Modifier
-                                    .height(115.dp)
-                                    .width(85.dp),
-                                contentScale = ContentScale.Fit
-                            )
-                        }
-                        Column(
+                                .fillMaxWidth(0.4f)
+                                .height(12.dp)
+                                .background(Color.LightGray)
+                        )
+                        Spacer(
+                            modifier = Modifier.height(8.dp)
+                        )
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f)
-                                .background(Color(0xFF151515))
-                                .padding(8.dp)
-                        ) {
-                            Text(
-                                text = book.category,
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                            Text(
-                                text = book.name,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                maxLines = 2
-                            )
-                            Text(
-                                text = book.author,
-                                fontSize = 12.sp,
-                                color = Color.LightGray,
-                                modifier = Modifier.padding(top = 4.dp)
-                            )
-
-                            Spacer(
-                                modifier = Modifier.weight(1f)
-                            )
-                            Text(
-                                text = "$${book.price}",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                        }
+                                .fillMaxWidth(0.8f)
+                                .height(18.dp)
+                                .background(Color.LightGray)
+                        )
+                        Spacer(
+                            modifier = Modifier.height(8.dp)
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(0.6f)
+                                .height(12.dp)
+                                .background(Color.LightGray)
+                        )
                     }
                 }
             }
@@ -253,12 +350,17 @@ fun BooksListScreen (
     }
 }
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Preview(showBackground = true)
 @Composable
 fun BooksListScreenComposePreview() {
     BooksRepositoryAppTheme {
-        BooksListScreen (
+        BooksListScreen(
+            apiValue = "classic",
+            title = "Classic",
+            viewModel = viewModel(),
             onBackClick = {},
+            onBookClick = {}
         )
     }
 }

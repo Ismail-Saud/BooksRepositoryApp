@@ -47,24 +47,6 @@ fun BookCategoryScreen(
     onCardClick: (Category) -> Unit,
     onSearch: (String) -> Unit
 ) {
-//    val categories = listOf(
-//        "Fiction",
-//        "Non-Fiction",
-//        "Mystery",
-//        "History",
-//        "Romance",
-//        "Science",
-//        "Fantasy",
-//        "Classic",
-//        "Crime",
-//        "Young Adult",
-//        "Adventure",
-//        "Comedy",
-//        "Rom-Com",
-//        "Sci-fi",
-//        "Novels",
-//        "Children"
-//    )
     var name by remember {
         mutableStateOf("")
     }
@@ -84,7 +66,7 @@ fun BookCategoryScreen(
         OutlinedTextField(
             value = name,
             onValueChange = {
-                name = it.trim()
+                name = it
                 onSearch(it.trim())
             },
             label = {
@@ -118,7 +100,7 @@ fun BookCategoryScreen(
                 ) {
                     Box {
                         Image(
-                            painter = painterResource(R.drawable.classic_bg),
+                            painter = painterResource(category.imgSrc),
                             contentDescription = category.title,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,

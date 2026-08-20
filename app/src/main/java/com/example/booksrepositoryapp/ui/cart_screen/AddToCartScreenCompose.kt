@@ -1,75 +1,103 @@
 package com.example.booksrepositoryapp.ui.cart_screen
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.example.booksrepositoryapp.R
+import com.example.booksrepositoryapp.data.local.uiModels.CartItem
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
+import androidx.compose.foundation.lazy.items
 
 @Composable
 fun AddToCartScreen(
+    cartItems: List<CartItem>,
     onBackClick: () -> Unit,
-    onCheckoutClick: () -> Unit
+    onCheckoutClick: (Double) -> Unit,
+    onRemoveClick: (CartItem) -> Unit,
+    onIncreaseClick: (CartItem) -> Unit,
+    onDecreaseClick: (CartItem) -> Unit
 ) {
+    val subTotal = cartItems.sumOf {
+        it.price * it.quantity
+    }
+    val shipping = if (cartItems.isEmpty()) { 0.0 } else { 10.0 }
+    val total = subTotal + shipping
     Column(
-        modifier = Modifier.Companion
+        modifier = Modifier
             .fillMaxSize()
             .background(Color(0xFFF5F5F5))
     ) {
         Box(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
-
             IconButton(
-                onClick = {
-                    onBackClick()
-                },
-                modifier = Modifier.Companion.align(Alignment.Companion.CenterStart)
+                onClick = onBackClick,
+                modifier = Modifier.align(Alignment.CenterStart)
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.Companion.Black
+                    tint = Color.Black
                 )
             }
-
             Text(
                 text = "Cart",
                 fontSize = 16.sp,
-                fontWeight = FontWeight.Companion.Bold,
+                fontWeight = FontWeight.Bold,
                 color = Color(0xFF111111),
-                modifier = Modifier.Companion.align(Alignment.Companion.Center)
+                modifier = Modifier.align(Alignment.Center)
             )
         }
         LazyColumn(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
             contentPadding = PaddingValues(
@@ -79,23 +107,38 @@ fun AddToCartScreen(
                 bottom = 8.dp
             )
         ) {
-
+            items(
+                items = cartItems,
+                key = { it.cartId }
+            ) { cartItem ->
+                CartItem(
+                    cartItem = cartItem,
+                    onRemoveClick = {
+                        onRemoveClick(cartItem)
+                    },
+                    onIncreaseClick = {
+                        onIncreaseClick(cartItem)
+                    },
+                    onDecreaseClick = {
+                        onDecreaseClick(cartItem)
+                    }
+                )
+            }
         }
         Column(
-            modifier = Modifier.Companion
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-
             Text(
                 text = "Order Summary",
                 fontSize = 18.sp,
-                fontWeight = FontWeight.Companion.Bold,
+                fontWeight = FontWeight.Bold,
                 color = Color(0xFF222222),
-                modifier = Modifier.Companion.padding(bottom = 12.dp)
+                modifier = Modifier.padding(bottom = 12.dp)
             )
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -103,17 +146,15 @@ fun AddToCartScreen(
                     fontSize = 14.sp,
                     color = Color(0xFF555555)
                 )
-
                 Text(
-                    text = "$50.00",
+                    text = "$%.2f".format(subTotal),
                     fontSize = 14.sp,
                     color = Color(0xFF222222)
                 )
             }
-
-            Spacer(modifier = Modifier.Companion.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -121,25 +162,20 @@ fun AddToCartScreen(
                     fontSize = 14.sp,
                     color = Color(0xFF555555)
                 )
-
                 Text(
-                    text = "$10.00",
+                    text = "$%.2f".format(shipping),
                     fontSize = 14.sp,
                     color = Color(0xFF222222)
                 )
             }
-
-            Spacer(modifier = Modifier.Companion.height(12.dp))
-
+            Spacer(modifier = Modifier.height(12.dp))
             HorizontalDivider(
                 color = Color(0xFF444444),
                 thickness = 1.dp
             )
-
-            Spacer(modifier = Modifier.Companion.height(10.dp))
-
+            Spacer(modifier = Modifier.height(10.dp))
             Row(
-                modifier = Modifier.Companion.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
@@ -147,27 +183,29 @@ fun AddToCartScreen(
                     fontSize = 18.sp,
                     color = Color(0xFF222222)
                 )
-
                 Text(
-                    text = "$60.00",
+                    text = "$%.2f".format(total),
                     fontSize = 18.sp,
                     color = Color(0xFF222222)
                 )
             }
         }
-
+        Spacer(modifier = Modifier.height(10.dp))
         Button(
             onClick = {
+                onCheckoutClick(total)
             },
+            enabled = cartItems.isNotEmpty(),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(52.dp)
-                .padding(horizontal = 16.dp)
-                .padding(top = 0.dp, bottom = 0.dp),
+                .padding(horizontal = 16.dp),
             shape = RoundedCornerShape(4.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF111111),
-                contentColor = Color.White
+                contentColor = Color.White,
+                disabledContainerColor = Color(0xFF111111),
+                disabledContentColor = Color.White
             )
         ) {
             Text(
@@ -175,8 +213,164 @@ fun AddToCartScreen(
                 fontSize = 14.sp
             )
         }
+        Spacer(modifier = Modifier.height(14.dp))
+    }
+}
 
-        Spacer(modifier = Modifier.Companion.height(14.dp))
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun CartItem(
+    cartItem: CartItem,
+    onRemoveClick: () -> Unit,
+    onDecreaseClick: () -> Unit,
+    onIncreaseClick: () -> Unit
+) {
+    var count by remember {
+        mutableIntStateOf(1)
+    }
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(150.dp)
+            .padding(bottom = 14.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF111111)
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = 0.dp
+        )
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Box(
+                modifier = Modifier
+                    .width(84.dp)
+                    .fillMaxHeight()
+                    .background(Color(0xFFBDBDBD)),
+                contentAlignment = Alignment.Center
+            ) {
+                if (cartItem.coverId != 0) {
+                    GlideImage(
+                        model = "https://covers.openlibrary.org/b/id/${cartItem.coverId}-L.jpg",
+                        contentDescription = cartItem.title,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.book_cover_img),
+                        contentDescription = cartItem.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxHeight()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = 8.dp,
+                            top = 12.dp,
+                            end = 32.dp
+                        )
+                ) {
+                    Text(
+                        text = "Novel",
+                        color = Color(0xFF888888),
+                        fontSize = 9.sp
+                    )
+                    Text(
+                        text = cartItem.title,
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = cartItem.author,
+                        color = Color(0xFFAAAAAA),
+                        fontSize = 8.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                IconButton(
+                    onClick = onRemoveClick,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .align(Alignment.TopEnd)
+                        .padding(end = 0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Remove",
+                        tint = Color.White
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(
+                            start = 8.dp,
+                            bottom = 14.dp
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .clickable {
+                                onDecreaseClick()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Remove,
+                            contentDescription = "Decrease quantity",
+                            tint = Color(0xFF111111),
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                    Text(
+                        text = cartItem.quantity.toString(),
+                        modifier = Modifier.width(24.dp),
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        textAlign = TextAlign.Center
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .background(
+                                color = Color.White,
+                                shape = RoundedCornerShape(4.dp)
+                            )
+                            .clickable {
+                                onIncreaseClick()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Increase quantity",
+                            tint = Color(0xFF111111),
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -184,9 +378,13 @@ fun AddToCartScreen(
 @Composable
 fun AddToCartPreview() {
     BooksRepositoryAppTheme {
-        AddToCartScreen(
+        AddToCartScreen (
+            cartItems = listOf<CartItem>(),
             onBackClick = {},
-            onCheckoutClick = {}
+            onCheckoutClick = {},
+            onRemoveClick = {},
+            onDecreaseClick = {},
+            onIncreaseClick = {}
         )
     }
 }

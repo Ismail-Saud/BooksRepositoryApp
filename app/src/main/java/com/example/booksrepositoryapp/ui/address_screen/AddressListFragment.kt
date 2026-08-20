@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
+import android.location.Location
 import android.net.Uri
 import androidx.fragment.app.viewModels
 import android.os.Bundle
@@ -22,6 +23,7 @@ import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
 import com.example.booksrepositoryapp.databinding.FragmentAddressListBinding
 import com.example.booksrepositoryapp.databinding.FragmentCheckoutBinding
+import com.example.booksrepositoryapp.helper.LocationHelper
 import com.example.booksrepositoryapp.ui.address_screen.AddressAdapter
 import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheet
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -37,7 +39,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
     private var _binding: FragmentAddressListBinding? = null
     private val binding get() = _binding!!
     private val viewModel: AddressListViewModel by viewModels()
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationHelper: LocationHelper
     private lateinit var addressAdapter: AddressAdapter
     private lateinit var addressShimmerAdapter: AddressShimmerAdapter
     companion object {
@@ -46,7 +48,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        locationHelper = LocationHelper(requireContext())
         setupRecycler()
         observeAllAddresses()
         setupListeners()
@@ -67,15 +69,24 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
     private fun checkLocationPermission(address: AddressModel) {
         addressBeingLocated = address
         when {
-            ContextCompat.checkSelfPermission(
-                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED -> getCurrentLocation()
-
-            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
-                Toast.makeText(requireContext(), "Location permission is required to get your current address.", Toast.LENGTH_LONG).show()
-                locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            locationHelper.hasLocationPermission() -> {
+                getCurrentLocation()
             }
-            else -> locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
+            shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION) -> {
+                Toast.makeText(
+                    requireContext(),
+                    "Location permission is required to get your current address.",
+                    Toast.LENGTH_LONG
+                ).show()
+                locationPermissionLauncher.launch(
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            }
+            else -> {
+                locationPermissionLauncher.launch(
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                )
+            }
         }
     }
 
@@ -93,23 +104,31 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
     }
 
     private fun getCurrentLocation() {
-        if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            return
-        }
-        fusedLocationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            null
-        ).addOnSuccessListener { location ->
-            if (location != null) {
-                val latitude = location.latitude
-                val longitude = location.longitude
-                getAddressFromLocation(latitude, longitude)
-                Log.d("Location", "Lat: $latitude\nLng: $longitude")
-            } else {
+        locationHelper.getCurrentLocation(
+            onSuccess = { location ->
+                if (location != null) {
+                    getAddressFromLocation(
+                        location.latitude,
+                        location.longitude
+                    )
+                    Log.d(
+                        "Location",
+                        "Lat: ${location.latitude}\nLng: ${location.longitude}"
+                    )
+                } else {
+                    addressBeingLocated?.let {
+                        viewModel.updateAddress(
+                            it.copy(isFetchingLocation = false)
+                        )
+                    }
+                    Toast.makeText(
+                        requireContext(),
+                        "Unable to get current location",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            },
+            onFailure = {
                 addressBeingLocated?.let {
                     viewModel.updateAddress(
                         it.copy(isFetchingLocation = false)
@@ -117,38 +136,31 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
                 }
                 Toast.makeText(
                     requireContext(),
-                    "Unable to get current location",
+                    "Failed to get location",
                     Toast.LENGTH_SHORT
                 ).show()
             }
-        }.addOnFailureListener {
-            addressBeingLocated?.let {
-                viewModel.updateAddress(
-                    it.copy(isFetchingLocation = false)
-                )
-            }
-            Toast.makeText(
-                requireContext(),
-                "Failed to get location",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
+        )
     }
 
     private fun getAddressFromLocation(latitude: Double, longitude: Double) {
         val target = addressBeingLocated ?: return
         viewLifecycleOwner.lifecycleScope.launch {
-            val locationAddress = withContext(Dispatchers.IO) {
-                try {
-                    Geocoder(requireContext(), Locale.getDefault())
-                        .getFromLocation(latitude, longitude, 1)?.firstOrNull()
-                } catch (e: Exception) { null }
-            }
+            val locationAddress = locationHelper.getAddressFromLocation(
+                    latitude,
+                    longitude
+                )
             if (locationAddress == null) {
                 viewModel.updateAddress(
-                    target.copy(isFetchingLocation = false)
+                    target.copy(
+                        isFetchingLocation = false
+                    )
                 )
-                Toast.makeText(requireContext(), "Unable to get address", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Unable to get address",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@launch
             }
             val updated = target.copy(
@@ -166,27 +178,25 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
             )
             viewModel.updateAddress(updated)
             addressBeingLocated = null
-            Toast.makeText(requireContext(), "Address updated", Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                "Address updated",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
     private fun getLocationFromAddress(address: AddressModel, fullAddress: String) {
         viewLifecycleOwner.lifecycleScope.launch {
-            val location = withContext(Dispatchers.IO) {
-                try {
-                    Geocoder(requireContext(), Locale.getDefault())
-                        .getFromLocationName(fullAddress, 1)
-                        ?.firstOrNull()
-                } catch (e: IOException) {
-                    null
-                }
-            }
-
+            val location = locationHelper.getLocationFromAddress(fullAddress)
             if (location == null) {
-                Toast.makeText(requireContext(), "Address not found", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Address not found",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@launch
             }
-
             val updatedAddress = address.copy(
                 house = location.subThoroughfare ?: "",
                 street = location.thoroughfare,
@@ -198,10 +208,8 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
                 latitude = location.latitude,
                 longitude = location.longitude
             )
-
             viewModel.updateAddress(updatedAddress)
             viewModel.updateSelectedAddress(updatedAddress.id)
-
             Toast.makeText(
                 requireContext(),
                 "Address updated successfully",

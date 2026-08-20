@@ -27,29 +27,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.booksrepositoryapp.R
+import com.example.booksrepositoryapp.data.local.room.entity.BookDetailsModel
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun BookDetailsScreenCompose(
+    book: BookDetailsModel,
     onBackClick: () -> Unit,
+    onAddToCartClick: () -> Unit
 ) {
-    data class Book(
-        val name: String,
-        val author: String,
-        val price: Double,
-        val rating: Double,
-        val category: String,
-        val description: String,
-    )
-    val book = Book(
-        name = "1984",
-        author = "George Orwell",
-        price = 18.0,
-        rating = 4.6,
-        category = "Classic",
-        description = "-Oscar Wilde’s only novel is the dreamlike story of a young man who sells his soul for eternal youth and beauty. In this celebrated work Wilde forged a devastating portrait of the effects of evil and debauchery on a young aesthete in late-19th-century England. Combining elements of the Gothic horror novel and decadent French fiction, the book centers on a striking premise: As Dorian Gray sinks into a life of crime and gross sensuality, his body retains perfect youth and vigor while his recently painted portrait grows day by day into a hideous record of evil, which he must keep hidden from the world. For over a century, this mesmerizing tale of horror and suspense has enjoyed wide popularity. It ranks as one of Wilde's most important creations and among the classic achievements of its kind."
-    )
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,7 +60,6 @@ fun BookDetailsScreenCompose(
                     contentDescription = "Back"
                 )
             }
-
             Text(
                 text = book.category,
                 fontSize = 18.sp,
@@ -78,10 +67,8 @@ fun BookDetailsScreenCompose(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-
-        // Book title
         Text(
-            text = book.name,
+            text = book.title,
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF212121),
@@ -99,41 +86,41 @@ fun BookDetailsScreenCompose(
                     .height(190.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(
-                        R.drawable.book_cover_img
-                    ),
-                    contentDescription = book.name,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                if (book.coverId != 0) {
+                    GlideImage(
+                        model = "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg",
+                        contentDescription = book.title,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.book_cover_img),
+                        contentDescription = book.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
-
-            // Book information
             Column(
                 modifier = Modifier
                     .padding(start = 16.dp)
                     .weight(1f)
             ) {
-
                 Text(
                     text = "Author : ${book.author}",
                     fontSize = 18.sp,
                     color = Color(0xFF212121)
                 )
-
                 Text(
                     text = "Category : ${book.category}",
                     fontSize = 18.sp,
                     modifier = Modifier.padding(top = 10.dp)
                 )
-
                 Text(
                     text = "Rating : ${book.rating}/5",
                     fontSize = 18.sp,
                     modifier = Modifier.padding(top = 10.dp)
                 )
-
                 Row(
                     modifier = Modifier.padding(top = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -142,14 +129,12 @@ fun BookDetailsScreenCompose(
                         text = "Pricing:",
                         fontSize = 18.sp
                     )
-
                     Text(
                         text = " $${book.price}",
                         fontSize = 30.sp,
                         fontWeight = FontWeight.Bold
                     )
                 }
-
                 Button(
                     onClick = {},
                     modifier = Modifier
@@ -176,7 +161,7 @@ fun BookDetailsScreenCompose(
         )
 
         Text(
-            text = book.description,
+            text = book.description ?: "",
             fontSize = 18.sp,
             color = Color(0xFF424242),
             lineHeight = 22.sp,
@@ -191,7 +176,18 @@ fun BookDetailsScreenCompose(
 fun BookDetailsPreview() {
     BooksRepositoryAppTheme {
         BookDetailsScreenCompose (
+            book = BookDetailsModel(
+                workId = "OL123456W",
+                title = "The Great Gatsby",
+                author = "F. Scott Fitzgerald",
+                price = 25.99,
+                rating = 4.5,
+                category = "Fiction",
+                description = "A classic novel about wealth, love, and the American dream.",
+                coverId = 123456
+            ),
             onBackClick = {},
+            onAddToCartClick = {}
         )
     }
 }
