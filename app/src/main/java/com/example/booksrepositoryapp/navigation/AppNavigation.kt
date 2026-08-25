@@ -1,8 +1,19 @@
 package com.example.booksrepositoryapp.navigation
 
+import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresExtension
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -13,14 +24,23 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.Navigation
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.booksrepositoryapp.MainActivityViewModel
+import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.room.entity.BookDetailsModel
 import com.example.booksrepositoryapp.data.local.uiModels.CartItem
+import com.example.booksrepositoryapp.navigation.routes.Routes
 import com.example.booksrepositoryapp.ui.account_details.AccountDetailsScreen
+import com.example.booksrepositoryapp.ui.account_details.AccountDetailsViewModel
+import com.example.booksrepositoryapp.ui.address_screen.AddressListViewModel
 import com.example.booksrepositoryapp.ui.address_screen.AddressScreenCompose
 import com.example.booksrepositoryapp.ui.auth.getstarted.GetStartedScreen
 import com.example.booksrepositoryapp.ui.auth.getstarted.GetStartedState
@@ -46,6 +66,9 @@ import com.example.booksrepositoryapp.ui.checkout_screen.CheckoutViewModel
 import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheet
 import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheetCompose
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageScreen
+import com.example.booksrepositoryapp.ui.loading_screen.LoadingScreenCompose
+import com.example.booksrepositoryapp.ui.success_payment.SuccessScreenCompose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
@@ -55,319 +78,457 @@ fun AppNavigation(
     navController: NavHostController,
     modifier: Modifier
 ) {
-    NavHost(
-        navController = navController,
-        startDestination = "home",
-        modifier = modifier
-    ) {
-        composable("landing_page") {
-            LandingPageScreen(
-                onRegisterClick = {
-                    navController.navigate("register")
-                },
-                onGetStartedClick = {
-                    navController.navigate("get_started")
-                }
-            )
-        }
-        composable("get_started") {
-            val viewModel: GetStartedViewModel = viewModel()
-            val context = LocalContext.current
-            LaunchedEffect(Unit) {
-                viewModel.getStartedState.collect { state ->
-                    when (state) {
-                        GetStartedState.Idle -> {}
-                        is GetStartedState.Error -> {
-                            Toast.makeText(
-                                context,
-                                state.message,
-                                Toast.LENGTH_SHORT
-                            ).show()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+    val mainActivityViewModel: MainActivityViewModel = viewModel()
+    val bottomBarRoutes = setOf(
+        Routes.BooksCategory.route,
+        Routes.BooksList.route,
+        Routes.AddToCart.route,
+        Routes.Account.route
+    )
+    Scaffold(
+        bottomBar = {
+            if (currentRoute in bottomBarRoutes) {
+                NavigationBar {
+                    NavigationBarItem(
+                        selected = currentRoute == Routes.BooksCategory.route,
+                        onClick = {
+                            navController.navigate(Routes.BooksCategory.route) {
+                                launchSingleTop = true
+                                restoreState = true
+                                popUpTo(Routes.BooksCategory.route) {
+                                    saveState = true
+                                }
+                            }
+                        },
+                        icon = {
+                            Icon(
+                                Icons.Default.Home,
+                                contentDescription = "Home"
+                            )
+                        },
+                        label = {
+                            Text("Home")
                         }
-                        GetStartedState.Success -> {
-                            navController.navigate("app")
+                    )
+                    NavigationBarItem(
+                        selected = currentRoute == Routes.AddToCart.route,
+                        onClick = {
+                            navController.navigate(Routes.AddToCart.route) {
+                                launchSingleTop = true
+                                restoreState = true
+                                popUpTo(Routes.BooksCategory.route) {
+                                    saveState = true
+                                }
+                            }
+                        },
+                        icon = {
+                            Icon(
+                                Icons.Default.ShoppingCart,
+                                contentDescription = "Cart"
+                            )
+                        },
+                        label = {
+                            Text("Cart")
                         }
-                    }
-                }
-            }
-            GetStartedScreen(
-                onBackClick = {
-                    navController.navigate("landing_page")
-                },
-                onRegisterClick = {
-                    navController.navigate("register")
-                },
-                onForgotPasswordClick = {},
-                onGetStartedClick = { email, password ->
-                    viewModel.login(
-                        email = email,
-                        password = password
+                    )
+                    NavigationBarItem(
+                        selected = currentRoute == Routes.Account.route,
+                        onClick = {
+                            navController.navigate(Routes.Account.route) {
+                                launchSingleTop = true
+                                restoreState = true
+                                popUpTo(Routes.BooksCategory.route) {
+                                    saveState = true
+                                }
+                            }
+                        },
+                        icon = {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = "Account"
+                            )
+                        },
+                        label = {
+                            Text("Account")
+                        }
                     )
                 }
-            )
+            }
         }
-        composable("register") {
-            val viewModel: RegisterViewModel = viewModel()
-            val context = LocalContext.current
-            LaunchedEffect(Unit) {
-                viewModel.registerUser.collect { state ->
-                    when (state) {
-                        RegisterState.Idle -> {}
-                        is RegisterState.Error -> {
-                            Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                        }
-                        RegisterState.Success -> {
-                            navController.navigate("app")
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = if (mainActivityViewModel.isLoggedIn.collectAsState().value) {
+                Routes.BooksCategory.route
+            } else {
+                Routes.LandingPage.route
+            },
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            composable(Routes.LandingPage.route) {
+                LandingPageScreen(
+                    onRegisterClick = {
+                        navController.navigate(Routes.Register.route)
+                    },
+                    onGetStartedClick = {
+                        navController.navigate(Routes.GetStarted.route)
+                    }
+                )
+            }
+            composable(Routes.GetStarted.route) {
+                val viewModel: GetStartedViewModel = viewModel()
+                val context = LocalContext.current
+                LaunchedEffect(Unit) {
+                    viewModel.getStartedState.collect { state ->
+                        when (state) {
+                            GetStartedState.Idle -> {}
+                            is GetStartedState.Error -> {
+                                Toast.makeText(
+                                    context,
+                                    state.message,
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            GetStartedState.Success -> {
+                                navController.navigate(Routes.BooksCategory.route)
+                            }
                         }
                     }
                 }
-            }
-            RegisterScreen(
-                onBackClick = {
-                    navController.navigate("landing_page")
-                },
-                onRegisterClick = { username, email, password, confirmPassword ->
-                    viewModel.viewModelScope.launch {
-                        viewModel.register(
-                            userName = username,
+                GetStartedScreen(
+                    onBackClick = {
+                        navController.navigate(Routes.LandingPage.route)
+                    },
+                    onRegisterClick = {
+                        navController.navigate(Routes.Register.route)
+                    },
+                    onForgotPasswordClick = {},
+                    onGetStartedClick = { email, password ->
+                        viewModel.login(
                             email = email,
-                            password = password,
-                            confirmPass = confirmPassword
+                            password = password
                         )
                     }
-                },
-                onGetStartedClick = {
-                    navController.navigate("get_started")
+                )
+            }
+            composable(Routes.Register.route) {
+                val viewModel: RegisterViewModel = viewModel()
+                val context = LocalContext.current
+                LaunchedEffect(Unit) {
+                    viewModel.registerUser.collect { state ->
+                        when (state) {
+                            RegisterState.Idle -> {}
+                            is RegisterState.Error -> {
+                                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                            }
+                            RegisterState.Success -> {
+                                navController.navigate(Routes.BooksCategory.route)
+                            }
+                        }
+                    }
                 }
-            )
-        }
-        composable("books") {
-            val viewModel: BooksCategoryViewModel = viewModel()
-            val context = LocalContext.current
-            val state by viewModel.categoryState.observeAsState(
-                BooksCategoryState.Idle
-            )
-            when (val currentState = state) {
-                BooksCategoryState.Idle -> {}
-                BooksCategoryState.Loading -> {}
-                is BooksCategoryState.Success -> {
-                    BookCategoryScreen(
-                        categories = currentState.categories,
-                        onBackClick = {
-                            navController.navigateUp()
-                        },
-                        onSearch = { query ->
-                            viewModel.searchTodos(query)
-                        },
-                        onCardClick = { category ->
-                            navController.navigate(
-                                "books_list/${category.apiValue}/${category.title}"
+                RegisterScreen(
+                    onBackClick = {
+                        navController.navigate(Routes.LandingPage.route)
+                    },
+                    onRegisterClick = { username, email, password, confirmPassword ->
+                        viewModel.viewModelScope.launch {
+                            viewModel.register(
+                                userName = username,
+                                email = email,
+                                password = password,
+                                confirmPass = confirmPassword
                             )
                         }
-                    )
-                }
-                is BooksCategoryState.Error -> {
-                    Toast.makeText(
-                        context,
-                        currentState.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    viewModel.resetState()
-                }
+                    },
+                    onGetStartedClick = {
+                        navController.navigate(Routes.GetStarted.route)
+                    }
+                )
             }
-        }
-        composable("books_list/{apiValue}/{title}") { backStackEntry ->
-            val apiValue = backStackEntry.arguments?.getString("apiValue") ?: ""
-            val title = backStackEntry.arguments?.getString("title") ?: "Unknown"
-            val viewModel: BooksListViewModel = viewModel()
-            BooksListScreen(
-                apiValue = apiValue,
-                title = title,
-                viewModel = viewModel,
-                onBackClick = {
-                    navController.navigateUp()
-                },
-                onBookClick = { workId ->
-                    navController.navigate("book_details/$workId")
-                }
-            )
-        }
-        composable("book_details/{workId}") { backStackEntry ->
-            val workId = backStackEntry.arguments?.getString("workId") ?: "Unknown"
-            val viewModel: BookDetailsViewModel = viewModel()
-            val context = LocalContext.current
-            LaunchedEffect(workId) {
-                viewModel.getBookDetails(workId)
-            }
-            val state by viewModel.bookDetailState.collectAsState()
-            when (val currentState = state) {
-                BooksListState.Idle -> {}
-                is BookDetailsState.Loading -> {}
-                is BookDetailsState.Success -> {
-                    currentState.books?.let { book ->
-                        BookDetailsScreenCompose(
-                            book = book,
+            composable(Routes.BooksCategory.route) {
+                val viewModel: BooksCategoryViewModel = viewModel()
+                val context = LocalContext.current
+                val state by viewModel.categoryState.observeAsState(
+                    BooksCategoryState.Idle
+                )
+                when (val currentState = state) {
+                    BooksCategoryState.Idle -> {}
+                    BooksCategoryState.Loading -> {}
+                    is BooksCategoryState.Success -> {
+                        BookCategoryScreen(
+                            categories = currentState.categories,
                             onBackClick = {
                                 navController.navigateUp()
                             },
-                            onAddToCartClick = {
-                                viewModel.addToCart(workId)
-                                Toast.makeText(context, "Added to Cart", Toast.LENGTH_SHORT).show()
+                            onSearch = { query ->
+                                viewModel.searchTodos(query)
+                            },
+                            onCardClick = { category ->
+                                navController.navigate(
+                                    Routes.BooksList.createRoute(category.apiValue, category.title)
+                                )
                             }
                         )
                     }
+                    is BooksCategoryState.Error -> {
+                        Toast.makeText(
+                            context,
+                            currentState.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        viewModel.resetState()
+                    }
                 }
-                is BookDetailsState.Error -> {
-                    Toast.makeText(context, currentState.message, Toast.LENGTH_SHORT).show()
+            }
+            composable(Routes.BooksList.route) { backStackEntry ->
+                val apiValue = backStackEntry.arguments?.getString("apiValue") ?: ""
+                val title = backStackEntry.arguments?.getString("title") ?: "Unknown"
+                val viewModel: BooksListViewModel = viewModel()
+                BooksListScreen(
+                    apiValue = apiValue,
+                    title = title,
+                    viewModel = viewModel,
+                    onBackClick = {
+                        navController.navigateUp()
+                    },
+                    onBookClick = { workId ->
+                        val cleanedWorkId = Uri.encode(workId)
+                        navController.navigate(
+                            Routes.BookDetails.createRoute(cleanedWorkId)
+                        )
+                    }
+                )
+            }
+            composable(Routes.BookDetails.route) { backStackEntry ->
+                val workId = backStackEntry.arguments?.getString("workId") ?: "Unknown"
+                val viewModel: BookDetailsViewModel = viewModel()
+                val context = LocalContext.current
+                LaunchedEffect(workId) {
+                    viewModel.getBookDetails(workId)
                 }
-                else -> {}
-            }
-        }
-        composable("add_to_cart") {
-            val viewModel: AddToCartViewModel = viewModel()
-            val context = LocalContext.current
-            val state by viewModel.addToCartState.collectAsState()
-            var showConfirmation by remember {
-                mutableStateOf(false)
-            }
-            var selectedCartItem by remember {
-                mutableStateOf<CartItem?>(null)
-            }
-            LaunchedEffect(Unit) {
-                viewModel.getCartItems()
-            }
-            when (val currentState = state) {
-                AddToCartState.Idle -> {}
-                AddToCartState.Loading -> {}
-                is AddToCartState.Error -> {
-                    Toast.makeText(
-                        context,
-                        currentState.message,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                is AddToCartState.Success -> {
-                    AddToCartScreen(
-                        cartItems = currentState.cartItem,
-                        onBackClick = {
-                            navController.navigateUp()
-                        },
-                        onIncreaseClick = { cartItem ->
-                            viewModel.increaseQuantity(cartItem)
-                        },
-                        onDecreaseClick = { cartItem ->
-                            if (cartItem.quantity > 1) {
-                                viewModel.decreaseQuantity(cartItem)
-                            } else {
-                                selectedCartItem = cartItem
-                                showConfirmation = true
-                            }
-                        },
-                        onRemoveClick = { cartItem ->
-                            selectedCartItem = cartItem
-                            showConfirmation = true
-                        },
-                        onCheckoutClick = { total ->
-                            navController.navigate(
-                                "checkout/$total"
+                val state by viewModel.bookDetailState.collectAsState()
+                when (val currentState = state) {
+                    BookDetailsState.Idle -> {}
+                    is BookDetailsState.Loading -> {}
+                    is BookDetailsState.Success -> {
+                        currentState.books?.let { book ->
+                            BookDetailsScreenCompose(
+                                book = book,
+                                onBackClick = {
+                                    navController.navigateUp()
+                                },
+                                onAddToCartClick = {
+                                    viewModel.addToCart(workId)
+                                    Toast.makeText(context, "Added to Cart", Toast.LENGTH_SHORT).show()
+                                }
                             )
                         }
-                    )
-                    if (showConfirmation && selectedCartItem != null) {
-                        ConfirmationBottomSheetCompose(
-                            title = "Remove Item",
-                            message = "Remove this item from your cart?",
-                            positiveButtonText = "Remove",
-                            onConfirm = {
-                                selectedCartItem?.let { cartItem ->
-                                    viewModel.removeCartItem(cartItem)
-                                }
-                                selectedCartItem = null
-                                showConfirmation = false
+                    }
+                    is BookDetailsState.Error -> {
+                        Toast.makeText(context, currentState.message, Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            composable(Routes.AddToCart.route) {
+                val viewModel: AddToCartViewModel = viewModel()
+                val context = LocalContext.current
+                val state by viewModel.addToCartState.collectAsState()
+                var showConfirmation by remember {
+                    mutableStateOf(false)
+                }
+                var selectedCartItem by remember {
+                    mutableStateOf<CartItem?>(null)
+                }
+                LaunchedEffect(Unit) {
+                    viewModel.getCartItems()
+                }
+                when (val currentState = state) {
+                    AddToCartState.Idle -> {}
+                    AddToCartState.Loading -> {}
+                    is AddToCartState.Error -> {
+                        Toast.makeText(
+                            context,
+                            currentState.message,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    is AddToCartState.Success -> {
+                        AddToCartScreen(
+                            cartItems = currentState.cartItem,
+                            onBackClick = {
+                                navController.navigateUp()
                             },
-                            onDismiss = {
-                                selectedCartItem = null
-                                showConfirmation = false
+                            onIncreaseClick = { cartItem ->
+                                viewModel.increaseQuantity(cartItem)
+                            },
+                            onDecreaseClick = { cartItem ->
+                                if (cartItem.quantity > 1) {
+                                    viewModel.decreaseQuantity(cartItem)
+                                } else {
+                                    selectedCartItem = cartItem
+                                    showConfirmation = true
+                                }
+                            },
+                            onRemoveClick = { cartItem ->
+                                selectedCartItem = cartItem
+                                showConfirmation = true
+                            },
+                            onCheckoutClick = { total ->
+                                navController.navigate(
+                                    Routes.Checkout.createRoute(total)
+                                )
                             }
                         )
+                        if (showConfirmation && selectedCartItem != null) {
+                            ConfirmationBottomSheetCompose(
+                                title = "Remove Item",
+                                message = "Remove this item from your cart?",
+                                positiveButtonText = "Remove",
+                                onConfirm = {
+                                    selectedCartItem?.let { cartItem ->
+                                        viewModel.removeCartItem(cartItem)
+                                    }
+                                    selectedCartItem = null
+                                    showConfirmation = false
+                                },
+                                onDismiss = {
+                                    selectedCartItem = null
+                                    showConfirmation = false
+                                }
+                            )
+                        }
                     }
                 }
             }
-        }
-        composable("checkout/{total}") { backStackEntry ->
-            val total = backStackEntry.arguments?.getString("total")?.toDoubleOrNull() ?: 0.0
-            val viewModel: CheckoutViewModel = viewModel()
-            val context = LocalContext.current
-            val checkoutState by viewModel.checkoutState.collectAsState()
-            when (val state = checkoutState) {
-                CheckoutState.Idle -> {
-                    CheckoutScreen(
-                        total = total,
-                        selectedAddress = null,
-                        onBackClick = {
-                            navController.navigateUp()
-                        },
-                        onSelectAddressClick = {
-                            navController.navigate("address_list")
-                        },
-                        onPayClick = {
-                            viewModel.clearCart()
-                            navController.navigate("success")
-                        },
-                        viewModel = viewModel
-                    )
+            composable(Routes.Checkout.route) { backStackEntry ->
+                val total = backStackEntry.arguments
+                    ?.getString("total")
+                    ?.toDoubleOrNull() ?: 0.0
+                val viewModel: CheckoutViewModel = viewModel()
+                val context = LocalContext.current
+                val checkoutState by viewModel.checkoutState.collectAsState()
+                var showLoadingDialog by remember {
+                    mutableStateOf(false)
                 }
-                CheckoutState.Loading -> {}
-                is CheckoutState.Success -> {
-                    CheckoutScreen(
-                        total = total,
-                        selectedAddress = state.address,
-                        onBackClick = {
-                            navController.navigateUp()
-                        },
-                        onSelectAddressClick = {
-                            navController.navigate("address_list")
-                        },
-                        onPayClick = {
-                            viewModel.clearCart()
-                            navController.navigate("success")
-                        },
-                        viewModel = viewModel
-                    )
+                val selectedAddress = when (val state = checkoutState) {
+                    is CheckoutState.Success -> state.address
+                    is CheckoutState.Error -> null
+                    CheckoutState.Idle -> null
+                    CheckoutState.Loading -> null
                 }
-                is CheckoutState.Error -> {
-                    CheckoutScreen(
-                        total = total,
-                        selectedAddress = null,
-                        onBackClick = {
-                            navController.navigateUp()
-                        },
-                        onSelectAddressClick = {
-                            navController.navigate("address_list")
-                        },
-                        onPayClick = {
-                            viewModel.clearCart()
-                            navController.navigate("success")
-                        },
-                        viewModel = viewModel
-                    )
-                    LaunchedEffect(state.message) {
-                        Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
+                CheckoutScreen(
+                    total = total,
+                    selectedAddress = selectedAddress,
+                    onBackClick = {
+                        navController.navigateUp()
+                    },
+                    onSelectAddressClick = {
+                        navController.navigate(Routes.AddressList.route)
+                    },
+                    onPayClick = {
+                        showLoadingDialog = true
+                    },
+                    viewModel = viewModel
+                )
+
+                LoadingScreenCompose(
+                    showDialog = showLoadingDialog
+                )
+
+                if (showLoadingDialog) {
+                    LaunchedEffect(Unit) {
+                        delay(2000)
+                        viewModel.clearCart()
+                        showLoadingDialog = false
+                        navController.navigate(Routes.Success.route)
+                    }
+                }
+                if (checkoutState is CheckoutState.Error) {
+                    val message = (checkoutState as CheckoutState.Error).message
+                    LaunchedEffect(message) {
+                        Toast.makeText(
+                            context,
+                            message,
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
-        }
-        composable("address") {
-            AddressScreenCompose(
-                onBackClick = {
-                    navController.navigateUp()
-                },
-                onAddClick = {},
-                onDeleteClick = {}
-            )
-        }
-        composable("account") {
-            AccountDetailsScreen()
+            composable(Routes.Success.route){
+                SuccessScreenCompose(
+                    onGoToHome = {
+                        navController.navigate(Routes.BooksCategory.route) {
+                            popUpTo(Routes.AddToCart.route) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
+            composable(Routes.AddressList.route) {
+                val viewModel: AddressListViewModel = viewModel()
+                val context = LocalContext.current
+                var showConfirmation by remember {
+                    mutableStateOf(false)
+                }
+                val addressCount by viewModel.addressCount.collectAsStateWithLifecycle(initialValue = 0)
+                AddressScreenCompose(
+                    onBackClick = {
+                        navController.navigateUp()
+                    },
+                    onAddClick = {
+                        if (addressCount < 5) {
+                            viewModel.addEmptyAddress()
+                        }
+                        else {
+                            Toast.makeText(context, "Max Addresses", Toast.LENGTH_SHORT).show()
+
+                        }
+                    },
+                    onDeleteClick = {
+                        if (addressCount > 0) {
+                            showConfirmation = true
+                        }
+                        else {
+                            Toast.makeText(context, "No Address Found", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                )
+                if (showConfirmation && addressCount > 0) {
+                    ConfirmationBottomSheetCompose(
+                        title = "Delete All Addresses",
+                        message = "Are you sure to delete all addresses?",
+                        positiveButtonText = "Delete",
+                        onConfirm = {
+                            viewModel.deleteAllAddresses()
+                            showConfirmation = false
+                        },
+                        onDismiss = {
+                            showConfirmation = false
+                        }
+                    )
+                }
+            }
+            composable(Routes.Account.route) {
+                val viewModel: AccountDetailsViewModel = viewModel()
+                val context = LocalContext.current
+                val accountState by viewModel.userState.collectAsState()
+                AccountDetailsScreen(
+                    viewModel = viewModel(),
+                    onLogoutClick = {
+                        viewModel.logout()
+                        navController.navigate(Routes.LandingPage.route) {
+                            launchSingleTop = true
+                            restoreState = false
+                        }
+                    }
+                )
+            }
         }
     }
+
 }

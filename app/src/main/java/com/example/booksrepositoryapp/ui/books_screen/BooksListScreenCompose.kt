@@ -2,6 +2,12 @@ package com.example.booksrepositoryapp.ui.books_screen
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,6 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -22,9 +29,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -37,6 +46,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -46,6 +58,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.GlideSubcomposition
+import com.bumptech.glide.integration.compose.RequestState
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.room.entity.BookDetailsModel
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
@@ -73,24 +89,29 @@ fun BooksListScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Row(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(end = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .height(56.dp)
         ) {
             IconButton(
-                onClick = onBackClick
+                onClick = onBackClick,
+                modifier = Modifier
+                    .size(48.dp)
+                    .align(Alignment.CenterStart)
+                    .padding(start = 8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back"
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.Black
                 )
             }
             Text(
                 text = title,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
             )
         }
         Row(
@@ -136,12 +157,15 @@ fun BooksListScreen(
         when (val currentState = state) {
             BooksListState.Idle -> {}
             BooksListState.Loading -> {
-                BooksGridLoading()
+                BooksGridLoading(
+                    modifier = Modifier.weight(1f)
+                )
             }
-
             is BooksListState.Error -> {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -150,11 +174,12 @@ fun BooksListScreen(
                     )
                 }
             }
-
             is BooksListState.Success -> {
                 if (currentState.books.isEmpty()) {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
@@ -166,18 +191,15 @@ fun BooksListScreen(
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
                         modifier = Modifier
-                            .background(Color.Gray)
-                            .padding(4.dp)
-                            .fillMaxSize(),
+                            .weight(1f)
+                            .padding(4.dp),
                         contentPadding = PaddingValues(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(
                             items = currentState.books,
-                            key = { book ->
-                                book.workId
-                            }
+                            key = { book -> book.workId }
                         ) { book ->
                             BookCard(
                                 book = book,
@@ -189,7 +211,6 @@ fun BooksListScreen(
                     }
                 }
             }
-
             else -> {}
         }
     }
@@ -209,7 +230,7 @@ fun BooksListScreen(
     }
 }
 
-
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun BookCard(
     book: BookDetailsModel,
@@ -234,17 +255,45 @@ fun BookCard(
                     .background(Color.LightGray),
                 contentAlignment = Alignment.Center
             ) {
-
-                Image(
-                    painter = painterResource(
-                        id = R.drawable.book_cover_img
-                    ),
-                    contentDescription = book.title,
-                    modifier = Modifier
-                        .height(115.dp)
-                        .width(85.dp),
-                    contentScale = ContentScale.Fit
-                )
+                if (book.coverId != 0) {
+                    GlideSubcomposition(
+                        model = "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg",
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        when (state) {
+                            RequestState.Loading -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                            is RequestState.Success -> {
+                                GlideImage(
+                                    model = "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg",
+                                    contentDescription = book.title,
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            }
+                            RequestState.Failure -> {
+                                Image(
+                                    painter = painterResource(R.drawable.book_cover_img),
+                                    contentDescription = book.title,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    }
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.book_cover_img),
+                        contentDescription = book.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
             Column(
                 modifier = Modifier
@@ -254,7 +303,7 @@ fun BookCard(
                     .padding(8.dp)
             ) {
                 Text(
-                    text = book.category,
+                    text = book.category.replaceFirstChar { it.uppercaseChar() },
                     fontSize = 12.sp,
                     color = Color.Gray,
                     maxLines = 1
@@ -289,10 +338,12 @@ fun BookCard(
 
 
 @Composable
-fun BooksGridLoading() {
+fun BooksGridLoading(
+    modifier: Modifier = Modifier
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -311,7 +362,7 @@ fun BooksGridLoading() {
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(120.dp)
-                            .background(Color.LightGray)
+                            .shimmerEffect()
                     )
                     Column(
                         modifier = Modifier
@@ -323,30 +374,57 @@ fun BooksGridLoading() {
                             modifier = Modifier
                                 .fillMaxWidth(0.4f)
                                 .height(12.dp)
-                                .background(Color.LightGray)
+                                .shimmerEffect()
                         )
-                        Spacer(
-                            modifier = Modifier.height(8.dp)
-                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
                                 .height(18.dp)
-                                .background(Color.LightGray)
+                                .shimmerEffect()
                         )
-                        Spacer(
-                            modifier = Modifier.height(8.dp)
-                        )
+                        Spacer(modifier = Modifier.height(8.dp))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(0.6f)
                                 .height(12.dp)
-                                .background(Color.LightGray)
+                                .shimmerEffect()
                         )
                     }
                 }
             }
         }
+    }
+}
+
+fun Modifier.shimmerEffect(): Modifier {
+    return composed {
+        val transition = rememberInfiniteTransition(
+            label = "shimmer"
+        )
+        val translateAnimation by transition.animateFloat(
+            initialValue = 0f,
+            targetValue = 1000f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(
+                    durationMillis = 1000,
+                    easing = LinearEasing
+                ),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "shimmer"
+        )
+        val shimmerColors = listOf(
+            Color.LightGray.copy(alpha = 0.6f),
+            Color.White.copy(alpha = 0.9f),
+            Color.LightGray.copy(alpha = 0.6f)
+        )
+        val brush = Brush.linearGradient(
+            colors = shimmerColors,
+            start = Offset(translateAnimation - 300f, 0f),
+            end = Offset(translateAnimation, 0f)
+        )
+        background(brush)
     }
 }
 
@@ -364,3 +442,4 @@ fun BooksListScreenComposePreview() {
         )
     }
 }
+

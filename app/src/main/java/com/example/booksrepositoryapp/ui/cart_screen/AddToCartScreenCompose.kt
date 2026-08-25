@@ -71,23 +71,12 @@ fun AddToCartScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF5F5F5))
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
         ) {
-            IconButton(
-                onClick = onBackClick,
-                modifier = Modifier.align(Alignment.CenterStart)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.Black
-                )
-            }
             Text(
                 text = "Cart",
                 fontSize = 16.sp,

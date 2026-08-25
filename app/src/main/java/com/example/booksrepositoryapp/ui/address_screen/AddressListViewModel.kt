@@ -23,6 +23,8 @@ class AddressListViewModel(application: Application) : AndroidViewModel(applicat
             }
         }
 
+    val addressCount = addressRepo.getAddressCount()
+
     fun addAddress(address: AddressModel) {
         viewModelScope.launch {
             addressRepo.addAddress(address)
@@ -32,6 +34,27 @@ class AddressListViewModel(application: Application) : AndroidViewModel(applicat
     fun updateAddress(address: AddressModel) {
         viewModelScope.launch {
             addressRepo.updateAddress(address)
+        }
+    }
+
+    fun addEmptyAddress() {
+        viewModelScope.launch {
+            val address = AddressModel(
+                userId = userId,
+                house = "",
+                street = null,
+                area = "",
+                city = "",
+                postalCode = null,
+                country = "",
+                fullAddress = "",
+                latitude = 0.0,
+                longitude = 0.0,
+                isSelected = false,
+                isFetchingLocation = false,
+                isSaving = false
+            )
+            addressRepo.addAddress(address)
         }
     }
 

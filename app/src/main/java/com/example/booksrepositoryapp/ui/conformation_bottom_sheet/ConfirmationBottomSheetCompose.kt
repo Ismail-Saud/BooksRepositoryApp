@@ -22,8 +22,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.booksrepositoryapp.data.local.uiModels.CartItem
+import com.example.booksrepositoryapp.ui.cart_screen.AddToCartScreen
+import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,5 +113,19 @@ fun ConfirmationBottomSheetCompose(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ConfirmationBottomSheetComposePreview() {
+    BooksRepositoryAppTheme {
+        ConfirmationBottomSheetCompose(
+            title = "",
+            message = "",
+            positiveButtonText = "",
+            onConfirm = {},
+            onDismiss = {}
+        )
     }
 }

@@ -25,6 +25,7 @@ class BooksListViewModel(application: Application) : AndroidViewModel(applicatio
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getBooksByCategory(subject: String) {
         viewModelScope.launch {
+            _bookState.value = BooksListState.Loading
             when (val result = bookRepo.refreshBooks(subject)) {
                 RefreshResult.Offline -> {
                     _bookState.value = BooksListState.Offline

@@ -55,14 +55,6 @@ fun BookCategoryScreen(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        IconButton(
-            onClick = onBackClick
-        ) {
-            Icon(
-                imageVector = Icons.Default.ArrowBack,
-                contentDescription = "Back"
-            )
-        }
         OutlinedTextField(
             value = name,
             onValueChange = {
@@ -104,7 +96,7 @@ fun BookCategoryScreen(
                             contentDescription = category.title,
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop,
-                            alpha = 0.5f
+                            alpha = 0.7f
                         )
 
                         Text(

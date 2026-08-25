@@ -35,6 +35,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -72,6 +73,9 @@ fun AddressScreenCompose(
     }
     var showPermissionDialog by remember {
         mutableStateOf(false)
+    }
+    var addressToDelete by remember {
+        mutableStateOf<AddressModel?>(null)
     }
     fun getAddressFromLocation(
         latitude: Double,
@@ -176,45 +180,44 @@ fun AddressScreenCompose(
         address: AddressModel,
         fullAddress: String
     ) {
+        viewModel.updateAddress(
+            address.copy(
+                isSaving = true
+            )
+        )
         scope.launch {
-
             val location = locationHelper.getLocationFromAddress(
                 fullAddress
             )
-
             if (location == null) {
-
+                viewModel.updateAddress(
+                    address.copy(
+                        isSaving = false
+                    )
+                )
                 Toast.makeText(
                     context,
                     "Address not found",
                     Toast.LENGTH_SHORT
                 ).show()
-
                 return@launch
             }
-
             val updatedAddress = address.copy(
                 house = location.subThoroughfare ?: "",
                 street = location.thoroughfare,
-                area = location.subLocality
-                    ?: location.featureName
-                    ?: "",
-                city = location.locality
-                    ?: location.subAdminArea
-                    ?: "",
+                area = location.subLocality ?: location.featureName ?: "",
+                city = location.locality ?: location.subAdminArea ?: "",
                 postalCode = location.postalCode,
                 country = location.countryName ?: "",
                 fullAddress = fullAddress,
                 latitude = location.latitude,
-                longitude = location.longitude
+                longitude = location.longitude,
+                isSaving = false
             )
-
             viewModel.updateAddress(updatedAddress)
-
             viewModel.updateSelectedAddress(
                 updatedAddress.id
             )
-
             Toast.makeText(
                 context,
                 "Address updated successfully",
@@ -222,7 +225,6 @@ fun AddressScreenCompose(
             ).show()
         }
     }
-
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
         ) { isGranted ->
@@ -291,18 +293,18 @@ fun AddressScreenCompose(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(5.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(24.dp)
+                .height(56.dp)
         ) {
             IconButton(
                 onClick = onBackClick,
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(48.dp)
                     .align(Alignment.CenterStart)
+                    .padding(start = 8.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
@@ -317,9 +319,7 @@ fun AddressScreenCompose(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-        Spacer(
-            modifier = Modifier.height(16.dp)
-        )
+        Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
@@ -341,13 +341,14 @@ fun AddressScreenCompose(
                         )
                         checkLocationPermission(address)
                     },
-                    onCheckClick = {
+                    onCheckClick = { editedAddress ->
                         getLocationFromAddress(
                             address = address,
-                            fullAddress = address.fullAddress)
+                            fullAddress = editedAddress
+                        )
                     },
                     onDeleteClick = {
-                        viewModel.deleteAddress(address)
+                        addressToDelete = address
                     }
                 )
             }
@@ -363,7 +364,9 @@ fun AddressScreenCompose(
                 )
         ) {
             OutlinedButton(
-                onClick = {},
+                onClick = {
+                    onAddClick()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -383,7 +386,9 @@ fun AddressScreenCompose(
                 modifier = Modifier.height(18.dp)
             )
             OutlinedButton(
-                onClick = {},
+                onClick = {
+                    onDeleteClick()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -401,15 +406,38 @@ fun AddressScreenCompose(
             }
         }
     }
+    if (addressToDelete != null) {
+        ConfirmationBottomSheetCompose(
+            title = "Delete Address",
+            message = "Do you want to delete this address?",
+            positiveButtonText = "Delete",
+            onConfirm = {
+                addressToDelete?.let { address ->
+                    viewModel.deleteAddress(address)
+                }
+                addressToDelete = null
+            },
+            onDismiss = {
+                addressToDelete = null
+            }
+        )
+    }
 }
 
 @Composable
 fun AddressItem(
     address: AddressModel,
     onLocationClick: () -> Unit,
-    onCheckClick: () -> Unit,
+    onCheckClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
-) {
+)   {
+    var addressText by rememberSaveable(address.id) {
+        mutableStateOf(address.fullAddress)
+    }
+    LaunchedEffect(address.fullAddress) {
+        addressText = address.fullAddress
+    }
+    val isProcessing = address.isFetchingLocation || address.isSaving
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -417,9 +445,6 @@ fun AddressItem(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF151515)
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = 0.dp
         )
     ) {
         Row(
@@ -429,8 +454,10 @@ fun AddressItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
-                value = address.fullAddress,
-                onValueChange = {},
+                value = addressText,
+                onValueChange = { newText ->
+                    addressText = newText
+                },
                 modifier = Modifier.weight(1f),
                 label = {
                     Text("Delivery Address")
@@ -451,25 +478,46 @@ fun AddressItem(
             )
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(
-                onClick = onLocationClick
+                onClick = onLocationClick,
+                enabled = !isProcessing
             ) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = "Location",
-                    tint = Color.White
-                )
+                if (address.isFetchingLocation) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Location",
+                        tint = Color.White
+                    )
+                }
             }
             IconButton(
-                onClick = onCheckClick
+                onClick = {
+                    onCheckClick(addressText)
+                },
+                enabled = !isProcessing
             ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "Save",
-                    tint = Color.White
-                )
+                if (address.isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Save",
+                        tint = Color.White
+                    )
+                }
             }
             IconButton(
-                onClick = onDeleteClick
+                onClick = onDeleteClick,
+                enabled = !isProcessing
             ) {
                 Icon(
                     imageVector = Icons.Default.Delete,

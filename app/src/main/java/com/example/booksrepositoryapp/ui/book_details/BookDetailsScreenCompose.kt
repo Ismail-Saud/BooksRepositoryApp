@@ -1,6 +1,7 @@
 package com.example.booksrepositoryapp.ui.book_details
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.GlideSubcomposition
+import com.bumptech.glide.integration.compose.RequestState
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.room.entity.BookDetailsModel
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
@@ -44,24 +48,27 @@ fun BookDetailsScreenCompose(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(40.dp)
+                .height(56.dp)
         ) {
             IconButton(
                 onClick = onBackClick,
-                modifier = Modifier.align(Alignment.CenterStart)
+                modifier = Modifier
+                    .size(48.dp)
+                    .align(Alignment.CenterStart)
+                    .padding(start = 8.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back"
+                    contentDescription = "Back",
+                    tint = Color.Black
                 )
             }
             Text(
-                text = book.category,
+                text = book.category.replaceFirstChar { it.uppercaseChar() },
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.Center)
@@ -72,13 +79,12 @@ fun BookDetailsScreenCompose(
             fontSize = 30.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF212121),
-            modifier = Modifier.padding(
-                top = 20.dp,
-                bottom = 20.dp
-            )
+            modifier = Modifier.padding(12.dp)
         )
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp)
         ) {
             Box(
                 modifier = Modifier
@@ -87,11 +93,37 @@ fun BookDetailsScreenCompose(
                 contentAlignment = Alignment.Center
             ) {
                 if (book.coverId != 0) {
-                    GlideImage(
+                    GlideSubcomposition(
                         model = "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg",
-                        contentDescription = book.title,
                         modifier = Modifier.fillMaxSize()
-                    )
+                    ) {
+                        when (state) {
+                            RequestState.Loading -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                            is RequestState.Success -> {
+                                GlideImage(
+                                    model = "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg",
+                                    contentDescription = book.title,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.FillBounds
+                                )
+                            }
+                            RequestState.Failure -> {
+                                Image(
+                                    painter = painterResource(R.drawable.book_cover_img),
+                                    contentDescription = book.title,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    }
                 } else {
                     Image(
                         painter = painterResource(R.drawable.book_cover_img),
@@ -136,7 +168,9 @@ fun BookDetailsScreenCompose(
                     )
                 }
                 Button(
-                    onClick = {},
+                    onClick = {
+                        onAddToCartClick()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 10.dp),
@@ -157,7 +191,12 @@ fun BookDetailsScreenCompose(
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF212121),
-            modifier = Modifier.padding(top = 24.dp)
+            modifier = Modifier
+                .padding(
+                    top = 24.dp,
+                    start = 12.dp,
+                    end = 12.dp
+                )
         )
 
         Text(
@@ -165,7 +204,12 @@ fun BookDetailsScreenCompose(
             fontSize = 18.sp,
             color = Color(0xFF424242),
             lineHeight = 22.sp,
-            modifier = Modifier.padding(top = 12.dp)
+            modifier = Modifier
+                .padding(
+                    top = 12.dp,
+                    start = 12.dp,
+                    end = 12.dp
+                )
         )
     }
 }

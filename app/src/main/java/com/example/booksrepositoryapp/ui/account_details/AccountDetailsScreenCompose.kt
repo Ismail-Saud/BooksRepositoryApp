@@ -7,8 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.Composable 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -16,17 +15,35 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @Composable
-fun AccountDetailsScreen() {
+fun AccountDetailsScreen(
+    viewModel: AccountDetailsViewModel,
+    onLogoutClick: () -> Unit
+) {
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
+    val selectedAddress by viewModel.selectedAddress.collectAsStateWithLifecycle(
+        initialValue = null
+    )
+    LaunchedEffect(Unit) {
+        viewModel.getUser()
+    }
+    val user = when (val state = userState) {
+        is AccountDetailsState.Success -> state.user
+        else -> null
+    }
     LazyColumn (
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -59,25 +76,27 @@ fun AccountDetailsScreen() {
         item {
             AccountInfoCard(
                 label = "Name:",
-                value = "John Doe",
+                value = user?.username ?: "Name not found",
                 modifier = Modifier.padding(top = 32.dp)
             )
 
             AccountInfoCard(
                 label = "E-mail:",
-                value = "johndoe123@mail.com",
+                value = user?.email ?: "Email not found",
                 modifier = Modifier.padding(top = 16.dp)
             )
 
             AccountInfoCard(
                 label = "Address:",
-                value = "No.23, James Street, New Town, North Province",
+                value = selectedAddress?.fullAddress ?: "Address not found",
                 modifier = Modifier.padding(top = 16.dp)
             )
         }
         item {
             OutlinedButton(
-                onClick = {},
+                onClick = {
+                    onLogoutClick()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -110,15 +129,11 @@ fun AccountInfoCard(
     value: String,
     modifier: Modifier = Modifier
 ) {
-
     Card(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = 55.dp),
         shape = RoundedCornerShape(6.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE0E0E0)
-        ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 0.dp
         )
@@ -132,7 +147,9 @@ fun AccountInfoCard(
 
             Text(
                 text = label,
-                modifier = Modifier.width(80.dp),
+                modifier = Modifier
+                    .width(80.dp)
+                    .align(Alignment.CenterVertically),
                 color = Color.Black
             )
 
@@ -151,6 +168,9 @@ fun AccountInfoCard(
 @Composable
 fun AddToCartPreview() {
     BooksRepositoryAppTheme {
-        AccountDetailsScreen()
+        AccountDetailsScreen(
+            viewModel = viewModel(),
+            onLogoutClick = {}
+        )
     }
 }

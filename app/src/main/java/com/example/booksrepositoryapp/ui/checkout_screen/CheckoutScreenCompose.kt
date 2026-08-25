@@ -24,12 +24,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
@@ -51,8 +54,8 @@ fun CheckoutScreen(
     var cardHolder by rememberSaveable {
         mutableStateOf("")
     }
-    var expiry by rememberSaveable {
-        mutableStateOf("")
+    var expiry by rememberSaveable(stateSaver = TextFieldValue.Saver) {
+        mutableStateOf(TextFieldValue(""))
     }
     var cvv by rememberSaveable {
         mutableStateOf("")
@@ -69,7 +72,7 @@ fun CheckoutScreen(
     ) {
         viewModel.isValidCardNumber(cardNumber) &&
                 viewModel.isValidCardHolderName(cardHolder) &&
-                viewModel.isValidExpiryDate(expiry) &&
+                viewModel.isValidExpiryDate(expiry.text) &&
                 viewModel.isValidCVV(cvv)
     }
     val isPayEnabled = total > 0.0 &&
@@ -77,38 +80,38 @@ fun CheckoutScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp)
+        ) {
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .size(48.dp)
+                    .align(Alignment.CenterStart)
+                    .padding(start = 8.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.Black
+                )
+            }
+
+            Text(
+                text = "Checkout",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
         LazyColumn(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp)
         ) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(24.dp)
-                ) {
-                    IconButton(
-                        onClick = onBackClick,
-                        modifier = Modifier
-                            .size(24.dp)
-                            .align(Alignment.CenterStart)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back",
-                            tint = Color.Black
-                        )
-                    }
-                    Text(
-                        text = "Checkout",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                }
-            }
             item {
                 Text(
                     text = "Delivery Address",
@@ -131,8 +134,7 @@ fun CheckoutScreen(
                     )
                 ) {
                     Text(
-                        text = selectedAddress?.fullAddress
-                            ?: "Address not found",
+                        text = selectedAddress?.fullAddress ?: "Address not found",
                         color = Color.White,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
@@ -288,16 +290,22 @@ fun CheckoutScreen(
                         ) {
                             OutlinedTextField(
                                 value = expiry,
-                                onValueChange = {
-                                    if (
-                                        it.length <= 5 &&
-                                        it.all {
-                                                char ->
-                                            char.isDigit() ||
-                                                    char == '/'
+                                onValueChange = { input ->
+
+                                    val digits = input.text.filter { it.isDigit() }
+
+                                    if (digits.length <= 4) {
+
+                                        val formatted = when {
+                                            digits.length <= 2 -> digits
+                                            else -> "${digits.substring(0, 2)}/${digits.substring(2)}"
                                         }
-                                    ) {
-                                        expiry = it
+
+                                        // Keep cursor at the end
+                                        expiry = TextFieldValue(
+                                            text = formatted,
+                                            selection = TextRange(formatted.length)
+                                        )
                                     }
                                 },
                                 modifier = Modifier
@@ -311,7 +319,7 @@ fun CheckoutScreen(
                                 ),
                                 singleLine = true,
                                 isError = showCardErrors &&
-                                        !viewModel.isValidExpiryDate(expiry)
+                                        !viewModel.isValidExpiryDate(expiry.text)
                             )
                             OutlinedTextField(
                                 value = cvv,
@@ -381,12 +389,29 @@ fun CheckoutScreen(
 @Composable
 fun CheckoutScreenPreview() {
     BooksRepositoryAppTheme {
-//        CheckoutScreen (
-//            total = 0.0,
-//            onBackClick = {},
-//            onSelectAddressClick = {},
-//            onPayClick = {},
-//
-//        )
+        val viewModel: CheckoutViewModel = viewModel()
+        val sampleAddress = AddressModel(
+            id = 1,
+            userId = 1,
+            house = "House 123",
+            street = "Street 5",
+            area = "Gulberg",
+            city = "Lahore",
+            postalCode = "54000",
+            country = "Pakistan",
+            fullAddress = "House 123, Street 5, Gulberg, Lahore, Pakistan",
+            latitude = 31.5204,
+            longitude = 74.3587,
+            isSelected = true
+        )
+
+        CheckoutScreen(
+            total = 2500.0,
+            selectedAddress = sampleAddress,
+            onBackClick = {},
+            onSelectAddressClick = {},
+            onPayClick = {},
+            viewModel = viewModel
+        )
     }
 }
