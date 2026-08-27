@@ -84,7 +84,6 @@ fun SuccessScreenCompose(
                 fontWeight = FontWeight.Bold
             )
 
-            // Description
             Text(
                 text = "Your order has been validated.",
                 modifier = Modifier.padding(top = 4.dp),

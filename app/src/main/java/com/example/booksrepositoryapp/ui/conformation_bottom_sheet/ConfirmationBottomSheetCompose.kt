@@ -121,9 +121,9 @@ fun ConfirmationBottomSheetCompose(
 fun ConfirmationBottomSheetComposePreview() {
     BooksRepositoryAppTheme {
         ConfirmationBottomSheetCompose(
-            title = "",
-            message = "",
-            positiveButtonText = "",
+            title = "Delete",
+            message = "Delete all addresses",
+            positiveButtonText = "Delete",
             onConfirm = {},
             onDismiss = {}
         )

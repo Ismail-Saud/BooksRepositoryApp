@@ -30,6 +30,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
@@ -83,10 +84,7 @@ fun AddressScreenCompose(
     ) {
         val target = addressBeingLocated ?: return
         scope.launch {
-            val locationAddress = locationHelper.getAddressFromLocation(
-                latitude,
-                longitude
-            )
+            val locationAddress = locationHelper.getAddressFromLocation(latitude, longitude)
             if (locationAddress == null) {
                 viewModel.updateAddress(
                     target.copy(
@@ -127,27 +125,15 @@ fun AddressScreenCompose(
         locationHelper.getCurrentLocation(
             onSuccess = { location ->
                 if (location != null) {
-                    getAddressFromLocation(
-                        location.latitude,
-                        location.longitude
-                    )
-
-                    Log.d(
-                        "Location",
-                        "Lat: ${location.latitude}\nLng: ${location.longitude}"
-                    )
-
+                    getAddressFromLocation(location.latitude, location.longitude)
                 } else {
-
                     addressBeingLocated?.let { address ->
-
                         viewModel.updateAddress(
                             address.copy(
                                 isFetchingLocation = false
                             )
                         )
                     }
-
                     Toast.makeText(
                         context,
                         "Unable to get current location",
@@ -157,16 +143,13 @@ fun AddressScreenCompose(
             },
 
             onFailure = {
-
                 addressBeingLocated?.let { address ->
-
                     viewModel.updateAddress(
                         address.copy(
                             isFetchingLocation = false
                         )
                     )
                 }
-
                 Toast.makeText(
                     context,
                     "Failed to get location",
@@ -176,19 +159,14 @@ fun AddressScreenCompose(
         )
     }
 
-    fun getLocationFromAddress(
-        address: AddressModel,
-        fullAddress: String
-    ) {
+    fun getLocationFromAddress(address: AddressModel, fullAddress: String) {
         viewModel.updateAddress(
             address.copy(
                 isSaving = true
             )
         )
         scope.launch {
-            val location = locationHelper.getLocationFromAddress(
-                fullAddress
-            )
+            val location = locationHelper.getLocationFromAddress(fullAddress)
             if (location == null) {
                 viewModel.updateAddress(
                     address.copy(
@@ -215,9 +193,7 @@ fun AddressScreenCompose(
                 isSaving = false
             )
             viewModel.updateAddress(updatedAddress)
-            viewModel.updateSelectedAddress(
-                updatedAddress.id
-            )
+            viewModel.updateSelectedAddress(updatedAddress.id)
             Toast.makeText(
                 context,
                 "Address updated successfully",
@@ -307,7 +283,7 @@ fun AddressScreenCompose(
                     .padding(start = 8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = Color.Black
                 )
@@ -342,10 +318,7 @@ fun AddressScreenCompose(
                         checkLocationPermission(address)
                     },
                     onCheckClick = { editedAddress ->
-                        getLocationFromAddress(
-                            address = address,
-                            fullAddress = editedAddress
-                        )
+                        getLocationFromAddress(address = address, fullAddress = editedAddress)
                     },
                     onDeleteClick = {
                         addressToDelete = address

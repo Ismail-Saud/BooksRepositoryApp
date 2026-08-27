@@ -26,57 +26,30 @@ class LocationHelper(
     }
 
     @SuppressLint("MissingPermission")
-    fun getCurrentLocation(
-        onSuccess: (Location?) -> Unit,
-        onFailure: (Exception) -> Unit
-    ) {
+    fun getCurrentLocation(onSuccess: (Location?) -> Unit, onFailure: (Exception) -> Unit) {
         if (!hasLocationPermission()) {
             return
         }
-        fusedLocationClient.getCurrentLocation(
-            Priority.PRIORITY_HIGH_ACCURACY,
-            null
-        ).addOnSuccessListener { location ->
+        fusedLocationClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).addOnSuccessListener { location ->
             onSuccess(location)
         }.addOnFailureListener { exception ->
             onFailure(exception)
         }
     }
-    suspend fun getAddressFromLocation(
-        latitude: Double,
-        longitude: Double
-    ): Address? {
+    suspend fun getAddressFromLocation(latitude: Double, longitude: Double): Address? {
         return withContext(Dispatchers.IO) {
             try {
-                Geocoder(
-                    context,
-                    Locale.getDefault()
-                ).getFromLocation(
-                    latitude,
-                    longitude,
-                    1
-                )?.firstOrNull()
-
+                Geocoder(context, Locale.getDefault()).getFromLocation(latitude, longitude, 1)?.firstOrNull()
             } catch (e: Exception) {
                 null
             }
         }
     }
 
-    suspend fun getLocationFromAddress(
-        fullAddress: String
-    ): Address? {
-
+    suspend fun getLocationFromAddress(fullAddress: String): Address? {
         return withContext(Dispatchers.IO) {
             try {
-                Geocoder(
-                    context,
-                    Locale.getDefault()
-                ).getFromLocationName(
-                    fullAddress,
-                    1
-                )?.firstOrNull()
-
+                Geocoder(context, Locale.getDefault()).getFromLocationName(fullAddress, 1)?.firstOrNull()
             } catch (e: Exception) {
                 null
             }

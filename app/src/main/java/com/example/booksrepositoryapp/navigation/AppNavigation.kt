@@ -358,9 +358,6 @@ fun AppNavigation(
                     is AddToCartState.Success -> {
                         AddToCartScreen(
                             cartItems = currentState.cartItem,
-                            onBackClick = {
-                                navController.navigateUp()
-                            },
                             onIncreaseClick = { cartItem ->
                                 viewModel.increaseQuantity(cartItem)
                             },
@@ -515,8 +512,6 @@ fun AppNavigation(
             }
             composable(Routes.Account.route) {
                 val viewModel: AccountDetailsViewModel = viewModel()
-                val context = LocalContext.current
-                val accountState by viewModel.userState.collectAsState()
                 AccountDetailsScreen(
                     viewModel = viewModel(),
                     onLogoutClick = {
@@ -530,5 +525,4 @@ fun AppNavigation(
             }
         }
     }
-
 }

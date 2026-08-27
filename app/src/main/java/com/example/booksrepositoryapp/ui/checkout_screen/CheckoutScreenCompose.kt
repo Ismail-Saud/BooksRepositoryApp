@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -75,8 +76,7 @@ fun CheckoutScreen(
                 viewModel.isValidExpiryDate(expiry.text) &&
                 viewModel.isValidCVV(cvv)
     }
-    val isPayEnabled = total > 0.0 &&
-            hasSelectedAddress && (selectedPayment == "COD" || isCardValid)
+    val isPayEnabled = total > 0.0 && hasSelectedAddress && (selectedPayment == "COD" || isCardValid)
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -93,7 +93,7 @@ fun CheckoutScreen(
                     .padding(start = 8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = Color.Black
                 )
@@ -124,10 +124,7 @@ fun CheckoutScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            top = 16.dp,
-                            bottom = 16.dp
-                        ),
+                        .padding(top = 16.dp, bottom = 16.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = Color(0xFF151515)
@@ -231,12 +228,10 @@ fun CheckoutScreen(
                                 keyboardType = KeyboardType.Number
                             ),
                             singleLine = true,
-                            isError = showCardErrors &&
-                                    !viewModel.isValidCardNumber(cardNumber)
+                            isError = showCardErrors && !viewModel.isValidCardNumber(cardNumber)
                         )
                         if (
-                            showCardErrors &&
-                            !viewModel.isValidCardNumber(cardNumber)
+                            showCardErrors && !viewModel.isValidCardNumber(cardNumber)
                         ) {
                             Text(
                                 text = "Invalid card number",
@@ -263,12 +258,10 @@ fun CheckoutScreen(
                                 keyboardType = KeyboardType.Text
                             ),
                             singleLine = true,
-                            isError = showCardErrors &&
-                                    !viewModel.isValidCardHolderName(cardHolder)
+                            isError = showCardErrors && !viewModel.isValidCardHolderName(cardHolder)
                         )
                         if (
-                            showCardErrors &&
-                            !viewModel.isValidCardHolderName(cardHolder)
+                            showCardErrors && !viewModel.isValidCardHolderName(cardHolder)
                         ) {
                             Text(
                                 text = "Invalid card holder name",
@@ -291,17 +284,12 @@ fun CheckoutScreen(
                             OutlinedTextField(
                                 value = expiry,
                                 onValueChange = { input ->
-
                                     val digits = input.text.filter { it.isDigit() }
-
                                     if (digits.length <= 4) {
-
                                         val formatted = when {
                                             digits.length <= 2 -> digits
                                             else -> "${digits.substring(0, 2)}/${digits.substring(2)}"
                                         }
-
-                                        // Keep cursor at the end
                                         expiry = TextFieldValue(
                                             text = formatted,
                                             selection = TextRange(formatted.length)
@@ -318,16 +306,12 @@ fun CheckoutScreen(
                                     keyboardType = KeyboardType.Number
                                 ),
                                 singleLine = true,
-                                isError = showCardErrors &&
-                                        !viewModel.isValidExpiryDate(expiry.text)
+                                isError = showCardErrors && !viewModel.isValidExpiryDate(expiry.text)
                             )
                             OutlinedTextField(
                                 value = cvv,
                                 onValueChange = {
-                                    if (
-                                        it.length <= 3 &&
-                                        it.all(Char::isDigit)
-                                    ) {
+                                    if (it.length <= 3 && it.all(Char::isDigit)) {
                                         cvv = it
                                     }
                                 },
@@ -338,12 +322,10 @@ fun CheckoutScreen(
                                     Text("CVV")
                                 },
                                 keyboardOptions = KeyboardOptions(
-                                    keyboardType =
-                                        KeyboardType.NumberPassword
+                                    keyboardType = KeyboardType.NumberPassword
                                 ),
                                 singleLine = true,
-                                isError = showCardErrors &&
-                                        !viewModel.isValidCVV(cvv)
+                                isError = showCardErrors && !viewModel.isValidCVV(cvv)
                             )
                         }
                     }
@@ -363,7 +345,6 @@ fun CheckoutScreen(
             enabled = isPayEnabled,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp)
                 .padding(
                     start = 16.dp,
                     end = 16.dp,

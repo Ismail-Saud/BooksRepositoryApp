@@ -144,7 +144,7 @@ fun BookDetailsScreenCompose(
                     color = Color(0xFF212121)
                 )
                 Text(
-                    text = "Category : ${book.category}",
+                    text = "Category : ${book.category.replaceFirstChar { it.uppercaseChar() }}",
                     fontSize = 18.sp,
                     modifier = Modifier.padding(top = 10.dp)
                 )

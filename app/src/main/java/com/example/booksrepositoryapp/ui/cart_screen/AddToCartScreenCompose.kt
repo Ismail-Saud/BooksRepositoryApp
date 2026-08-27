@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -53,11 +54,13 @@ import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.data.local.uiModels.CartItem
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.CircularProgressIndicator
+import com.bumptech.glide.integration.compose.GlideSubcomposition
+import com.bumptech.glide.integration.compose.RequestState
 
 @Composable
 fun AddToCartScreen(
     cartItems: List<CartItem>,
-    onBackClick: () -> Unit,
     onCheckoutClick: (Double) -> Unit,
     onRemoveClick: (CartItem) -> Unit,
     onIncreaseClick: (CartItem) -> Unit,
@@ -85,124 +88,264 @@ fun AddToCartScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(
-                start = 16.dp,
-                end = 16.dp,
-                top = 8.dp,
-                bottom = 8.dp
-            )
+        BoxWithConstraints(
+            modifier = Modifier.fillMaxSize()
         ) {
-            items(
-                items = cartItems,
-                key = { it.cartId }
-            ) { cartItem ->
-                CartItem(
-                    cartItem = cartItem,
-                    onRemoveClick = {
-                        onRemoveClick(cartItem)
-                    },
-                    onIncreaseClick = {
-                        onIncreaseClick(cartItem)
-                    },
-                    onDecreaseClick = {
-                        onDecreaseClick(cartItem)
+            val isLandscape = maxWidth > maxHeight
+            if (isLandscape) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 8.dp,
+                        bottom = 14.dp
+                    )
+                ) {
+                    items(
+                        items = cartItems,
+                        key = { it.cartId }
+                    ) { cartItem ->
+                        CartItem(
+                            cartItem = cartItem,
+                            onRemoveClick = {
+                                onRemoveClick(cartItem)
+                            },
+                            onIncreaseClick = {
+                                onIncreaseClick(cartItem)
+                            },
+                            onDecreaseClick = {
+                                onDecreaseClick(cartItem)
+                            }
+                        )
                     }
-                )
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp)
+                        ) {
+                            Text(
+                                text = "Order Summary",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF222222),
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Subtotal",
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF555555)
+                                )
+
+                                Text(
+                                    text = "$%.2f".format(subTotal),
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF222222)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Shipping",
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF555555)
+                                )
+
+                                Text(
+                                    text = "$%.2f".format(shipping),
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF222222)
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            HorizontalDivider(
+                                color = Color(0xFF444444),
+                                thickness = 1.dp
+                            )
+
+                            Spacer(modifier = Modifier.height(10.dp))
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Total",
+                                    fontSize = 18.sp,
+                                    color = Color(0xFF222222)
+                                )
+
+                                Text(
+                                    text = "$%.2f".format(total),
+                                    fontSize = 18.sp,
+                                    color = Color(0xFF222222)
+                                )
+                            }
+                        }
+                    }
+                    item {
+                        Button(
+                            onClick = {
+                                onCheckoutClick(total)
+                            },
+                            enabled = cartItems.isNotEmpty(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp)
+                                .height(52.dp),
+                            shape = RoundedCornerShape(4.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF111111),
+                                contentColor = Color.White,
+                                disabledContainerColor = Color(0xFF111111),
+                                disabledContentColor = Color.White
+                            )
+                        ) {
+                            Text(
+                                text = "Proceed to Checkout",
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth(),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            end = 16.dp,
+                            top = 8.dp,
+                            bottom = 8.dp
+                        )
+                    ) {
+                        items(
+                            items = cartItems,
+                            key = { it.cartId }
+                        ) { cartItem ->
+                            CartItem(
+                                cartItem = cartItem,
+                                onRemoveClick = {
+                                    onRemoveClick(cartItem)
+                                },
+                                onIncreaseClick = {
+                                    onIncreaseClick(cartItem)
+                                },
+                                onDecreaseClick = {
+                                    onDecreaseClick(cartItem)
+                                }
+                            )
+                        }
+                    }
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp, start = 10.dp, end = 10.dp)
+                    ) {
+                        Text(
+                                text = "Order Summary",
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF222222),
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+                        Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                            Text(
+                                    text = "Subtotal",
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF555555)
+                                )
+                            Text(
+                                    text = "$%.2f".format(subTotal),
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF222222)
+                                )
+                        }
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                            Text(
+                                    text = "Shipping",
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF555555)
+                                )
+                            Text(
+                                    text = "$%.2f".format(shipping),
+                                    fontSize = 14.sp,
+                                    color = Color(0xFF222222)
+                                )
+                        }
+                        Spacer(modifier = Modifier.height(12.dp))
+                        HorizontalDivider(
+                                color = Color(0xFF444444),
+                                thickness = 1.dp
+                            )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                            Text(
+                                text = "Total",
+                                fontSize = 18.sp,
+                                color = Color(0xFF222222)
+                            )
+                            Text(
+                                text = "$%.2f".format(total),
+                                fontSize = 18.sp,
+                                color = Color(0xFF222222)
+                            )
+                        }
+                    }
+                    Button(
+                        onClick = {
+                            onCheckoutClick(total)
+                        },
+                        enabled = cartItems.isNotEmpty(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp, start = 10.dp, end = 10.dp)
+                            .height(52.dp),
+                        shape = RoundedCornerShape(4.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF111111),
+                            contentColor = Color.White,
+                            disabledContainerColor = Color(0xFF111111),
+                            disabledContentColor = Color.White
+                        )
+                    ) {
+                        Text(
+                            text = "Proceed to Checkout",
+                            fontSize = 14.sp
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                }
             }
         }
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Text(
-                text = "Order Summary",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF222222),
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Subtotal",
-                    fontSize = 14.sp,
-                    color = Color(0xFF555555)
-                )
-                Text(
-                    text = "$%.2f".format(subTotal),
-                    fontSize = 14.sp,
-                    color = Color(0xFF222222)
-                )
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Shipping",
-                    fontSize = 14.sp,
-                    color = Color(0xFF555555)
-                )
-                Text(
-                    text = "$%.2f".format(shipping),
-                    fontSize = 14.sp,
-                    color = Color(0xFF222222)
-                )
-            }
-            Spacer(modifier = Modifier.height(12.dp))
-            HorizontalDivider(
-                color = Color(0xFF444444),
-                thickness = 1.dp
-            )
-            Spacer(modifier = Modifier.height(10.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Total",
-                    fontSize = 18.sp,
-                    color = Color(0xFF222222)
-                )
-                Text(
-                    text = "$%.2f".format(total),
-                    fontSize = 18.sp,
-                    color = Color(0xFF222222)
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(10.dp))
-        Button(
-            onClick = {
-                onCheckoutClick(total)
-            },
-            enabled = cartItems.isNotEmpty(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp)
-                .padding(horizontal = 16.dp),
-            shape = RoundedCornerShape(4.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF111111),
-                contentColor = Color.White,
-                disabledContainerColor = Color(0xFF111111),
-                disabledContentColor = Color.White
-            )
-        ) {
-            Text(
-                text = "Proceed to Checkout",
-                fontSize = 14.sp
-            )
-        }
-        Spacer(modifier = Modifier.height(14.dp))
     }
 }
 
@@ -241,11 +384,37 @@ fun CartItem(
                 contentAlignment = Alignment.Center
             ) {
                 if (cartItem.coverId != 0) {
-                    GlideImage(
+                    GlideSubcomposition(
                         model = "https://covers.openlibrary.org/b/id/${cartItem.coverId}-L.jpg",
-                        contentDescription = cartItem.title,
                         modifier = Modifier.fillMaxSize()
-                    )
+                    ) {
+                        when (state) {
+                            RequestState.Loading -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                            is RequestState.Success -> {
+                                GlideImage(
+                                    model = "https://covers.openlibrary.org/b/id/${cartItem.coverId}-L.jpg",
+                                    contentDescription = cartItem.title,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.FillBounds
+                                )
+                            }
+                            RequestState.Failure -> {
+                                Image(
+                                    painter = painterResource(R.drawable.book_cover_img),
+                                    contentDescription = cartItem.title,
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentScale = ContentScale.Crop
+                                )
+                            }
+                        }
+                    }
                 } else {
                     Image(
                         painter = painterResource(R.drawable.book_cover_img),
@@ -369,7 +538,6 @@ fun AddToCartPreview() {
     BooksRepositoryAppTheme {
         AddToCartScreen (
             cartItems = listOf<CartItem>(),
-            onBackClick = {},
             onCheckoutClick = {},
             onRemoveClick = {},
             onDecreaseClick = {},
