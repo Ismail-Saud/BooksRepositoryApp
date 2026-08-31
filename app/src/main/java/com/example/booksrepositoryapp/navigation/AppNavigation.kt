@@ -4,6 +4,11 @@ import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.annotation.RequiresExtension
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -89,7 +94,15 @@ fun AppNavigation(
     )
     Scaffold(
         bottomBar = {
-            if (currentRoute in bottomBarRoutes) {
+            AnimatedVisibility(
+                visible = currentRoute in bottomBarRoutes,
+                enter = slideInVertically(
+                    initialOffsetY = { it }
+                ) + fadeIn(),
+                exit = slideOutVertically(
+                    targetOffsetY = { it }
+                ) + fadeOut()
+            ) {
                 NavigationBar {
                     NavigationBarItem(
                         selected = currentRoute == Routes.BooksCategory.route,
@@ -192,6 +205,11 @@ fun AppNavigation(
                                 ).show()
                             }
                             GetStartedState.Success -> {
+                                Toast.makeText(
+                                    context,
+                                    "Login Successful",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 navController.navigate(Routes.BooksCategory.route)
                             }
                         }
@@ -224,6 +242,11 @@ fun AppNavigation(
                                 Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
                             }
                             RegisterState.Success -> {
+                                Toast.makeText(
+                                    context,
+                                    "Signup Successful",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                                 navController.navigate(Routes.BooksCategory.route)
                             }
                         }
@@ -513,7 +536,7 @@ fun AppNavigation(
             composable(Routes.Account.route) {
                 val viewModel: AccountDetailsViewModel = viewModel()
                 AccountDetailsScreen(
-                    viewModel = viewModel(),
+                    viewModel = viewModel,
                     onLogoutClick = {
                         viewModel.logout()
                         navController.navigate(Routes.LandingPage.route) {

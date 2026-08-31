@@ -9,15 +9,21 @@ import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.api.refreshResult.RefreshResult
 import com.example.booksrepositoryapp.data.local.room.entity.BookDetailsModel
 import com.example.booksrepositoryapp.data.repository.BooksRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class BooksListViewModel(application: Application) : AndroidViewModel(application) {
     private val _bookState = MutableStateFlow<BooksListState>(BooksListState.Idle)
     val bookState = _bookState.asStateFlow()
+    private val _searchQuery = MutableStateFlow("")
+    val searchQuery = _searchQuery.asStateFlow()
     private var allBooks: List<BookDetailsModel> = emptyList()
-    private var activeSearch = ""
     private var minPrice = 0
     private var maxPrice = Int.MAX_VALUE
 
@@ -25,20 +31,27 @@ class BooksListViewModel(application: Application) : AndroidViewModel(applicatio
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getBooksByCategory(subject: String) {
         viewModelScope.launch {
-            _bookState.value = BooksListState.Loading
-            when (val result = bookRepo.refreshBooks(subject)) {
-                RefreshResult.Offline -> {
-                    _bookState.value = BooksListState.Offline
+            withContext(Dispatchers.IO) {
+                _bookState.value = BooksListState.Loading
+                launch {
+                    when (val result = bookRepo.refreshBooks(subject)) {
+                        RefreshResult.Offline -> {
+                            _bookState.value = BooksListState.Offline
+                        }
+                        is RefreshResult.Error -> {
+                            _bookState.value = BooksListState.Error(result.message)
+                        }
+                        RefreshResult.Success -> {}
+                    }
                 }
-                is RefreshResult.Error -> {
-                    _bookState.value =
-                        BooksListState.Error(result.message)
+                launch {
+                    bookRepo.getBooks(subject).collect { books ->
+                        allBooks = books
+                        if (books.isNotEmpty()) {
+                            applyFilters()
+                        }
+                    }
                 }
-                else -> {}
-            }
-            bookRepo.getBooks(subject).collect { books ->
-                allBooks = books
-                applyFilters()
             }
         }
     }
@@ -50,26 +63,36 @@ class BooksListViewModel(application: Application) : AndroidViewModel(applicatio
     }
 
     fun searchBooks(query: String) {
-        activeSearch = query
-        applyFilters()
+        _searchQuery.value = query
     }
 
     private fun applyFilters() {
+        val query = _searchQuery.value
         val result = allBooks.filter { book ->
-            val matchesSearch = activeSearch.isEmpty() ||
-                    book.title.contains(activeSearch, ignoreCase = true) ||
-                    book.author.contains(activeSearch, ignoreCase = true)
-            val matchesPrice = book.price?.toInt() in (minPrice..maxPrice)
+            val matchesSearch = query.isEmpty() ||
+                        book.title.contains(query, ignoreCase = true) ||
+                        book.author.contains(query, ignoreCase = true)
+            val matchesPrice = book.price?.toInt() in minPrice..maxPrice
             matchesSearch && matchesPrice
         }
         _bookState.value = BooksListState.Success(result)
     }
 
-
     fun resetState() {
-        activeSearch = ""
+        _searchQuery.value = ""
         minPrice = 0
         maxPrice = Int.MAX_VALUE
         _bookState.value = BooksListState.Idle
+    }
+
+    init {
+        viewModelScope.launch {
+            _searchQuery
+                .debounce(300L)
+                .drop(1)
+                .collectLatest {
+                    applyFilters()
+                }
+        }
     }
 }

@@ -19,6 +19,9 @@ interface BooksDao {
     @Query("SELECT * FROM book_details WHERE category = :category")
     fun getBooksByCategory (category: String) : Flow<List<BookDetailsModel>>
 
+    @Query("SELECT * FROM book_details WHERE category = :category")
+    suspend fun getAllBooksByCategory(category: String): List<BookDetailsModel>
+
     @Query("SELECT * FROM book_details WHERE workId = :workId")
     suspend fun getBookDetails (workId: String) : BookDetailsModel?
 }

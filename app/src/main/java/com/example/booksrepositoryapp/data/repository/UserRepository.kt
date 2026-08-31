@@ -49,7 +49,7 @@ class UserRepository private constructor(context: Context) {
     }
 
     fun setLoggedIn(isLoggedIn: Boolean) {
-        PrefManager.saveJson(appContext, isLoggedInKey, GsonManager.toJson(isLoggedIn))
+        PrefManager.saveBoolean(appContext, isLoggedInKey, isLoggedIn)
         if (!isLoggedIn) {
             PrefManager.remove(appContext, saveUserId)
         }
@@ -57,10 +57,11 @@ class UserRepository private constructor(context: Context) {
     }
 
     fun isLoggedIn(): Boolean {
-        return GsonManager.fromJson(
-            PrefManager.getJson(appContext, isLoggedInKey),
-            Boolean::class.java
-        ) ?: false
+        return PrefManager.getBoolean(
+            appContext,
+            isLoggedInKey,
+            false
+        )
     }
 
     fun setUserSaved(userId: Int) {

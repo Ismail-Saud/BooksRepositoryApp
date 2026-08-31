@@ -1,6 +1,7 @@
 package com.example.booksrepositoryapp.ui.books_screen
 
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -51,6 +52,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +60,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideSubcomposition
@@ -255,45 +261,36 @@ fun BookCard(
                     .background(Color.LightGray),
                 contentAlignment = Alignment.Center
             ) {
-                if (book.coverId != 0) {
-                    GlideSubcomposition(
-                        model = "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg",
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        when (state) {
-                            RequestState.Loading -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            }
-                            is RequestState.Success -> {
-                                GlideImage(
-                                    model = "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg",
-                                    contentDescription = book.title,
-                                    modifier = Modifier.fillMaxSize()
-                                )
-                            }
-                            RequestState.Failure -> {
-                                Image(
-                                    painter = painterResource(R.drawable.book_cover_img),
-                                    contentDescription = book.title,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
-                        }
-                    }
+                val imageUrl = if (book.coverId != 0) {
+                    "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg"
                 } else {
-                    Image(
-                        painter = painterResource(R.drawable.book_cover_img),
-                        contentDescription = book.title,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
-                    )
+                    null
                 }
+                SubcomposeAsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(imageUrl)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = book.title,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.FillHeight,
+                    loading = {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
+                    },
+                    error = {
+                        Image(
+                            painter = painterResource(R.drawable.book_cover_img),
+                            contentDescription = book.title,
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                )
             }
             Column(
                 modifier = Modifier
@@ -341,6 +338,37 @@ fun BookCard(
 fun BooksGridLoading(
     modifier: Modifier = Modifier
 ) {
+    val transition = rememberInfiniteTransition(
+        label = "shimmer"
+    )
+    val translateAnimation by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 1000,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "shimmer"
+    )
+    val shimmerColors = listOf(
+        Color.LightGray.copy(alpha = 0.6f),
+        Color.White.copy(alpha = 0.9f),
+        Color.LightGray.copy(alpha = 0.6f)
+    )
+    val shimmerBrush = Brush.linearGradient(
+        colors = shimmerColors,
+        start = Offset(
+            translateAnimation - 300f,
+            0f
+        ),
+        end = Offset(
+            translateAnimation,
+            0f
+        )
+    )
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = modifier,
@@ -362,7 +390,7 @@ fun BooksGridLoading(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(120.dp)
-                            .shimmerEffect()
+                            .background(shimmerBrush)
                     )
                     Column(
                         modifier = Modifier
@@ -374,57 +402,26 @@ fun BooksGridLoading(
                             modifier = Modifier
                                 .fillMaxWidth(0.4f)
                                 .height(12.dp)
-                                .shimmerEffect()
+                                .background(shimmerBrush)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(0.8f)
                                 .height(18.dp)
-                                .shimmerEffect()
+                                .background(shimmerBrush)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth(0.6f)
                                 .height(12.dp)
-                                .shimmerEffect()
+                                .background(shimmerBrush)
                         )
                     }
                 }
             }
         }
-    }
-}
-
-fun Modifier.shimmerEffect(): Modifier {
-    return composed {
-        val transition = rememberInfiniteTransition(
-            label = "shimmer"
-        )
-        val translateAnimation by transition.animateFloat(
-            initialValue = 0f,
-            targetValue = 1000f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(
-                    durationMillis = 1000,
-                    easing = LinearEasing
-                ),
-                repeatMode = RepeatMode.Restart
-            ),
-            label = "shimmer"
-        )
-        val shimmerColors = listOf(
-            Color.LightGray.copy(alpha = 0.6f),
-            Color.White.copy(alpha = 0.9f),
-            Color.LightGray.copy(alpha = 0.6f)
-        )
-        val brush = Brush.linearGradient(
-            colors = shimmerColors,
-            start = Offset(translateAnimation - 300f, 0f),
-            end = Offset(translateAnimation, 0f)
-        )
-        background(brush)
     }
 }
 

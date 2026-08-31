@@ -34,7 +34,7 @@ class AddressRepository(context: Context) {
         return dao.getSelectedAddress(userId)
     }
 
-    fun getAddressCount(): Flow<Int> {
-        return dao.getAddressCount()
+    fun getAddressCount(userId: Int): Flow<Int> {
+        return dao.getAddressCount(userId)
     }
 }

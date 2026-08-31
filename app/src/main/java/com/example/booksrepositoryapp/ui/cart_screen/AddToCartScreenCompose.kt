@@ -210,7 +210,7 @@ fun AddToCartScreen(
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color(0xFF111111),
                                 contentColor = Color.White,
-                                disabledContainerColor = Color(0xFF111111),
+                                disabledContainerColor = Color(0xFF696969),
                                 disabledContentColor = Color.White
                             )
                         ) {
@@ -221,11 +221,11 @@ fun AddToCartScreen(
                         }
                     }
                 }
-            } else {
+            }
+            else {
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-
                     LazyColumn(
                         modifier = Modifier
                             .weight(1f)
@@ -357,9 +357,6 @@ fun CartItem(
     onDecreaseClick: () -> Unit,
     onIncreaseClick: () -> Unit
 ) {
-    var count by remember {
-        mutableIntStateOf(1)
-    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -439,7 +436,7 @@ fun CartItem(
                         )
                 ) {
                     Text(
-                        text = "Novel",
+                        text = cartItem.category,
                         color = Color(0xFF888888),
                         fontSize = 9.sp
                     )

@@ -21,4 +21,22 @@ object PrefManager {
             remove(key)
         }
     }
+
+    fun saveBoolean(
+        context: Context,
+        key: String,
+        value: Boolean
+    ) {
+        prefs(context).edit {
+            putBoolean(key, value)
+        }
+    }
+
+    fun getBoolean(
+        context: Context,
+        key: String,
+        defaultValue: Boolean = false
+    ): Boolean {
+        return prefs(context).getBoolean(key, defaultValue)
+    }
 }

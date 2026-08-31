@@ -31,7 +31,7 @@ class RegisterViewModel (application: Application) : AndroidViewModel(applicatio
                 _registerUser.value = RegisterState.Error("Enter valid email")
             }
             password.isBlank() -> {
-                _registerUser.value = RegisterState.Error("Enter username")
+                _registerUser.value = RegisterState.Error("Enter password")
             }
             !passwordPattern.matches(password) -> {
                 _registerUser.value = RegisterState.Error("Enter valid password")

@@ -20,7 +20,7 @@ class GetStartedViewModel (application: Application) : AndroidViewModel(applicat
                 _getStartedState.value = GetStartedState.Error("Enter email")
             }
             password.isBlank() -> {
-                _getStartedState.value = GetStartedState.Error("Enter username")
+                _getStartedState.value = GetStartedState.Error("Enter password")
             }
             else -> {
                 viewModelScope.launch {

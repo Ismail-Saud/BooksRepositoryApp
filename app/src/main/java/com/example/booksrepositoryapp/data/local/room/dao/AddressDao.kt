@@ -24,8 +24,8 @@ interface AddressDao {
     @Query("SELECT * FROM address_table")
     fun getAllAddresses(): Flow<List<AddressModel>>
 
-    @Query("SELECT COUNT(*) FROM address_table")
-    fun getAddressCount(): Flow<Int>
+    @Query("SELECT COUNT(*) FROM address_table WHERE userId = :userId")
+    fun getAddressCount(userId: Int): Flow<Int>
 
     @Query("DELETE FROM address_table")
     suspend fun deleteAll()

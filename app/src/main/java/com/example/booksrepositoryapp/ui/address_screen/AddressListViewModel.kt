@@ -23,7 +23,7 @@ class AddressListViewModel(application: Application) : AndroidViewModel(applicat
             }
         }
 
-    val addressCount = addressRepo.getAddressCount()
+    val addressCount = addressRepo.getAddressCount(userId)
 
     fun addAddress(address: AddressModel) {
         viewModelScope.launch {

@@ -33,8 +33,10 @@ class BooksRepository(context: Context) {
         }
         return try {
             val response =  booksApi.getBooksByCategory(subject)
+            val existingBooks = dao.getAllBooksByCategory(subject)
+            val existingMap = existingBooks.associateBy { it.workId }
             val books = response.works.map { work ->
-                val existingBook = dao.getBookDetails(work.key)
+                val existingBook = existingMap[work.key]
                 BookDetailsModel(
                     workId = work.key,
                     category = subject,
