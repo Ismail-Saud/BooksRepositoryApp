@@ -33,23 +33,19 @@ class BooksListViewModel(application: Application) : AndroidViewModel(applicatio
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 _bookState.value = BooksListState.Loading
-                launch {
-                    when (val result = bookRepo.refreshBooks(subject)) {
-                        RefreshResult.Offline -> {
-                            _bookState.value = BooksListState.Offline
-                        }
-                        is RefreshResult.Error -> {
-                            _bookState.value = BooksListState.Error(result.message)
-                        }
-                        RefreshResult.Success -> {}
+                when (val result = bookRepo.refreshBooks(subject)) {
+                    RefreshResult.Offline -> {
+                        _bookState.value = BooksListState.Offline
                     }
+                    is RefreshResult.Error -> {
+                        _bookState.value = BooksListState.Error(result.message)
+                    }
+                    RefreshResult.Success -> {}
                 }
-                launch {
-                    bookRepo.getBooks(subject).collect { books ->
-                        allBooks = books
-                        if (books.isNotEmpty()) {
-                            applyFilters()
-                        }
+                bookRepo.getBooks(subject).collect { books ->
+                    allBooks = books
+                    if (books.isNotEmpty()) {
+                        applyFilters()
                     }
                 }
             }
