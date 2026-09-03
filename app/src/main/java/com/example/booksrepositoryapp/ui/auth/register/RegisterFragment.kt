@@ -2,22 +2,17 @@ package com.example.booksrepositoryapp.ui.auth.register
 
 import androidx.fragment.app.viewModels
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.databinding.FragmentRegisterBinding
-import com.example.booksrepositoryapp.ui.auth.getstarted.GetStartedFragment
-import com.example.booksrepositoryapp.ui.book_category.BooksCategoryFragment
-import com.example.booksrepositoryapp.ui.landingpage.LandingPageFragment
 import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment(R.layout.fragment_register) {
@@ -46,6 +41,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
                 viewModel.registerUser.collect { state ->
                     when (state) {
                         RegisterState.Idle -> {}
+                        RegisterState.Loading -> {}
                         is RegisterState.Error -> {
                             Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
                         }
@@ -69,7 +65,7 @@ class RegisterFragment : Fragment(R.layout.fragment_register) {
         binding.btnRegister.setOnClickListener {
             lifecycleScope.launch {
                 viewModel.register(
-                    userName = binding.etUsername.text?.trim().toString(),
+                    username = binding.etUsername.text?.trim().toString(),
                     email = binding.etEmail.text.toString(),
                     password = binding.etPassword.text.toString(),
                     confirmPass = binding.etConfirmPassword.text.toString()

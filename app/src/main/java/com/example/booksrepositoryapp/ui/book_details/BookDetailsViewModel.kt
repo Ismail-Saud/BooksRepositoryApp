@@ -5,9 +5,10 @@ import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.booksrepositoryapp.data.firebase.authentication.AuthRepository
+import com.example.booksrepositoryapp.data.firebase.firestore.CartModelFB
 import com.example.booksrepositoryapp.data.repository.BooksRepository
 import com.example.booksrepositoryapp.data.repository.CartRepository
-import com.example.booksrepositoryapp.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -16,7 +17,7 @@ class BookDetailsViewModel(application: Application) : AndroidViewModel(applicat
 
     private val _bookDetailState = MutableStateFlow<BookDetailsState>(BookDetailsState.Idle)
     val bookDetailState = _bookDetailState.asStateFlow()
-    private val userRepo = UserRepository.getInstance(application)
+    private val authRepo = AuthRepository()
     private val bookRepo = BooksRepository(application)
     private val cartRepo = CartRepository(application)
 
@@ -31,9 +32,22 @@ class BookDetailsViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun addToCart (bookId: String) {
-        val userId = userRepo.getSavedUser()?.toInt() ?: 1
-        viewModelScope.launch {
-            cartRepo.insertCartItem(userId, bookId)
+        val userId = authRepo.getCurrentUserId() ?: ""
+        val state = _bookDetailState.value
+        if (state is BookDetailsState.Success && state.books != null) {
+            val book = state.books
+            val cartItem = CartModelFB(
+                workId = book.workId,
+                title = book.title,
+                author = book.author,
+                price = book.price ?: 0.0,
+                coverId = book.coverId,
+                category = book.category,
+                quantity = 1
+            )
+            viewModelScope.launch {
+                cartRepo.insertCartItem(userId, cartItem)
+            }
         }
     }
 

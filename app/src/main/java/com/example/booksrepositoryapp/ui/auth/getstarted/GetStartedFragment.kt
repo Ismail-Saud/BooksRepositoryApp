@@ -41,6 +41,7 @@ class GetStartedFragment : Fragment(R.layout.fragment_get_started) {
                 viewModel.getStartedState.collect { state ->
                     when(state) {
                         GetStartedState.Idle -> {}
+                        GetStartedState.Loading -> {}
                         is GetStartedState.Error -> {
                             Toast.makeText(requireContext(), state.message, Toast.LENGTH_SHORT).show()
                         }

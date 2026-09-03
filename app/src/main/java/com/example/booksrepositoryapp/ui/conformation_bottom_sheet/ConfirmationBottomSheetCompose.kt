@@ -25,8 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.booksrepositoryapp.data.local.uiModels.CartItem
-import com.example.booksrepositoryapp.ui.cart_screen.AddToCartScreen
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

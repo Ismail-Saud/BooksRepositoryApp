@@ -29,11 +29,14 @@ fun GetStartedScreen(
     onBackClick: () -> Unit,
     onGetStartedClick: (String, String) -> Unit,
     onForgotPasswordClick: () -> Unit,
-    onRegisterClick: () -> Unit
+    onRegisterClick: () -> Unit,
+    getStartedState: GetStartedState
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
+
+    val isLoading = getStartedState is GetStartedState.Loading
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -169,12 +172,19 @@ fun GetStartedScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF111111),
                 contentColor = Color.White
-            )
+            ),
+            enabled = !isLoading
         ) {
-            Text(
-                text = "Get Started",
-                fontSize = 10.sp
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(12.dp)
+                )
+            } else {
+                Text(
+                    text = "Get Started",
+                    fontSize = 12.sp
+                )
+            }
         }
         Text(
             text = "forgot password?",
@@ -206,10 +216,16 @@ fun GetStartedScreen(
                 text = "Register",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF022BFF),
-                modifier = Modifier.clickable {
-                    onRegisterClick()
-                }
+                color = if (isLoading) Color.Gray else Color(0xFF022BFF),
+                modifier = Modifier.then(
+                    if (!isLoading) {
+                        Modifier.clickable {
+                            onRegisterClick()
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
             )
         }
     }
@@ -224,6 +240,7 @@ fun GetStartedScreenPreview() {
             onGetStartedClick = { username, password -> } ,
             onForgotPasswordClick = {},
             onRegisterClick = {},
+            getStartedState = GetStartedState.Idle
         )
     }
 }

@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
@@ -33,10 +32,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -51,7 +46,7 @@ import androidx.compose.ui.unit.sp
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.booksrepositoryapp.R
-import com.example.booksrepositoryapp.data.local.uiModels.CartItem
+import com.example.booksrepositoryapp.data.firebase.firestore.CartModelFB
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -60,11 +55,11 @@ import com.bumptech.glide.integration.compose.RequestState
 
 @Composable
 fun AddToCartScreen(
-    cartItems: List<CartItem>,
+    cartItems: List<CartModelFB>,
     onCheckoutClick: (Double) -> Unit,
-    onRemoveClick: (CartItem) -> Unit,
-    onIncreaseClick: (CartItem) -> Unit,
-    onDecreaseClick: (CartItem) -> Unit
+    onRemoveClick: (CartModelFB) -> Unit,
+    onIncreaseClick: (CartModelFB) -> Unit,
+    onDecreaseClick: (CartModelFB) -> Unit
 ) {
     val subTotal = cartItems.sumOf {
         it.price * it.quantity
@@ -104,7 +99,7 @@ fun AddToCartScreen(
                 ) {
                     items(
                         items = cartItems,
-                        key = { it.cartId }
+                        key = { it.workId }
                     ) { cartItem ->
                         CartItem(
                             cartItem = cartItem,
@@ -239,7 +234,7 @@ fun AddToCartScreen(
                     ) {
                         items(
                             items = cartItems,
-                            key = { it.cartId }
+                            key = { it.workId }
                         ) { cartItem ->
                             CartItem(
                                 cartItem = cartItem,
@@ -352,7 +347,7 @@ fun AddToCartScreen(
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun CartItem(
-    cartItem: CartItem,
+    cartItem: CartModelFB,
     onRemoveClick: () -> Unit,
     onDecreaseClick: () -> Unit,
     onIncreaseClick: () -> Unit
@@ -534,7 +529,7 @@ fun CartItem(
 fun AddToCartPreview() {
     BooksRepositoryAppTheme {
         AddToCartScreen (
-            cartItems = listOf<CartItem>(),
+            cartItems = listOf<CartModelFB>(),
             onCheckoutClick = {},
             onRemoveClick = {},
             onDecreaseClick = {},

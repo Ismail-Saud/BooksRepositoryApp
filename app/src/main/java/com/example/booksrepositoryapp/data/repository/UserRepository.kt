@@ -2,14 +2,16 @@ package com.example.booksrepositoryapp.data.repository
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
+import com.example.booksrepositoryapp.data.firebase.authentication.UserProfile
 import com.example.booksrepositoryapp.data.local.prefManager.GsonManager
 import com.example.booksrepositoryapp.data.local.room.DatabaseInstance
 import com.example.booksrepositoryapp.data.local.room.entity.UserModel
 import com.example.booksrepositoryapp.data.local.sharedPref.PrefManager
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.tasks.await
 
 class UserRepository private constructor(context: Context) {
     private val appContext = context.applicationContext
@@ -19,6 +21,8 @@ class UserRepository private constructor(context: Context) {
 
     private val _loginState = MutableStateFlow(isLoggedIn())
     val loginState: StateFlow<Boolean> = _loginState
+    private val db = FirebaseFirestore.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     companion object {
         @Volatile
@@ -72,19 +76,32 @@ class UserRepository private constructor(context: Context) {
         return PrefManager.getJson(appContext, saveUserId)
     }
 
-//    suspend fun updateAddress(id: Int, address: String) {
-//        dao.updateAddress(id, address)
-//    }
-//
-//    suspend fun getAddress(id: Int): List<String>? {
-//        return dao.getAddress(id)
-//    }
-
     suspend fun saveUserProfilePicture(id: Int, uri: Uri) {
         dao.updateProfilePicture(id, uri.toString())
     }
 
     suspend fun removeUserProfilePicture(id: Int) {
         dao.removeProfilePicture(id)
+    }
+
+    suspend fun createUserProfile(userProfile: UserProfile) {
+        db.collection("users").document(userProfile.uid).set(userProfile).await()
+    }
+
+    suspend fun getUserProfile(uid: String): UserProfile? {
+        return firestore
+            .collection("users")
+            .document(uid)
+            .get()
+            .await()
+            .toObject(UserProfile::class.java)
+    }
+
+    suspend fun updateProfilePicture(uid: String, profilePicture: String?) {
+        firestore
+            .collection("users")
+            .document(uid)
+            .update("profilePicture", profilePicture)
+            .await()
     }
 }

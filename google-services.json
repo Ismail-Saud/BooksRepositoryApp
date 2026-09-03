@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1097318033403",
+    "project_id": "booksrepository-3b71e",
+    "storage_bucket": "booksrepository-3b71e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097318033403:android:8ebd8e17724a66df770d5e",
+        "android_client_info": {
+          "package_name": "com.example.booksrepositoryapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDStavLtnLkc4QzGwtIF6LPoH-r2vyfQZE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -6,18 +6,18 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
+import com.example.booksrepositoryapp.data.firebase.firestore.AddressModelFB
 import com.example.booksrepositoryapp.databinding.ItemAddressBinding
 
 class AddressAdapter(
-    private val onLocationClick: (AddressModel) -> Unit,
-    private val onCheckClick: (AddressModel, String) -> Unit,
-    private val onDeleteClick: (AddressModel) -> Unit
-) : ListAdapter<AddressModel, AddressAdapter.AddressViewHolder>(DiffCallback()) {
+    private val onLocationClick: (AddressModelFB) -> Unit,
+    private val onCheckClick: (AddressModelFB, String) -> Unit,
+    private val onDeleteClick: (AddressModelFB) -> Unit
+) : ListAdapter<AddressModelFB, AddressAdapter.AddressViewHolder>(DiffCallback()) {
     inner class AddressViewHolder(
         private val binding: ItemAddressBinding
     ) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: AddressModel) {
+        fun bind(item: AddressModelFB) {
             binding.etAddress.setText(item.fullAddress)
             val isLoading = item.isFetchingLocation || item.isSaving
 
@@ -66,12 +66,12 @@ class AddressAdapter(
     }
 
 
-    class DiffCallback : DiffUtil.ItemCallback<AddressModel>() {
-        override fun areItemsTheSame(oldItem: AddressModel, newItem: AddressModel): Boolean {
+    class DiffCallback : DiffUtil.ItemCallback<AddressModelFB>() {
+        override fun areItemsTheSame(oldItem: AddressModelFB, newItem: AddressModelFB): Boolean {
             return oldItem.id == newItem.id
         }
 
-        override fun areContentsTheSame(oldItem: AddressModel, newItem: AddressModel): Boolean {
+        override fun areContentsTheSame(oldItem: AddressModelFB, newItem: AddressModelFB): Boolean {
             return oldItem == newItem
         }
     }

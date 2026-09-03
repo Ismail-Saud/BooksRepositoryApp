@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
+import com.example.booksrepositoryapp.data.firebase.firestore.AddressModelFB
 import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
 import com.example.booksrepositoryapp.helper.LocationHelper
 import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheet
@@ -70,13 +71,13 @@ fun AddressScreenCompose(
         LocationHelper(context)
     }
     var addressBeingLocated by remember {
-        mutableStateOf<AddressModel?>(null)
+        mutableStateOf<AddressModelFB?>(null)
     }
     var showPermissionDialog by remember {
         mutableStateOf(false)
     }
     var addressToDelete by remember {
-        mutableStateOf<AddressModel?>(null)
+        mutableStateOf<AddressModelFB?>(null)
     }
     fun getAddressFromLocation(
         latitude: Double,
@@ -86,11 +87,7 @@ fun AddressScreenCompose(
         scope.launch {
             val locationAddress = locationHelper.getAddressFromLocation(latitude, longitude)
             if (locationAddress == null) {
-                viewModel.updateAddress(
-                    target.copy(
-                        isFetchingLocation = false
-                    )
-                )
+                viewModel.setFetchingLocation(target.id, false)
                 Toast.makeText(
                     context,
                     "Unable to get address",
@@ -100,18 +97,18 @@ fun AddressScreenCompose(
             }
             val updatedAddress = target.copy(
                 house = locationAddress.featureName ?: "",
-                street = locationAddress.thoroughfare,
+                street = locationAddress.thoroughfare ?: "",
                 area = locationAddress.subLocality ?: "",
                 city = locationAddress.locality ?: locationAddress.subAdminArea ?: "",
-                postalCode = locationAddress.postalCode,
+                postalCode = locationAddress.postalCode ?: "N/A",
                 country = locationAddress.countryName ?: "",
                 fullAddress = locationAddress.getAddressLine(0) ?: "",
                 latitude = latitude,
                 longitude = longitude,
-                isFetchingLocation = false,
                 isSelected = true
             )
             viewModel.updateAddress(updatedAddress)
+            viewModel.setFetchingLocation(target.id, false)
             addressBeingLocated = null
             Toast.makeText(
                 context,
@@ -128,11 +125,7 @@ fun AddressScreenCompose(
                     getAddressFromLocation(location.latitude, location.longitude)
                 } else {
                     addressBeingLocated?.let { address ->
-                        viewModel.updateAddress(
-                            address.copy(
-                                isFetchingLocation = false
-                            )
-                        )
+                        viewModel.setFetchingLocation(address.id, false)
                     }
                     Toast.makeText(
                         context,
@@ -144,11 +137,7 @@ fun AddressScreenCompose(
 
             onFailure = {
                 addressBeingLocated?.let { address ->
-                    viewModel.updateAddress(
-                        address.copy(
-                            isFetchingLocation = false
-                        )
-                    )
+                    viewModel.setFetchingLocation(address.id, false)
                 }
                 Toast.makeText(
                     context,
@@ -159,20 +148,12 @@ fun AddressScreenCompose(
         )
     }
 
-    fun getLocationFromAddress(address: AddressModel, fullAddress: String) {
-        viewModel.updateAddress(
-            address.copy(
-                isSaving = true
-            )
-        )
+    fun getLocationFromAddress(address: AddressModelFB, fullAddress: String) {
+        viewModel.setSaving(address.id, true)
         scope.launch {
             val location = locationHelper.getLocationFromAddress(fullAddress)
             if (location == null) {
-                viewModel.updateAddress(
-                    address.copy(
-                        isSaving = false
-                    )
-                )
+                viewModel.setSaving(address.id, false)
                 Toast.makeText(
                     context,
                     "Address not found",
@@ -182,18 +163,18 @@ fun AddressScreenCompose(
             }
             val updatedAddress = address.copy(
                 house = location.subThoroughfare ?: "",
-                street = location.thoroughfare,
+                street = location.thoroughfare ?: "",
                 area = location.subLocality ?: location.featureName ?: "",
                 city = location.locality ?: location.subAdminArea ?: "",
-                postalCode = location.postalCode,
+                postalCode = location.postalCode ?: "N/A",
                 country = location.countryName ?: "",
                 fullAddress = fullAddress,
                 latitude = location.latitude,
-                longitude = location.longitude,
-                isSaving = false
+                longitude = location.longitude
             )
             viewModel.updateAddress(updatedAddress)
             viewModel.updateSelectedAddress(updatedAddress.id)
+            viewModel.setSaving(address.id, false)
             Toast.makeText(
                 context,
                 "Address updated successfully",
@@ -216,7 +197,7 @@ fun AddressScreenCompose(
             }
         }
 
-    fun checkLocationPermission(address: AddressModel) {
+    fun checkLocationPermission(address: AddressModelFB) {
         addressBeingLocated = address
         when {
             locationHelper.hasLocationPermission() -> {
@@ -310,11 +291,7 @@ fun AddressScreenCompose(
                 AddressItem(
                     address = address,
                     onLocationClick = {
-                        viewModel.updateAddress(
-                            address.copy(
-                                isFetchingLocation = true
-                            )
-                        )
+                        viewModel.setFetchingLocation(address.id, true)
                         checkLocationPermission(address)
                     },
                     onCheckClick = { editedAddress ->
@@ -399,7 +376,7 @@ fun AddressScreenCompose(
 
 @Composable
 fun AddressItem(
-    address: AddressModel,
+    address: AddressModelFB,
     onLocationClick: () -> Unit,
     onCheckClick: (String) -> Unit,
     onDeleteClick: () -> Unit,

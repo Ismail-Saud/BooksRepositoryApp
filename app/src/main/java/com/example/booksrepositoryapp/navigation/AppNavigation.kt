@@ -30,18 +30,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.Navigation
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.booksrepositoryapp.MainActivityViewModel
-import com.example.booksrepositoryapp.R
-import com.example.booksrepositoryapp.data.local.room.entity.BookDetailsModel
-import com.example.booksrepositoryapp.data.local.uiModels.CartItem
+import com.example.booksrepositoryapp.data.firebase.firestore.CartModelFB
 import com.example.booksrepositoryapp.navigation.routes.Routes
 import com.example.booksrepositoryapp.ui.account_details.AccountDetailsScreen
 import com.example.booksrepositoryapp.ui.account_details.AccountDetailsViewModel
@@ -60,7 +55,6 @@ import com.example.booksrepositoryapp.ui.book_details.BookDetailsScreenCompose
 import com.example.booksrepositoryapp.ui.book_details.BookDetailsState
 import com.example.booksrepositoryapp.ui.book_details.BookDetailsViewModel
 import com.example.booksrepositoryapp.ui.books_screen.BooksListScreen
-import com.example.booksrepositoryapp.ui.books_screen.BooksListState
 import com.example.booksrepositoryapp.ui.books_screen.BooksListViewModel
 import com.example.booksrepositoryapp.ui.cart_screen.AddToCartScreen
 import com.example.booksrepositoryapp.ui.cart_screen.AddToCartState
@@ -68,14 +62,12 @@ import com.example.booksrepositoryapp.ui.cart_screen.AddToCartViewModel
 import com.example.booksrepositoryapp.ui.checkout_screen.CheckoutScreen
 import com.example.booksrepositoryapp.ui.checkout_screen.CheckoutState
 import com.example.booksrepositoryapp.ui.checkout_screen.CheckoutViewModel
-import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheet
 import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheetCompose
 import com.example.booksrepositoryapp.ui.landingpage.LandingPageScreen
 import com.example.booksrepositoryapp.ui.loading_screen.LoadingScreenCompose
 import com.example.booksrepositoryapp.ui.success_payment.SuccessScreenCompose
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.getValue
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
@@ -92,6 +84,7 @@ fun AppNavigation(
         Routes.AddToCart.route,
         Routes.Account.route
     )
+    val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
     Scaffold(
         bottomBar = {
             AnimatedVisibility(
@@ -173,7 +166,7 @@ fun AppNavigation(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = if (mainActivityViewModel.isLoggedIn.collectAsState().value) {
+            startDestination = if (isLoggedIn) {
                 Routes.BooksCategory.route
             } else {
                 Routes.LandingPage.route
@@ -193,25 +186,25 @@ fun AppNavigation(
             composable(Routes.GetStarted.route) {
                 val viewModel: GetStartedViewModel = viewModel()
                 val context = LocalContext.current
-                LaunchedEffect(Unit) {
-                    viewModel.getStartedState.collect { state ->
-                        when (state) {
-                            GetStartedState.Idle -> {}
-                            is GetStartedState.Error -> {
-                                Toast.makeText(
-                                    context,
-                                    state.message,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            GetStartedState.Success -> {
-                                Toast.makeText(
-                                    context,
-                                    "Login Successful",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                navController.navigate(Routes.BooksCategory.route)
-                            }
+                val getStartedState by viewModel.getStartedState.collectAsState()
+                LaunchedEffect(getStartedState) {
+                    when (getStartedState) {
+                        GetStartedState.Idle -> {}
+                        GetStartedState.Loading -> {}
+                        is GetStartedState.Error -> {
+                            Toast.makeText(
+                                context,
+                                (getStartedState as GetStartedState.Error).message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        GetStartedState.Success -> {
+                            Toast.makeText(
+                                context,
+                                "Login Successful",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            navController.navigate(Routes.BooksCategory.route)
                         }
                     }
                 }
@@ -228,26 +221,35 @@ fun AppNavigation(
                             email = email,
                             password = password
                         )
-                    }
+                    },
+                    getStartedState = getStartedState
                 )
             }
             composable(Routes.Register.route) {
                 val viewModel: RegisterViewModel = viewModel()
                 val context = LocalContext.current
-                LaunchedEffect(Unit) {
-                    viewModel.registerUser.collect { state ->
-                        when (state) {
-                            RegisterState.Idle -> {}
-                            is RegisterState.Error -> {
-                                Toast.makeText(context, state.message, Toast.LENGTH_SHORT).show()
-                            }
-                            RegisterState.Success -> {
-                                Toast.makeText(
-                                    context,
-                                    "Signup Successful",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                navController.navigate(Routes.BooksCategory.route)
+                val registerState by viewModel.registerUser.collectAsState()
+                LaunchedEffect(registerState) {
+                    when (registerState) {
+                        RegisterState.Idle -> {}
+                        RegisterState.Loading -> {}
+                        is RegisterState.Error -> {
+                            Toast.makeText(
+                                context,
+                                (registerState as RegisterState.Error).message,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        RegisterState.Success -> {
+                            Toast.makeText(
+                                context,
+                                "Signup Successful",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            navController.navigate(Routes.BooksCategory.route) {
+                                popUpTo(Routes.Register.route) {
+                                    inclusive = true
+                                }
                             }
                         }
                     }
@@ -257,18 +259,17 @@ fun AppNavigation(
                         navController.navigate(Routes.LandingPage.route)
                     },
                     onRegisterClick = { username, email, password, confirmPassword ->
-                        viewModel.viewModelScope.launch {
-                            viewModel.register(
-                                userName = username,
-                                email = email,
-                                password = password,
-                                confirmPass = confirmPassword
-                            )
-                        }
+                        viewModel.register(
+                            username = username,
+                            email = email,
+                            password = password,
+                            confirmPass = confirmPassword
+                        )
                     },
                     onGetStartedClick = {
                         navController.navigate(Routes.GetStarted.route)
-                    }
+                    },
+                    registerState = registerState
                 )
             }
             composable(Routes.BooksCategory.route) {
@@ -363,7 +364,7 @@ fun AppNavigation(
                     mutableStateOf(false)
                 }
                 var selectedCartItem by remember {
-                    mutableStateOf<CartItem?>(null)
+                    mutableStateOf<CartModelFB?>(null)
                 }
                 LaunchedEffect(Unit) {
                     viewModel.getCartItems()
@@ -450,6 +451,7 @@ fun AppNavigation(
                     },
                     onPayClick = {
                         showLoadingDialog = true
+                        throw RuntimeException("Test Crashlytics crash")
                     },
                     viewModel = viewModel
                 )

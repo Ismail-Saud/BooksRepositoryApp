@@ -8,6 +8,7 @@ import android.net.Uri
 import android.provider.Settings
 import android.widget.Toast
 import android.Manifest
+import android.util.Log
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -55,7 +56,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 import androidx.compose.ui.Alignment
@@ -100,12 +101,12 @@ fun AccountDetailsScreen(
     val context = LocalContext.current
     val userState by viewModel.userState.collectAsStateWithLifecycle()
     val selectedAddress by viewModel.selectedAddress.collectAsStateWithLifecycle(initialValue = null)
-    val imageUri by viewModel.imageUri.observeAsState()
 
-    var showPictureSheet by remember { mutableStateOf(false) }
-    var showRemovePictureSheet by remember { mutableStateOf(false) }
-    var showGoToSettingsDialog by remember { mutableStateOf(false) }
-    var showPermissionDeniedToast by remember { mutableStateOf(false) }
+    var cameraImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
+    var showPictureSheet by rememberSaveable { mutableStateOf(false) }
+    var showRemovePictureSheet by rememberSaveable { mutableStateOf(false) }
+    var showGoToSettingsDialog by rememberSaveable { mutableStateOf(false) }
+    var showPermissionDeniedToast by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.getUser()
@@ -114,21 +115,26 @@ fun AccountDetailsScreen(
     val cameraLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.TakePicture()
     ) { success ->
+        Log.d("ProfilePicture", "Camera result: $success")
+        Log.d("ProfilePicture", "Camera URI: $cameraImageUri")
         if (success) {
-            imageUri?.let { uri -> viewModel.saveUserProfilePicture(uri) }
+            cameraImageUri?.let {
+                Log.d("ProfilePicture", "Applying camera image: $it")
+                viewModel.saveUserProfilePicture(it)
+            }
         }
     }
 
     fun createImageUri(): Uri {
-        clearOldProfilePictures(context)
-        val fileName = "profile_picture_${System.currentTimeMillis()}.jpg"
+        val fileName = "temp_profile_${System.currentTimeMillis()}.jpg"
         val file = File(context.filesDir, fileName)
         return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
     }
 
     fun openCamera() {
         val uri = createImageUri()
-        viewModel.setImageUri(uri)
+        Log.d("ProfilePicture", "Created URI: $uri")
+        cameraImageUri = uri
         cameraLauncher.launch(uri)
     }
 
@@ -161,7 +167,6 @@ fun AccountDetailsScreen(
                 Toast.makeText(context, "Camera permission is required to take a picture.", Toast.LENGTH_SHORT).show()
                 cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
             }
-
             else -> cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
@@ -170,8 +175,7 @@ fun AccountDetailsScreen(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         uri?.let {
-            val savedUri = copyImageToInternalStorage(context, it)
-            viewModel.saveUserProfilePicture(savedUri)
+            viewModel.saveUserProfilePicture(it)
         }
     }
 
@@ -192,6 +196,7 @@ fun AccountDetailsScreen(
     LaunchedEffect(errorState) {
         errorState?.let {
             Toast.makeText(context, it.message, Toast.LENGTH_SHORT).show()
+            Log.e("Firebase", it.message)
         }
     }
 
@@ -228,14 +233,24 @@ fun AccountDetailsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         if (!user?.profilePicture.isNullOrEmpty()) {
-                            GlideImage(
-                                model = user?.profilePicture,
-                                contentDescription = "Profile",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape)
-                            )
+                            val profileFile = File(context.filesDir, user!!.profilePicture!!)
+                            if (profileFile.exists()) {
+                                GlideImage(
+                                    model = profileFile,
+                                    contentDescription = "Profile",
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(CircleShape)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.AccountCircle,
+                                    contentDescription = "Profile",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(50.dp)
+                                )
+                            }
                         } else {
                             Icon(
                                 imageVector = Icons.Default.AccountCircle,
@@ -250,12 +265,12 @@ fun AccountDetailsScreen(
                 item {
                     AccountInfoCard(
                         label = "Name:",
-                        value = user?.username ?: "Name not found",
+                        value = user?.username.toString() ?: "Name not found",
                         modifier = Modifier.padding(top = 32.dp)
                     )
                     AccountInfoCard(
                         label = "E-mail:",
-                        value = user?.email ?: "Email not found",
+                        value = user?.email.toString() ?: "Email not found",
                         modifier = Modifier.padding(top = 16.dp)
                     )
                     AccountInfoCard(
@@ -318,7 +333,6 @@ fun AccountDetailsScreen(
 
             onConfirm = {
                 viewModel.removeUserProfilePicture()
-                clearOldProfilePictures(context)
                 showRemovePictureSheet = false
             },
 
@@ -382,11 +396,7 @@ fun ProfilePictureSheetContent(
 }
 
 @Composable
-fun AccountInfoCard(
-    label: String,
-    value: String,
-    modifier: Modifier = Modifier
-) {
+fun AccountInfoCard(label: String, value: String, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -489,24 +499,6 @@ private fun rememberShimmerBrush(): Brush {
         start = Offset(translateAnim - 500f, translateAnim - 500f),
         end = Offset(translateAnim, translateAnim)
     )
-}
-
-private fun clearOldProfilePictures(context: Context) {
-    context.filesDir.listFiles()?.forEach { file ->
-        if (file.name.startsWith("profile_picture_") && file.name.endsWith(".jpg")) {
-            file.delete()
-        }
-    }
-}
-
-private fun copyImageToInternalStorage(context: Context, uri: Uri): Uri {
-    clearOldProfilePictures(context)
-    val fileName = "profile_picture_${System.currentTimeMillis()}.jpg"
-    val file = File(context.filesDir, fileName)
-    context.contentResolver.openInputStream(uri)?.use { input ->
-        file.outputStream().use { output -> input.copyTo(output) }
-    }
-    return FileProvider.getUriForFile(context, "${context.packageName}.provider", file)
 }
 
 @Preview(showBackground = true)

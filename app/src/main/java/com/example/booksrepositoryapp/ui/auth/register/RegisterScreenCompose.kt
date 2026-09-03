@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -22,13 +23,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.booksrepositoryapp.navigation.routes.Routes
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @Composable
 fun RegisterScreen(
     onBackClick: () -> Unit,
     onRegisterClick: (String, String, String, String) -> Unit,
-    onGetStartedClick: () -> Unit
+    onGetStartedClick: () -> Unit,
+    registerState: RegisterState
 ) {
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -37,6 +40,8 @@ fun RegisterScreen(
 
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    val isLoading = registerState is RegisterState.Loading
 
     Column(
         modifier = Modifier
@@ -139,6 +144,7 @@ fun RegisterScreen(
                     end = 16.dp,
                     top = 18.dp
                 )
+                .testTag("email")
         )
         OutlinedTextField(
             value = password,
@@ -187,6 +193,7 @@ fun RegisterScreen(
                     end = 16.dp,
                     top = 18.dp
                 )
+                .testTag("password")
         )
         OutlinedTextField(
             value = confirmPassword,
@@ -251,12 +258,19 @@ fun RegisterScreen(
             colors = ButtonDefaults.buttonColors(
                 containerColor = Color(0xFF111111),
                 contentColor = Color.White
-            )
+            ),
+            enabled = !isLoading
         ) {
-            Text(
-                text = "Register",
-                fontSize = 12.sp
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(12.dp)
+                )
+            } else {
+                Text(
+                    text = "Register",
+                    fontSize = 12.sp
+                )
+            }
         }
         Spacer(
             modifier = Modifier.weight(1f)
@@ -276,10 +290,16 @@ fun RegisterScreen(
                 text = "SignIn",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF022BFF),
-                modifier = Modifier.clickable {
-                    onGetStartedClick()
-                }
+                color = if (isLoading) Color.Gray else Color(0xFF022BFF),
+                modifier = Modifier.then(
+                    if (!isLoading) {
+                        Modifier.clickable {
+                            onGetStartedClick()
+                        }
+                    } else {
+                        Modifier
+                    }
+                )
             )
         }
     }
@@ -293,6 +313,7 @@ fun RegisterScreenPreview() {
             onBackClick = {},
             onGetStartedClick = {},
             onRegisterClick = { username, email, password, confirmPassword -> },
+            registerState = RegisterState.Idle
         )
     }
 }

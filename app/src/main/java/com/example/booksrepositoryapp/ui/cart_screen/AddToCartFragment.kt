@@ -13,9 +13,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.booksrepositoryapp.R
-import com.example.booksrepositoryapp.data.local.uiModels.CartItem
+import com.example.booksrepositoryapp.data.firebase.firestore.CartModelFB
 import com.example.booksrepositoryapp.databinding.FragmentAddToCartBinding
-import com.example.booksrepositoryapp.ui.address_screen.AddressShimmerAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 
@@ -115,7 +114,7 @@ class AddToCartFragment : Fragment(R.layout.fragment_add_to_cart) {
         }
     }
 
-    private fun updateSummary(cartItem: List<CartItem>) {
+    private fun updateSummary(cartItem: List<CartModelFB>) {
         val subTotal = cartItem.sumOf {
             it.price* it.quantity
         }

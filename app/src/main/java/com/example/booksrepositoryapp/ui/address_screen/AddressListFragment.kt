@@ -2,38 +2,25 @@ package com.example.booksrepositoryapp.ui.address_screen
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.location.Geocoder
-import android.location.Location
 import android.net.Uri
-import androidx.fragment.app.viewModels
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.booksrepositoryapp.R
-import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
+import com.example.booksrepositoryapp.data.firebase.firestore.AddressModelFB
 import com.example.booksrepositoryapp.databinding.FragmentAddressListBinding
-import com.example.booksrepositoryapp.databinding.FragmentCheckoutBinding
 import com.example.booksrepositoryapp.helper.LocationHelper
-import com.example.booksrepositoryapp.ui.address_screen.AddressAdapter
 import com.example.booksrepositoryapp.ui.conformation_bottom_sheet.ConfirmationBottomSheet
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.IOException
-import java.util.Locale
 
 class AddressListFragment : Fragment(R.layout.fragment_address_list) {
     private var _binding: FragmentAddressListBinding? = null
@@ -64,9 +51,9 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
             }
         }
 
-    private var addressBeingLocated: AddressModel? = null
+    private var addressBeingLocated: AddressModelFB? = null
 
-    private fun checkLocationPermission(address: AddressModel) {
+    private fun checkLocationPermission(address: AddressModelFB) {
         addressBeingLocated = address
         when {
             locationHelper.hasLocationPermission() -> {
@@ -117,9 +104,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
                     )
                 } else {
                     addressBeingLocated?.let {
-                        viewModel.updateAddress(
-                            it.copy(isFetchingLocation = false)
-                        )
+                        viewModel.setFetchingLocation(it.id, false)
                     }
                     Toast.makeText(
                         requireContext(),
@@ -130,9 +115,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
             },
             onFailure = {
                 addressBeingLocated?.let {
-                    viewModel.updateAddress(
-                        it.copy(isFetchingLocation = false)
-                    )
+                    viewModel.setFetchingLocation(it.id, false)
                 }
                 Toast.makeText(
                     requireContext(),
@@ -151,11 +134,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
                     longitude
                 )
             if (locationAddress == null) {
-                viewModel.updateAddress(
-                    target.copy(
-                        isFetchingLocation = false
-                    )
-                )
+                viewModel.setFetchingLocation(target.id, false)
                 Toast.makeText(
                     requireContext(),
                     "Unable to get address",
@@ -165,18 +144,18 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
             }
             val updated = target.copy(
                 house = locationAddress.featureName ?: "",
-                street = locationAddress.thoroughfare,
+                street = locationAddress.thoroughfare ?: "",
                 area = locationAddress.subLocality ?: "",
                 city = locationAddress.locality ?: locationAddress.subAdminArea ?: "",
-                postalCode = locationAddress.postalCode,
+                postalCode = locationAddress.postalCode ?: "",
                 country = locationAddress.countryName ?: "",
                 fullAddress = locationAddress.getAddressLine(0) ?: "",
                 latitude = latitude,
                 longitude = longitude,
-                isFetchingLocation = false,
                 isSelected = true
             )
             viewModel.updateAddress(updated)
+            viewModel.setFetchingLocation(target.id, false)
             addressBeingLocated = null
             Toast.makeText(
                 requireContext(),
@@ -186,10 +165,12 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
         }
     }
 
-    private fun getLocationFromAddress(address: AddressModel, fullAddress: String) {
+    private fun getLocationFromAddress(address: AddressModelFB, fullAddress: String) {
+        viewModel.setSaving(address.id, true)
         viewLifecycleOwner.lifecycleScope.launch {
             val location = locationHelper.getLocationFromAddress(fullAddress)
             if (location == null) {
+                viewModel.setSaving(address.id, false)
                 Toast.makeText(
                     requireContext(),
                     "Address not found",
@@ -199,10 +180,10 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
             }
             val updatedAddress = address.copy(
                 house = location.subThoroughfare ?: "",
-                street = location.thoroughfare,
+                street = location.thoroughfare ?: "",
                 area = location.subLocality ?: location.featureName ?: "",
                 city = location.locality ?: location.subAdminArea ?: "",
-                postalCode = location.postalCode,
+                postalCode = location.postalCode ?: "",
                 country = location.countryName ?: "",
                 fullAddress = fullAddress,
                 latitude = location.latitude,
@@ -210,6 +191,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
             )
             viewModel.updateAddress(updatedAddress)
             viewModel.updateSelectedAddress(updatedAddress.id)
+            viewModel.setSaving(address.id, false)
             Toast.makeText(
                 requireContext(),
                 "Address updated successfully",
@@ -222,9 +204,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
         addressShimmerAdapter = AddressShimmerAdapter()
         addressAdapter = AddressAdapter(
             onLocationClick = { address ->
-                viewModel.updateAddress(
-                    address.copy(isFetchingLocation = true)
-                )
+                viewModel.setFetchingLocation(address.id, true)
                 checkLocationPermission(address)
             },
             onCheckClick = { address, fullAddress ->
@@ -267,8 +247,7 @@ class AddressListFragment : Fragment(R.layout.fragment_address_list) {
             findNavController().navigateUp()
         }
         binding.btnAddAddress.setOnClickListener {
-            val newAddress = AddressModel(
-                userId = viewModel.userId,
+            val newAddress = AddressModelFB(
                 house = "",
                 street = "",
                 area = "",

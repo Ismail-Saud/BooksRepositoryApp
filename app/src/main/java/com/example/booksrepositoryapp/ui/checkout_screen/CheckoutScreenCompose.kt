@@ -14,7 +14,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,13 +33,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
+import com.example.booksrepositoryapp.data.firebase.firestore.AddressModelFB
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @Composable
 fun CheckoutScreen(
     total: Double,
-    selectedAddress: AddressModel?,
+    selectedAddress: AddressModelFB?,
     onBackClick: () -> Unit,
     onSelectAddressClick: () -> Unit,
     onPayClick: () -> Unit,
@@ -371,9 +370,8 @@ fun CheckoutScreen(
 fun CheckoutScreenPreview() {
     BooksRepositoryAppTheme {
         val viewModel: CheckoutViewModel = viewModel()
-        val sampleAddress = AddressModel(
-            id = 1,
-            userId = 1,
+        val sampleAddress = AddressModelFB(
+            id = "1",
             house = "House 123",
             street = "Street 5",
             area = "Gulberg",

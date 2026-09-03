@@ -1,10 +1,10 @@
 package com.example.booksrepositoryapp.ui.checkout_screen
 
-import com.example.booksrepositoryapp.data.local.room.entity.AddressModel
+import com.example.booksrepositoryapp.data.firebase.firestore.AddressModelFB
 
 sealed class CheckoutState {
     object Idle: CheckoutState()
     object Loading : CheckoutState()
-    data class Success(val address: AddressModel?) : CheckoutState()
+    data class Success(val address: AddressModelFB?) : CheckoutState()
     data class Error(val message: String) : CheckoutState()
 }
