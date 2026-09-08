@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:paddingHorizontal="16dp"
     android:paddingTop="16dp"
-    tools:context=".ui.book_category.BooksCategoryFragment">
+    tools:context=".ui.bookCategory.BooksCategoryFragment">
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/tilSearch"

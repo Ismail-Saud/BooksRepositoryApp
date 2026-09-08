@@ -118,4 +118,6 @@ dependencies {
     implementation("com.google.firebase:firebase-storage")
 
     implementation("com.google.firebase:firebase-perf")
+
+    implementation("com.google.firebase:firebase-config")
 }
