@@ -239,8 +239,8 @@ fun AppNavigation(
                         onForgotPasswordClick = {},
                         onGetStartedClick = { email, password ->
                             viewModel.login(
-                                email = email,
-                                password = password
+                                email = "ismail@test.com",
+                                password = "Qwerty@123"
                             )
                         },
                         getStartedState = getStartedState
