@@ -61,7 +61,7 @@ class BooksCategoryFragment : Fragment(R.layout.fragment_books_category) {
 
     private fun setupListeners() {
         binding.etSearch.addTextChangedListener {
-            viewModel.searchTodos(
+            viewModel.searchCategories(
                 it.toString().trim()
             )
         }

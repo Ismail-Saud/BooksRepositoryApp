@@ -27,7 +27,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
@@ -59,7 +59,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
@@ -67,11 +66,9 @@ import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun BooksListScreen(
-    apiValue: String,
-    title: String,
     viewModel: BooksListViewModel,
+    onNavigate: (BooksListEffect.NavigateToBookDetails) -> Unit,
     onBackClick: () -> Unit,
-    onBookClick: (String) -> Unit
 ) {
     val state by viewModel.bookState.collectAsStateWithLifecycle()
     var searchQuery by rememberSaveable {
@@ -80,8 +77,17 @@ fun BooksListScreen(
     var showFilterSheet by rememberSaveable {
         mutableStateOf(false)
     }
-    LaunchedEffect(apiValue) {
-        viewModel.getBooksByCategory(apiValue)
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is BooksListEffect.NavigateToBookDetails -> onNavigate(effect)
+                BooksListEffect.NavigateBack -> onBackClick()
+                is BooksListEffect.ShowError -> {
+                    // Handle error message, e.g., show a Snackbar
+                }
+            }
+        }
     }
 
     Column(
@@ -93,20 +99,20 @@ fun BooksListScreen(
                 .height(56.dp)
         ) {
             IconButton(
-                onClick = onBackClick,
+                onClick = { viewModel.onEvent(BooksListEvent.BackClicked) },
                 modifier = Modifier
                     .size(48.dp)
                     .align(Alignment.CenterStart)
                     .padding(start = 8.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = Color.Black
                 )
             }
             Text(
-                text = title,
+                text = viewModel.title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.align(Alignment.Center)
@@ -122,9 +128,7 @@ fun BooksListScreen(
                 value = searchQuery,
                 onValueChange = { query ->
                     searchQuery = query
-                    viewModel.searchBooks(
-                        query.trim()
-                    )
+                    viewModel.onEvent(BooksListEvent.SearchQueryChanged(query.trim()))
                 },
                 label = {
                     Text("Search")
@@ -202,7 +206,7 @@ fun BooksListScreen(
                             BookCard(
                                 book = book,
                                 onClick = {
-                                    onBookClick(book.id)
+                                    viewModel.onEvent(BooksListEvent.BookClicked(book.id))
                                 }
                             )
                         }
@@ -218,17 +222,13 @@ fun BooksListScreen(
                 showFilterSheet = false
             },
             onApply = { min, max ->
-                viewModel.filterByPrice(
-                    min,
-                    max
-                )
+                viewModel.onEvent(BooksListEvent.FilterByPrice(min, max))
                 showFilterSheet = false
             }
         )
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun BookCard(
     book: Book,
@@ -423,11 +423,9 @@ fun BooksGridLoading(
 fun BooksListScreenComposePreview() {
     BooksRepositoryAppTheme {
         BooksListScreen(
-            apiValue = "classic",
-            title = "Classic",
             viewModel = viewModel(),
             onBackClick = {},
-            onBookClick = {}
+            onNavigate = {}
         )
     }
 }

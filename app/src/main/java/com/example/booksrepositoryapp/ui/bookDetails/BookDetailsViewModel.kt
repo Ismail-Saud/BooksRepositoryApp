@@ -4,22 +4,53 @@ import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.repository.BooksRepositoryImpl
 import com.example.booksrepositoryapp.data.repository.CartRepositoryImpl
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Cart
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class BookDetailsViewModel(application: Application) : AndroidViewModel(application) {
+class BookDetailsViewModel(
+    application: Application,
+    savedStateHandle: SavedStateHandle
+) : AndroidViewModel(application) {
 
     private val _bookDetailState = MutableStateFlow<BookDetailsState>(BookDetailsState.Idle)
     val bookDetailState = _bookDetailState.asStateFlow()
+
+    private val _effect = Channel<BookDetailsEffect>()
+    val effect = _effect.receiveAsFlow()
+
     private val authRepo = AuthRepository()
     private val bookRepo = BooksRepositoryImpl(application)
     private val cartRepo = CartRepositoryImpl()
+
+    private val workId: String = savedStateHandle["workId"] ?: ""
+
+    init {
+        if (workId.isNotEmpty()) {
+            getBookDetails(workId)
+        }
+    }
+
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+    fun onEvent(event: BookDetailsEvent) {
+        when (event) {
+            BookDetailsEvent.AddToCartClicked -> addToCart()
+            BookDetailsEvent.BackClicked -> {
+                viewModelScope.launch {
+                    _effect.send(BookDetailsEffect.NavigateBack)
+                }
+            }
+            is BookDetailsEvent.LoadBookDetails -> getBookDetails(event.workId)
+        }
+    }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getBookDetails(key: String) {
@@ -31,7 +62,7 @@ class BookDetailsViewModel(application: Application) : AndroidViewModel(applicat
         }
     }
 
-    fun addToCart(bookId: String) {
+    private fun addToCart() {
         val userId = authRepo.getCurrentUserId() ?: ""
         val state = _bookDetailState.value
         if (state is BookDetailsState.Success && state.books != null) {
@@ -47,6 +78,7 @@ class BookDetailsViewModel(application: Application) : AndroidViewModel(applicat
             )
             viewModelScope.launch {
                 cartRepo.insertCartItem(userId, cart)
+                _effect.send(BookDetailsEffect.ShowToast("Added to Cart"))
             }
         }
     }

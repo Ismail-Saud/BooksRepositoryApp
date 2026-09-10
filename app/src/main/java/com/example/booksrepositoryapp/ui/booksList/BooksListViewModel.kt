@@ -4,6 +4,7 @@ import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.repository.BooksRepositoryImpl
 import com.example.booksrepositoryapp.data.util.refreshResult.RefreshResult
@@ -11,15 +12,18 @@ import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.domain.usecase.GetBooksUseCase
 import com.example.booksrepositoryapp.domain.usecase.RefreshBooksUseCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class BooksListViewModel(application: Application) : AndroidViewModel(application) {
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+class BooksListViewModel(application: Application, savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
     private val _bookState = MutableStateFlow<BooksListState>(BooksListState.Idle)
     val bookState = _bookState.asStateFlow()
     private val _searchQuery = MutableStateFlow("")
@@ -32,6 +36,30 @@ class BooksListViewModel(application: Application) : AndroidViewModel(applicatio
     private val bookRepo = BooksRepositoryImpl(application)
     private val getBooksUseCase = GetBooksUseCase(bookRepo)
     private val refreshBooksUseCase = RefreshBooksUseCase(bookRepo)
+
+    private val apiValue: String = savedStateHandle["apiValue"] ?: ""
+    val title: String = savedStateHandle["title"] ?: "Unknown"
+
+    private val _effect = Channel<BooksListEffect>()
+    val effect = _effect.receiveAsFlow()
+
+    fun onEvent(event: BooksListEvent) {
+        when (event) {
+            is BooksListEvent.SearchQueryChanged -> searchBooks(event.query)
+            is BooksListEvent.BookClicked -> {
+                viewModelScope.launch {
+                    _effect.send(BooksListEffect.NavigateToBookDetails(event.bookId))
+                }
+            }
+            is BooksListEvent.FilterByPrice -> filterByPrice(event.minPrice, event.maxPrice)
+            BooksListEvent.RefreshBooks -> getBooksByCategory(apiValue)
+            BooksListEvent.BackClicked -> {
+                viewModelScope.launch {
+                    _effect.send(BooksListEffect.NavigateBack)
+                }
+            }
+        }
+    }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getBooksByCategory(subject: String) {
@@ -94,5 +122,6 @@ class BooksListViewModel(application: Application) : AndroidViewModel(applicatio
                     applyFilters()
                 }
         }
+        getBooksByCategory(apiValue)
     }
 }

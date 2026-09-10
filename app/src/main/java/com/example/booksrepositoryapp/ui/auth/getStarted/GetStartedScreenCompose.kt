@@ -1,20 +1,44 @@
 package com.example.booksrepositoryapp.ui.auth.getStarted
 
-import androidx.compose.runtime.Composable
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -22,21 +46,34 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @Composable
 fun GetStartedScreen(
-    onBackClick: () -> Unit,
-    onGetStartedClick: (String, String) -> Unit,
-    onForgotPasswordClick: () -> Unit,
-    onRegisterClick: () -> Unit,
-    getStartedState: GetStartedState
+    viewModel: GetStartedViewModel,
+    onNavigate: (GetStartedEffect) -> Unit
 ) {
+    val getStartedState by viewModel.getStartedState.collectAsState()
+    val context = LocalContext.current
+
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var passwordVisibility by remember { mutableStateOf(false) }
+    var passwordVisible by remember { mutableStateOf(false) }
 
     val isLoading = getStartedState is GetStartedState.Loading
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is GetStartedEffect.ShowToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+                else -> onNavigate(effect)
+            }
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -49,13 +86,15 @@ fun GetStartedScreen(
                 .height(40.dp)
         ) {
             IconButton(
-                onClick = onBackClick,
+                onClick = {
+                    viewModel.onEvent(GetStartedEvent.BackClicked)
+                },
                 modifier = Modifier
                     .padding(start = 8.dp)
                     .align(Alignment.TopStart)
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
                     tint = Color(0xFF111111)
                 )
@@ -109,7 +148,6 @@ fun GetStartedScreen(
                     top = 28.dp
                 )
         )
-        var passwordVisible by remember { mutableStateOf(false) }
         OutlinedTextField(
             value = password,
             onValueChange = {
@@ -159,7 +197,7 @@ fun GetStartedScreen(
         )
         Button(
             onClick = {
-                onGetStartedClick(email, password)
+                viewModel.onEvent(GetStartedEvent.GetStartedClicked(email, password))
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -193,9 +231,7 @@ fun GetStartedScreen(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(top = 22.dp)
-                .clickable {
-                    onForgotPasswordClick()
-                }
+                .clickable {}
         )
         Spacer(
             modifier = Modifier.weight(1f)
@@ -220,7 +256,7 @@ fun GetStartedScreen(
                 modifier = Modifier.then(
                     if (!isLoading) {
                         Modifier.clickable {
-                            onRegisterClick()
+                            viewModel.onEvent(GetStartedEvent.RegisterClicked)
                         }
                     } else {
                         Modifier
@@ -236,11 +272,8 @@ fun GetStartedScreen(
 fun GetStartedScreenPreview() {
     BooksRepositoryAppTheme {
         GetStartedScreen (
-            onBackClick = {},
-            onGetStartedClick = { username, password -> } ,
-            onForgotPasswordClick = {},
-            onRegisterClick = {},
-            getStartedState = GetStartedState.Idle
+            viewModel = viewModel(),
+            onNavigate = {}
         )
     }
 }

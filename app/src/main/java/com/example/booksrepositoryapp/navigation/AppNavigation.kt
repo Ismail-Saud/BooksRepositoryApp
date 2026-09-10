@@ -23,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -39,25 +38,23 @@ import com.example.booksrepositoryapp.domain.model.Cart
 import com.example.booksrepositoryapp.navigation.routes.Routes
 import com.example.booksrepositoryapp.ui.accountDetails.AccountDetailsScreen
 import com.example.booksrepositoryapp.ui.accountDetails.AccountDetailsViewModel
-import com.example.booksrepositoryapp.ui.addressScreen.AddressListViewModel
-import com.example.booksrepositoryapp.ui.addressScreen.AddressScreenCompose
-import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedScreen
-import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedState
-import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedViewModel
-import com.example.booksrepositoryapp.ui.auth.register.RegisterScreen
-import com.example.booksrepositoryapp.ui.auth.register.RegisterState
-import com.example.booksrepositoryapp.ui.auth.register.RegisterViewModel
-import com.example.booksrepositoryapp.ui.bookCategory.BookCategoryScreen
-import com.example.booksrepositoryapp.ui.bookCategory.BooksCategoryState
-import com.example.booksrepositoryapp.ui.bookCategory.BooksCategoryViewModel
-import com.example.booksrepositoryapp.ui.bookDetails.BookDetailsScreenCompose
-import com.example.booksrepositoryapp.ui.bookDetails.BookDetailsState
-import com.example.booksrepositoryapp.ui.bookDetails.BookDetailsViewModel
-import com.example.booksrepositoryapp.ui.booksList.BooksListScreen
-import com.example.booksrepositoryapp.ui.booksList.BooksListViewModel
 import com.example.booksrepositoryapp.ui.addToCart.AddToCartScreen
 import com.example.booksrepositoryapp.ui.addToCart.AddToCartState
 import com.example.booksrepositoryapp.ui.addToCart.AddToCartViewModel
+import com.example.booksrepositoryapp.ui.addressScreen.AddressListViewModel
+import com.example.booksrepositoryapp.ui.addressScreen.AddressScreenCompose
+import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedEffect
+import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedScreen
+import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedViewModel
+import com.example.booksrepositoryapp.ui.auth.register.RegisterEffect
+import com.example.booksrepositoryapp.ui.auth.register.RegisterScreen
+import com.example.booksrepositoryapp.ui.auth.register.RegisterViewModel
+import com.example.booksrepositoryapp.ui.bookCategory.BookCategoryScreen
+import com.example.booksrepositoryapp.ui.bookCategory.BooksCategoryViewModel
+import com.example.booksrepositoryapp.ui.bookDetails.BookDetailsScreenCompose
+import com.example.booksrepositoryapp.ui.bookDetails.BookDetailsViewModel
+import com.example.booksrepositoryapp.ui.booksList.BooksListScreen
+import com.example.booksrepositoryapp.ui.booksList.BooksListViewModel
 import com.example.booksrepositoryapp.ui.checkout.CheckoutScreen
 import com.example.booksrepositoryapp.ui.checkout.CheckoutState
 import com.example.booksrepositoryapp.ui.checkout.CheckoutViewModel
@@ -206,176 +203,78 @@ fun AppNavigation(
                 }
                 composable(Routes.GetStarted.route) {
                     val viewModel: GetStartedViewModel = viewModel()
-                    val context = LocalContext.current
-                    val getStartedState by viewModel.getStartedState.collectAsState()
-                    LaunchedEffect(getStartedState) {
-                        when (getStartedState) {
-                            GetStartedState.Idle -> {}
-                            GetStartedState.Loading -> {}
-                            is GetStartedState.Error -> {
-                                Toast.makeText(
-                                    context,
-                                    (getStartedState as GetStartedState.Error).message,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            GetStartedState.Success -> {
-                                Toast.makeText(
-                                    context,
-                                    "Login Successful",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                navController.navigate(Routes.BooksCategory.route)
+                    GetStartedScreen(
+                        viewModel = viewModel,
+                        onNavigate = { effect ->
+                            when (effect) {
+                                GetStartedEffect.NavigateToHome -> {
+                                    navController.navigate(Routes.BooksCategory.route) {
+                                        popUpTo(Routes.Register.route) {
+                                            inclusive = true
+                                        }
+                                    }
+                                }
+                                GetStartedEffect.NavigateToRegister -> navController.navigate(Routes.Register.route)
+                                GetStartedEffect.NavigateBack -> navController.navigate(Routes.LandingPage.route)
+                                else -> {}
                             }
                         }
-                    }
-                    GetStartedScreen(
-                        onBackClick = {
-                            navController.navigate(Routes.LandingPage.route)
-                        },
-                        onRegisterClick = {
-                            navController.navigate(Routes.Register.route)
-                        },
-                        onForgotPasswordClick = {},
-                        onGetStartedClick = { email, password ->
-                            viewModel.login(
-                                email = "ismail@test.com",
-                                password = "Qwerty@123"
-                            )
-                        },
-                        getStartedState = getStartedState
                     )
                 }
                 composable(Routes.Register.route) {
                     val viewModel: RegisterViewModel = viewModel()
-                    val context = LocalContext.current
-                    val registerState by viewModel.registerUser.collectAsState()
-                    LaunchedEffect(registerState) {
-                        when (registerState) {
-                            RegisterState.Idle -> {}
-                            RegisterState.Loading -> {}
-                            is RegisterState.Error -> {
-                                Toast.makeText(
-                                    context,
-                                    (registerState as RegisterState.Error).message,
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            RegisterState.Success -> {
-                                Toast.makeText(
-                                    context,
-                                    "Signup Successful",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                                navController.navigate(Routes.BooksCategory.route) {
-                                    popUpTo(Routes.Register.route) {
-                                        inclusive = true
+                    RegisterScreen(
+                        viewModel = viewModel,
+                        onNavigate = { effect ->
+                            when (effect) {
+                                RegisterEffect.NavigateToHome -> {
+                                    navController.navigate(Routes.BooksCategory.route) {
+                                        popUpTo(Routes.Register.route) {
+                                            inclusive = true
+                                        }
                                     }
                                 }
+                                RegisterEffect.NavigateToGetStarted -> navController.navigate(Routes.GetStarted.route)
+                                RegisterEffect.NavigateBack -> navController.navigate(Routes.LandingPage.route)
+                                else -> {}
                             }
                         }
-                    }
-                    RegisterScreen(
-                        onBackClick = {
-                            navController.navigate(Routes.LandingPage.route)
-                        },
-                        onRegisterClick = { username, email, password, confirmPassword ->
-                            viewModel.register(
-                                username = username,
-                                email = email,
-                                password = password,
-                                confirmPass = confirmPassword
-                            )
-                        },
-                        onGetStartedClick = {
-                            navController.navigate(Routes.GetStarted.route)
-                        },
-                        registerState = registerState
                     )
                 }
                 composable(Routes.BooksCategory.route) {
                     val viewModel: BooksCategoryViewModel = viewModel()
-                    val context = LocalContext.current
-                    val state by viewModel.categoryState.observeAsState(
-                        BooksCategoryState.Idle
-                    )
-                    when (val currentState = state) {
-                        BooksCategoryState.Idle -> {}
-                        BooksCategoryState.Loading -> {}
-                        is BooksCategoryState.Success -> {
-                            BookCategoryScreen(
-                                categories = currentState.categories,
-                                onBackClick = {
-                                    navController.navigateUp()
-                                },
-                                onSearch = { query ->
-                                    viewModel.searchTodos(query)
-                                },
-                                onCardClick = { category ->
-                                    navController.navigate(
-                                        Routes.BooksList.createRoute(category.apiValue, category.title)
-                                    )
-                                }
+                    BookCategoryScreen(
+                        viewModel = viewModel,
+                        onNavigate = { effect ->
+                            navController.navigate(
+                                Routes.BooksList.createRoute(effect.apiValue, effect.title)
                             )
                         }
-                        is BooksCategoryState.Error -> {
-                            Toast.makeText(
-                                context,
-                                currentState.message,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            viewModel.resetState()
-                        }
-                    }
+                    )
                 }
-                composable(Routes.BooksList.route) { backStackEntry ->
-                    val apiValue = backStackEntry.arguments?.getString("apiValue") ?: ""
-                    val title = backStackEntry.arguments?.getString("title") ?: "Unknown"
+                composable(Routes.BooksList.route) {
                     val viewModel: BooksListViewModel = viewModel()
                     BooksListScreen(
-                        apiValue = apiValue,
-                        title = title,
                         viewModel = viewModel,
                         onBackClick = {
                             navController.navigateUp()
                         },
-                        onBookClick = { workId ->
-                            val cleanedWorkId = Uri.encode(workId)
+                        onNavigate = { effect ->
+                            val cleanedWorkId = Uri.encode(effect.workId)
                             navController.navigate(
                                 Routes.BookDetails.createRoute(cleanedWorkId)
                             )
                         }
                     )
                 }
-                composable(Routes.BookDetails.route) { backStackEntry ->
-                    val workId = backStackEntry.arguments?.getString("workId") ?: "Unknown"
+                composable(Routes.BookDetails.route) {
                     val viewModel: BookDetailsViewModel = viewModel()
-                    val context = LocalContext.current
-                    LaunchedEffect(workId) {
-                        viewModel.getBookDetails(workId)
-                    }
-                    val state by viewModel.bookDetailState.collectAsState()
-                    when (val currentState = state) {
-                        BookDetailsState.Idle -> {}
-                        is BookDetailsState.Loading -> {}
-                        is BookDetailsState.Success -> {
-                            currentState.books?.let { book ->
-                                BookDetailsScreenCompose(
-                                    book = book,
-                                    onBackClick = {
-                                        navController.navigateUp()
-                                    },
-                                    onAddToCartClick = {
-                                        viewModel.addToCart(workId)
-                                        Toast.makeText(context, "Added to Cart", Toast.LENGTH_SHORT).show()
-                                    }
-                                )
-                            }
+                    BookDetailsScreenCompose(
+                        viewModel = viewModel,
+                        onBackClick = {
+                            navController.navigateUp()
                         }
-                        is BookDetailsState.Error -> {
-                            Toast.makeText(context, currentState.message, Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                    )
                 }
                 composable(Routes.AddToCart.route) {
                     val viewModel: AddToCartViewModel = viewModel()

@@ -125,15 +125,15 @@ class BookDetailsFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        val key = arguments?.getString("key") ?: "Unknown"
-        binding.btnAddToCart.setOnClickListener {
-            Toast.makeText(
-                requireContext(),
-                "Added to Cart",
-                Toast.LENGTH_SHORT
-            ).show()
-            viewModel.addToCart(key)
-        }
+//        val key = arguments?.getString("key") ?: "Unknown"
+//        binding.btnAddToCart.setOnClickListener {
+//            Toast.makeText(
+//                requireContext(),
+//                "Added to Cart",
+//                Toast.LENGTH_SHORT
+//            ).show()
+//            viewModel.addToCart(key)
+//        }
     }
 
     override fun onDestroyView() {

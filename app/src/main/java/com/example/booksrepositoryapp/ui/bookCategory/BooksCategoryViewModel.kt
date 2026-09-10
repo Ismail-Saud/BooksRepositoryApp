@@ -7,6 +7,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.Category
 import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.categories
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class BooksCategoryViewModel(application: Application) : AndroidViewModel(application) {
@@ -14,13 +16,28 @@ class BooksCategoryViewModel(application: Application) : AndroidViewModel(applic
     private var allCategories: List<Category> = emptyList()
     private val _categoryState = MutableLiveData<BooksCategoryState>(BooksCategoryState.Idle)
     val categoryState: LiveData<BooksCategoryState> = _categoryState
+    private val _effect = Channel<BooksCategoryEffect>()
+    val effect = _effect.receiveAsFlow()
+
+    fun onEvent(event: BooksCategoryEvent) {
+        when (event) {
+            is BooksCategoryEvent.SearchQueryChanged -> searchCategories(event.query)
+            is BooksCategoryEvent.CategoryClicked -> {
+                viewModelScope.launch {
+                    _effect.send(BooksCategoryEffect.NavigateToBooksList(event.apiValue, event.title))
+                }
+            }
+
+            BooksCategoryEvent.RefreshCategories -> allCategories
+        }
+    }
 
     fun setCategories(categories: List<Category>) {
         allCategories = categories
         _categoryState.value = BooksCategoryState.Success(allCategories)
     }
 
-    fun searchTodos (query: String) {
+    fun searchCategories (query: String) {
         activeSearch = query
         viewModelScope.launch {
             val searchResult = allCategories

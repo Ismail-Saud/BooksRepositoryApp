@@ -1,5 +1,8 @@
 package com.example.booksrepositoryapp.ui.bookDetails
 
+import android.os.Build
+import android.widget.Toast
+import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,17 +18,26 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.integration.compose.GlideSubcomposition
@@ -34,9 +46,53 @@ import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
-@OptIn(ExperimentalGlideComposeApi::class)
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun BookDetailsScreenCompose(
+    viewModel: BookDetailsViewModel,
+    onBackClick: () -> Unit
+) {
+    val state by viewModel.bookDetailState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                BookDetailsEffect.NavigateBack -> onBackClick()
+                is BookDetailsEffect.ShowToast -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    when (val currentState = state) {
+        BookDetailsState.Idle -> {}
+        BookDetailsState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        }
+        is BookDetailsState.Error -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = currentState.message)
+            }
+        }
+        is BookDetailsState.Success -> {
+            currentState.books?.let { book ->
+                BookDetailsContent(
+                    book = book,
+                    onBackClick = { viewModel.onEvent(BookDetailsEvent.BackClicked) },
+                    onAddToCartClick = { viewModel.onEvent(BookDetailsEvent.AddToCartClicked) }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun BookDetailsContent(
     book: Book,
     onBackClick: () -> Unit,
     onAddToCartClick: () -> Unit
@@ -216,7 +272,7 @@ fun BookDetailsScreenCompose(
 @Composable
 fun BookDetailsPreview() {
     BooksRepositoryAppTheme {
-        BookDetailsScreenCompose (
+        BookDetailsContent (
             book = Book(
                 id = "OL123456W",
                 title = "The Great Gatsby",
