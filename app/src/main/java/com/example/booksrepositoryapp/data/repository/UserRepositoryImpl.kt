@@ -23,7 +23,6 @@ class UserRepositoryImpl(context: Context) : UserRepository {
     private val dao = DatabaseInstance.getDatabase(appContext).UserDao()
     private val firestore = FirebaseFirestore.getInstance()
     private val db = FirebaseFirestore.getInstance()
-    
     private val isLoggedInKey = "isLoggedIn"
     private val saveUserId = "User_Id"
 

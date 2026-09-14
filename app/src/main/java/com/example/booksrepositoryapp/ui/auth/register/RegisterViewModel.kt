@@ -30,8 +30,8 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     fun onEvent(event: RegisterEvent) {
         when (event) {
             is RegisterEvent.RegisterClicked -> register(event.username, event.email, event.password, event.confirmPass)
-            RegisterEvent.BackClicked -> sendEffect(RegisterEffect.NavigateBack)
-            RegisterEvent.GetStartedClicked -> sendEffect(RegisterEffect.NavigateToGetStarted)
+            RegisterEvent.BackClicked -> _effect.trySend(RegisterEffect.NavigateBack)
+            RegisterEvent.GetStartedClicked -> _effect.trySend(RegisterEffect.NavigateToGetStarted)
         }
     }
 
@@ -56,8 +56,6 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                                 email = email,
                                 profilePicture = null
                             )
-                            userRepo.createUserProfile(domainUser)
-                            userRepo.setLoggedIn(true)
                             _registerUser.value = RegisterState.Success
                             sendEffect(RegisterEffect.ShowToast("Signup Successful"))
                             sendEffect(RegisterEffect.NavigateToHome)
@@ -79,12 +77,10 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
 
     private fun sendError(message: String) {
         _registerUser.value = RegisterState.Error(message)
-        sendEffect(RegisterEffect.ShowToast(message))
+        _effect.trySend(RegisterEffect.ShowToast(message))
     }
 
     private fun sendEffect(effect: RegisterEffect) {
-        viewModelScope.launch {
-            _effect.send(effect)
-        }
+        _effect.trySend(effect)
     }
 }

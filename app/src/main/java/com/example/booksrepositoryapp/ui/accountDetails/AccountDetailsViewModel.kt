@@ -10,17 +10,17 @@ import com.example.booksrepositoryapp.data.repository.UserRepositoryImpl
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Address
 import com.example.booksrepositoryapp.domain.model.User
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
 
 class AccountDetailsViewModel(application: Application) : AndroidViewModel(application) {
     private val appContext = application.applicationContext
-    
-    // Injected manually for now, should be Hilt later
     private val userRepo = UserRepositoryImpl(application)
     private val authRepo = AuthRepository()
     private val addressRepo = AddressRepositoryImpl()
@@ -31,6 +31,30 @@ class AccountDetailsViewModel(application: Application) : AndroidViewModel(appli
     val userState: StateFlow<AccountDetailsState> = _userState
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user
+
+    private val _effect = Channel<AccountDetailsEffect>()
+    val effect = _effect.receiveAsFlow()
+
+    fun onEvent(event: AccountDetailsEvent) {
+        viewModelScope.launch {
+            when (event) {
+                AccountDetailsEvent.LoadUser -> getUser()
+                AccountDetailsEvent.LogoutClicked -> {
+                    logout()
+                    _effect.send(AccountDetailsEffect.NavigateToLandingPage)
+                }
+                is AccountDetailsEvent.ProfilePictureSelected -> {
+                    saveUserProfilePicture(event.uri)
+                }
+                AccountDetailsEvent.RemoveProfilePictureClicked -> {
+                    removeUserProfilePicture()
+                }
+                AccountDetailsEvent.CameraPermissionDeniedPermanent -> {
+                    _effect.send(AccountDetailsEffect.OpenAppSettings)
+                }
+            }
+        }
+    }
 
     fun getUser() {
         val uid = authRepo.getCurrentUserId()
@@ -57,7 +81,6 @@ class AccountDetailsViewModel(application: Application) : AndroidViewModel(appli
     val selectedAddress: Flow<Address?> = addressRepo.getSelectedAddress(id)
 
     fun logout() {
-        userRepo.setLoggedIn(false)
         authRepo.logout()
     }
 

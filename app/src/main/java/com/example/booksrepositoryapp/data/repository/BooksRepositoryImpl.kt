@@ -16,8 +16,10 @@ import com.example.booksrepositoryapp.data.util.refreshResult.RefreshResult
 import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.domain.repository.BooksRepository
 import com.example.booksrepositoryapp.helper.networkHelper.NetworkHelper
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 class BooksRepositoryImpl(context: Context) : BooksRepository {
@@ -32,11 +34,11 @@ class BooksRepositoryImpl(context: Context) : BooksRepository {
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-    override suspend fun refreshBooks(subject: String): RefreshResult {
+    override suspend fun refreshBooks(subject: String): RefreshResult = withContext(Dispatchers.IO) {
         if (!networkHelper.isNetworkAvailable()) {
-            return RefreshResult.Offline
+            return@withContext RefreshResult.Offline
         }
-        return try {
+        try {
             val response = booksApi.getBooksByCategory(subject)
             val existingBooks = dao.getAllBooksByCategory(subject)
             val existingMap = existingBooks.associateBy { it.workId }
@@ -72,11 +74,11 @@ class BooksRepositoryImpl(context: Context) : BooksRepository {
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-    override suspend fun updateBook(id: String): RefreshResult {
+    override suspend fun updateBook(id: String): RefreshResult = withContext(Dispatchers.IO) {
         if (!networkHelper.isNetworkAvailable()) {
-            return RefreshResult.Offline
+            return@withContext RefreshResult.Offline
         }
-        return try {
+        try {
             val response = booksApi.getBookDetails(id)
             dao.updateBooks(id, response.description)
             RefreshResult.Success

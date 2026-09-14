@@ -12,6 +12,7 @@ import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.domain.usecase.GetBooksUseCase
 import com.example.booksrepositoryapp.domain.usecase.RefreshBooksUseCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -27,12 +28,12 @@ class BooksListViewModel(application: Application, savedStateHandle: SavedStateH
     private val _bookState = MutableStateFlow<BooksListState>(BooksListState.Idle)
     val bookState = _bookState.asStateFlow()
     private val _searchQuery = MutableStateFlow("")
-    val searchQuery = _searchQuery.asStateFlow()
     private var allBooks: List<Book> = emptyList()
     private var minPrice = 0
     private var maxPrice = Int.MAX_VALUE
 
-    // Ideally, these would be injected via Hilt
+    private var fetchBooksJob: Job? = null
+
     private val bookRepo = BooksRepositoryImpl(application)
     private val getBooksUseCase = GetBooksUseCase(bookRepo)
     private val refreshBooksUseCase = RefreshBooksUseCase(bookRepo)
@@ -40,45 +41,44 @@ class BooksListViewModel(application: Application, savedStateHandle: SavedStateH
     private val apiValue: String = savedStateHandle["apiValue"] ?: ""
     val title: String = savedStateHandle["title"] ?: "Unknown"
 
-    private val _effect = Channel<BooksListEffect>()
+    private val _effect = Channel<BooksListEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
     fun onEvent(event: BooksListEvent) {
         when (event) {
             is BooksListEvent.SearchQueryChanged -> searchBooks(event.query)
             is BooksListEvent.BookClicked -> {
-                viewModelScope.launch {
-                    _effect.send(BooksListEffect.NavigateToBookDetails(event.bookId))
-                }
+                _effect.trySend(BooksListEffect.NavigateToBookDetails(event.bookId))
             }
             is BooksListEvent.FilterByPrice -> filterByPrice(event.minPrice, event.maxPrice)
             BooksListEvent.RefreshBooks -> getBooksByCategory(apiValue)
             BooksListEvent.BackClicked -> {
-                viewModelScope.launch {
-                    _effect.send(BooksListEffect.NavigateBack)
-                }
+                _effect.trySend(BooksListEffect.NavigateBack)
             }
         }
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getBooksByCategory(subject: String) {
-        viewModelScope.launch {
-            withContext(Dispatchers.IO) {
-                _bookState.value = BooksListState.Loading
-                val result = refreshBooksUseCase(subject)
-                if (result is RefreshResult.Offline) {
-                    _bookState.value = BooksListState.Offline
-                } else if (result is RefreshResult.Error) {
-                    _bookState.value = BooksListState.Error(result.message)
-                }
-                getBooksUseCase(subject).collect { books ->
-                    allBooks = books
-                    if (books.isNotEmpty()) {
-                        applyFilters()
-                    } else if (result is RefreshResult.Success) {
-                        _bookState.value = BooksListState.Success(emptyList())
-                    }
+        fetchBooksJob?.cancel()
+        fetchBooksJob = viewModelScope.launch {
+            _bookState.value = BooksListState.Loading
+            val result = withContext(Dispatchers.IO) {
+                refreshBooksUseCase(subject)
+            }
+
+            when (result) {
+                is RefreshResult.Offline -> _bookState.value = BooksListState.Offline
+                is RefreshResult.Error -> _bookState.value = BooksListState.Error(result.message)
+                else -> { /* Continue to collection */ }
+            }
+
+            getBooksUseCase(subject).collect { books ->
+                allBooks = books
+                if (books.isNotEmpty()) {
+                    applyFilters()
+                } else if (result is RefreshResult.Success) {
+                    _bookState.value = BooksListState.Success(emptyList())
                 }
             }
         }

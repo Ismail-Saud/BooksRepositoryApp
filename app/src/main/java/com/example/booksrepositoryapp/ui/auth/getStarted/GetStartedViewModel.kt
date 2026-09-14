@@ -33,7 +33,6 @@ class GetStartedViewModel(application: Application) : AndroidViewModel(applicati
             _getStartedState.value = GetStartedState.Loading
             val result = authRepo.login(email, password)
             result.onSuccess {
-                userRepo.setLoggedIn(true)
                 _getStartedState.value = GetStartedState.Success
                 sendEffect(GetStartedEffect.ShowToast("Login Successful"))
                 sendEffect(GetStartedEffect.NavigateToHome)

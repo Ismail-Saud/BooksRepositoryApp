@@ -9,7 +9,16 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,9 +27,26 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.booksrepositoryapp.domain.model.Address
 import com.example.booksrepositoryapp.helper.LocationHelper
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheetCompose
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
@@ -39,115 +64,61 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun AddressScreenCompose(
+    viewModel: AddressListViewModel,
+    maxAddresses: Long,
     onBackClick: () -> Unit,
-    onAddClick: () -> Unit,
-    onDeleteClick: () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    val viewModel: AddressListViewModel = viewModel()
-    val addresses by viewModel.addresses.collectAsState(
-        initial = emptyList()
-    )
-    val locationHelper = remember {
-        LocationHelper(context)
-    }
-    var addressBeingLocated by remember {
-        mutableStateOf<AddressUiModel?>(null)
-    }
-    var showPermissionDialog by remember {
-        mutableStateOf(false)
-    }
-    var addressToDelete by remember {
-        mutableStateOf<AddressUiModel?>(null)
-    }
+    val addresses by viewModel.addresses.collectAsState(initial = emptyList())
+    val addressCount by viewModel.addressCount.collectAsState(initial = 0)
 
-    fun getAddressFromLocation(
-        latitude: Double,
-        longitude: Double
-    ) {
-        val target = addressBeingLocated ?: return
-        scope.launch {
-            val locationAddress = locationHelper.getAddressFromLocation(latitude, longitude)
-            if (locationAddress == null) {
-                viewModel.setFetchingLocation(target.id, false)
-                Toast.makeText(
-                    context,
-                    "Unable to get address",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@launch
-            }
-            val updatedAddress = target.address.copy(
-                house = locationAddress.featureName ?: "",
-                street = locationAddress.thoroughfare ?: "",
-                area = locationAddress.subLocality ?: "",
-                city = locationAddress.locality ?: locationAddress.subAdminArea ?: "",
-                postalCode = locationAddress.postalCode ?: "N/A",
-                country = locationAddress.countryName ?: "",
-                fullAddress = locationAddress.getAddressLine(0) ?: "",
-                latitude = latitude,
-                longitude = longitude,
-                isSelected = true
-            )
-            viewModel.updateAddress(updatedAddress)
-            viewModel.setFetchingLocation(target.id, false)
-            addressBeingLocated = null
-            Toast.makeText(
-                context,
-                "Address updated",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
+    val locationHelper = remember { LocationHelper(context) }
+
+    var addressIdBeingLocated by remember { mutableStateOf<String?>(null) }
+    var showPermissionDialog by remember { mutableStateOf(false) }
+    var addressToDeleteId by remember { mutableStateOf<String?>(null) }
+    var showDeleteAllDialog by remember { mutableStateOf(false) }
 
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            Toast.makeText(
-                context,
-                "Location permission granted",
-                Toast.LENGTH_SHORT
-            ).show()
-            locationHelper.getCurrentLocation(
-                onSuccess = { location ->
-                    if (location != null) {
-                        getAddressFromLocation(location.latitude, location.longitude)
-                    } else {
-                        addressBeingLocated?.let { ui ->
-                            viewModel.setFetchingLocation(ui.id, false)
+            addressIdBeingLocated?.let { id ->
+                locationHelper.getCurrentLocation(
+                    onSuccess = { location ->
+                        if (location != null) {
+                            viewModel.onEvent(AddressListEvent.LocationReceived(id, location.latitude, location.longitude))
+                        } else {
+                            viewModel.setFetchingLocation(id, false)
+                            Toast.makeText(context, "Unable to get location", Toast.LENGTH_SHORT).show()
                         }
-                        Toast.makeText(context, "Unable to get location", Toast.LENGTH_SHORT).show()
+                    },
+                    onFailure = {
+                        viewModel.setFetchingLocation(id, false)
+                        Toast.makeText(context, "Failed to get location", Toast.LENGTH_SHORT).show()
                     }
-                },
-                onFailure = {
-                    addressBeingLocated?.let { ui ->
-                        viewModel.setFetchingLocation(ui.id, false)
-                    }
-                    Toast.makeText(context, "Failed to get location", Toast.LENGTH_SHORT).show()
-                }
-            )
+                )
+            }
         } else {
             showPermissionDialog = true
         }
     }
 
-    fun checkLocationPermission(addressUi: AddressUiModel) {
-        addressBeingLocated = addressUi
+    fun checkAndRequestLocation(addressId: String) {
+        addressIdBeingLocated = addressId
         when {
             locationHelper.hasLocationPermission() -> {
                 locationHelper.getCurrentLocation(
                     onSuccess = { location ->
                         if (location != null) {
-                            getAddressFromLocation(location.latitude, location.longitude)
+                            viewModel.onEvent(AddressListEvent.LocationReceived(addressId, location.latitude, location.longitude))
                         } else {
-                            viewModel.setFetchingLocation(addressUi.id, false)
+                            viewModel.setFetchingLocation(addressId, false)
                             Toast.makeText(context, "Unable to get location", Toast.LENGTH_SHORT).show()
                         }
                     },
                     onFailure = {
-                        viewModel.setFetchingLocation(addressUi.id, false)
+                        viewModel.setFetchingLocation(addressId, false)
                         Toast.makeText(context, "Failed to get location", Toast.LENGTH_SHORT).show()
                     }
                 )
@@ -156,11 +127,6 @@ fun AddressScreenCompose(
                 context as Activity,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) -> {
-                Toast.makeText(
-                    context,
-                    "Location permission is required to get your current address.",
-                    Toast.LENGTH_LONG
-                ).show()
                 locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
             else -> {
@@ -169,38 +135,21 @@ fun AddressScreenCompose(
         }
     }
 
-    fun getLocationFromAddress(addressUi: AddressUiModel, fullAddress: String) {
-        viewModel.setSaving(addressUi.id, true)
-        scope.launch {
-            val location = locationHelper.getLocationFromAddress(fullAddress)
-            if (location == null) {
-                viewModel.setSaving(addressUi.id, false)
-                Toast.makeText(
-                    context,
-                    "Address not found",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@launch
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is AddressListEffect.NavigateBack -> onBackClick()
+                is AddressListEffect.ShowToast -> Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                is AddressListEffect.RequestLocation -> checkAndRequestLocation(effect.addressId)
+                is AddressListEffect.ShowDeleteAllConfirmation -> showDeleteAllDialog = true
+                is AddressListEffect.ShowDeleteAddressConfirmation -> addressToDeleteId = effect.addressId
+                is AddressListEffect.OpenAppSettings -> {
+                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
+                    context.startActivity(intent)
+                }
             }
-            val updatedAddress = addressUi.address.copy(
-                house = location.subThoroughfare ?: "",
-                street = location.thoroughfare ?: "",
-                area = location.subLocality ?: location.featureName ?: "",
-                city = location.locality ?: location.subAdminArea ?: "",
-                postalCode = location.postalCode ?: "N/A",
-                country = location.countryName ?: "",
-                fullAddress = fullAddress,
-                latitude = location.latitude,
-                longitude = location.longitude
-            )
-            viewModel.updateAddress(updatedAddress)
-            viewModel.updateSelectedAddress(updatedAddress.id)
-            viewModel.setSaving(addressUi.id, false)
-            Toast.makeText(
-                context,
-                "Address updated successfully",
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
 
@@ -210,14 +159,42 @@ fun AddressScreenCompose(
             message = "Location access was permanently denied. Please enable it in Settings to continue.",
             positiveButtonText = "Go to Settings",
             onConfirm = {
+                viewModel.onEvent(AddressListEvent.BackClick) // Using an event to signal intent
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                     data = Uri.fromParts("package", context.packageName, null)
                 }
                 context.startActivity(intent)
-            },
-            onDismiss = {
                 showPermissionDialog = false
-            }
+            },
+            onDismiss = { showPermissionDialog = false }
+        )
+    }
+
+    if (showDeleteAllDialog) {
+        ConfirmationBottomSheetCompose(
+            title = "Delete All",
+            message = "Are you sure you want to delete all addresses?",
+            positiveButtonText = "Delete All",
+            onConfirm = {
+                viewModel.onEvent(AddressListEvent.ConfirmDeleteAllAddresses)
+                showDeleteAllDialog = false
+            },
+            onDismiss = { showDeleteAllDialog = false }
+        )
+    }
+
+    if (addressToDeleteId != null) {
+        ConfirmationBottomSheetCompose(
+            title = "Delete Address",
+            message = "Do you want to delete this address?",
+            positiveButtonText = "Delete",
+            onConfirm = {
+                addressToDeleteId?.let { id ->
+                    viewModel.onEvent(AddressListEvent.ConfirmDeleteAddress(id))
+                }
+                addressToDeleteId = null
+            },
+            onDismiss = { addressToDeleteId = null }
         )
     }
 
@@ -228,7 +205,7 @@ fun AddressScreenCompose(
                 .height(56.dp)
         ) {
             IconButton(
-                onClick = onBackClick,
+                onClick = { viewModel.onEvent(AddressListEvent.BackClick) },
                 modifier = Modifier
                     .size(48.dp)
                     .align(Alignment.CenterStart)
@@ -262,14 +239,13 @@ fun AddressScreenCompose(
                 AddressItem(
                     uiModel = uiModel,
                     onLocationClick = {
-                        viewModel.setFetchingLocation(uiModel.id, true)
-                        checkLocationPermission(uiModel)
+                        viewModel.onEvent(AddressListEvent.GetLocation(uiModel))
                     },
                     onCheckClick = { editedAddress ->
-                        getLocationFromAddress(addressUi = uiModel, fullAddress = editedAddress)
+                        viewModel.onEvent(AddressListEvent.SaveAddress(uiModel, editedAddress))
                     },
                     onDeleteClick = {
-                        addressToDelete = uiModel
+                        viewModel.onEvent(AddressListEvent.DeleteAddress(uiModel.id))
                     }
                 )
             }
@@ -280,7 +256,7 @@ fun AddressScreenCompose(
                 .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
         ) {
             OutlinedButton(
-                onClick = { onAddClick() },
+                onClick = { viewModel.onEvent(AddressListEvent.AddAddress(addressCount, maxAddresses.toInt())) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -295,7 +271,7 @@ fun AddressScreenCompose(
             }
             Spacer(modifier = Modifier.height(18.dp))
             OutlinedButton(
-                onClick = { onDeleteClick() },
+                onClick = { viewModel.onEvent(AddressListEvent.DeleteAllAddresses) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
@@ -309,23 +285,6 @@ fun AddressScreenCompose(
                 Text("Delete All Addresses")
             }
         }
-    }
-
-    if (addressToDelete != null) {
-        ConfirmationBottomSheetCompose(
-            title = "Delete Address",
-            message = "Do you want to delete this address?",
-            positiveButtonText = "Delete",
-            onConfirm = {
-                addressToDelete?.let { ui ->
-                    viewModel.deleteAddress(ui.id)
-                }
-                addressToDelete = null
-            },
-            onDismiss = {
-                addressToDelete = null
-            }
-        )
     }
 }
 
@@ -419,9 +378,9 @@ fun AddressItem(
 fun AddressPreview() {
     BooksRepositoryAppTheme {
         AddressScreenCompose(
-            onBackClick = {},
-            onAddClick = {},
-            onDeleteClick = {}
+            viewModel = viewModel(),
+            maxAddresses = 4L,
+            onBackClick = {}
         )
     }
 }

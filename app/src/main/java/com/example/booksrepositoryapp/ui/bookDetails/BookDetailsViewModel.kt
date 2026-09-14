@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
+@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 class BookDetailsViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle
@@ -30,7 +31,6 @@ class BookDetailsViewModel(
     private val authRepo = AuthRepository()
     private val bookRepo = BooksRepositoryImpl(application)
     private val cartRepo = CartRepositoryImpl()
-
     private val workId: String = savedStateHandle["workId"] ?: ""
 
     init {

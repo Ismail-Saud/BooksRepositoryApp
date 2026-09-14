@@ -6,9 +6,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.repository.CartRepositoryImpl
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Cart
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class AddToCartViewModel(application: Application) : AndroidViewModel(application) {
@@ -17,9 +19,23 @@ class AddToCartViewModel(application: Application) : AndroidViewModel(applicatio
     private val userId = authRepo.getCurrentUserId() ?: ""
     private val _addToCartState = MutableStateFlow<AddToCartState>(AddToCartState.Idle)
     val addToCartState = _addToCartState.asStateFlow()
+    private val _effect = Channel<AddToCartEffect>(Channel.BUFFERED)
+    val effect = _effect.receiveAsFlow()
+    private var cartJob: kotlinx.coroutines.Job? = null
+    fun onEvent(event: AddToCartEvent) {
+        when (event) {
+            is AddToCartEvent.IncreaseQuantity -> increaseQuantity(event.cart)
+            is AddToCartEvent.DecreaseQuantity -> decreaseQuantity(event.cart)
+            is AddToCartEvent.RemoveItem -> removeCartItem(event.cart)
+            is AddToCartEvent.ProceedToCheckout -> {
+                _effect.trySend(AddToCartEffect.NavigateToCheckout(event.total))
+            }
+        }
+    }
 
     fun getCartItems() {
-        viewModelScope.launch {
+        cartJob?.cancel()
+        cartJob = viewModelScope.launch {
             _addToCartState.value = AddToCartState.Loading
             cartRepo.getCart(userId).catch { exception ->
                 _addToCartState.value = AddToCartState.Error(exception.message ?: "Something went wrong")
@@ -58,5 +74,9 @@ class AddToCartViewModel(application: Application) : AndroidViewModel(applicatio
                 bookId = cart.bookId,
             )
         }
+    }
+
+    init {
+        getCartItems()
     }
 }
