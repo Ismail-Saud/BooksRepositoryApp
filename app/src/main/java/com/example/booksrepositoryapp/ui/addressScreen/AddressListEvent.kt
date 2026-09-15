@@ -1,5 +1,7 @@
 package com.example.booksrepositoryapp.ui.addressScreen
 
+import com.example.booksrepositoryapp.data.source.local.uiModels.AddressUiModel
+
 sealed class AddressListEvent {
     object BackClick: AddressListEvent()
     data class AddAddress(val currentCount: Int, val maxAllowed: Int): AddressListEvent()

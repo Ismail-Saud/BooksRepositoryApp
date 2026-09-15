@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.repository.AddressRepositoryImpl
+import com.example.booksrepositoryapp.data.source.local.uiModels.AddressUiModel
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Address
 import kotlinx.coroutines.channels.Channel
