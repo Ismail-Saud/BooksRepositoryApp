@@ -45,6 +45,7 @@ class BookDetailsFragment : Fragment() {
         setupBtn()
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     private fun setupObservers() {
         lifecycleScope.launch {
             viewModel.bookDetailState.collect { state ->

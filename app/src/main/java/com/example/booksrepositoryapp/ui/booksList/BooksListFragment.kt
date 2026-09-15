@@ -43,6 +43,7 @@ class BooksListFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     private fun setupObservers() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.bookState.collect { state ->

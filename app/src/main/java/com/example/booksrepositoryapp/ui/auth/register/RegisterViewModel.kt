@@ -56,6 +56,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                                 email = email,
                                 profilePicture = null
                             )
+                            userRepo.createUserProfile(domainUser)
                             _registerUser.value = RegisterState.Success
                             sendEffect(RegisterEffect.ShowToast("Signup Successful"))
                             sendEffect(RegisterEffect.NavigateToHome)

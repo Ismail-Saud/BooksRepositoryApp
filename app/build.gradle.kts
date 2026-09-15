@@ -5,12 +5,23 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
     id("com.google.firebase.firebase-perf")
+    id("org.jlleitschuh.gradle.ktlint")
 }
 
 android {
     namespace = "com.example.booksrepositoryapp"
     compileSdk = 37
 
+    lint {
+        abortOnError = true
+        warningsAsErrors = false
+    }
+    ktlint {
+        version.set("1.6.0")
+        android.set(true)
+        outputToConsole.set(true)
+        ignoreFailures.set(false)
+    }
     defaultConfig {
         applicationId = "com.example.booksrepositoryapp"
         minSdk = 24
@@ -25,7 +36,7 @@ android {
         release {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             isMinifyEnabled = false
             isShrinkResources = false
@@ -77,40 +88,39 @@ dependencies {
 
     implementation("androidx.compose.material:material-icons-extended")
 
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.14.0")
 
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.room:room-runtime:2.8.4")
-    implementation("androidx.room:room-ktx:2.8.4")
-    ksp("androidx.room:room-compiler:2.8.4")
+    implementation("androidx.core:core-splashscreen:1.2.0")
+    implementation("com.google.android.material:material:1.14.0")
+    implementation("androidx.room:room-runtime:2.8.5")
+    implementation("androidx.room:room-ktx:2.8.5")
+    ksp("androidx.room:room-compiler:2.8.5")
 
-    implementation("com.squareup.retrofit2:retrofit:2.11.0")
-    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.retrofit2:retrofit:3.0.0")
+    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
 
-    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.github.bumptech.glide:glide:5.0.9")
 
     implementation("com.facebook.shimmer:shimmer:0.5.0")
 
-    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.android.gms:play-services-location:21.4.0")
 
-    implementation("com.google.android.gms:play-services-maps:19.0.0")
-    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("com.google.android.gms:play-services-maps:20.0.0")
+    implementation("com.google.android.gms:play-services-location:21.4.0")
 
-    implementation("androidx.navigation:navigation-fragment-ktx:2.9.3")
-    implementation("androidx.navigation:navigation-ui-ktx:2.9.3")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.10.1")
+    implementation("androidx.navigation:navigation-ui-ktx:2.10.1")
 
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:5.5.0")
 
+    implementation("androidx.navigation:navigation-compose:2.10.1")
 
-    implementation("androidx.navigation:navigation-compose:2.9.3")
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta10")
 
-    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
+    implementation("io.coil-kt.coil3:coil-compose:3.6.2")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.2")
 
-    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
-
-    implementation(platform("com.google.firebase:firebase-bom:34.18.0"))
+    implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-analytics")
 

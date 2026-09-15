@@ -12,6 +12,7 @@ import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.domain.usecase.GetBooksUseCase
 import com.example.booksrepositoryapp.domain.usecase.RefreshBooksUseCase
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@OptIn(FlowPreview::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 class BooksListViewModel(application: Application, savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
     private val _bookState = MutableStateFlow<BooksListState>(BooksListState.Idle)
