@@ -1,12 +1,12 @@
 package com.example.booksrepositoryapp.ui.checkout
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booksrepositoryapp.data.repository.AddressRepositoryImpl
-import com.example.booksrepositoryapp.data.repository.CartRepositoryImpl
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Address
+import com.example.booksrepositoryapp.domain.repository.AddressRepository
+import com.example.booksrepositoryapp.domain.repository.CartRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,11 +15,14 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class CheckoutViewModel(application: Application) : AndroidViewModel(application) {
-    private val authRepo = AuthRepository()
-    private val addressRepo = AddressRepositoryImpl()
-    private val cartRepo = CartRepositoryImpl()
+@HiltViewModel
+class CheckoutViewModel @Inject constructor(
+    authRepo: AuthRepository,
+    private val addressRepo: AddressRepository,
+    private val cartRepo: CartRepository,
+) : ViewModel() {
     val userId = authRepo.getCurrentUserId() ?: ""
     private val _checkoutState = MutableStateFlow<CheckoutState>(CheckoutState.Loading)
     val checkoutState: StateFlow<CheckoutState> = _checkoutState.asStateFlow()
@@ -48,12 +51,12 @@ class CheckoutViewModel(application: Application) : AndroidViewModel(application
                 }
             }
             is CheckoutEvent.PayClicked -> {
-                processPayment(event.total)
+                processPayment()
             }
         }
     }
 
-    private fun processPayment(total: Double) {
+    private fun processPayment() {
         viewModelScope.launch {
             try {
                 cartRepo.clearCart(userId)
@@ -75,8 +78,6 @@ class CheckoutViewModel(application: Application) : AndroidViewModel(application
                     if (address == null) {
                         _checkoutState.value = CheckoutState.Idle
                     } else {
-                        // Assuming CheckoutState.Success takes Address domain model
-                        // We might need to update CheckoutState too
                         _checkoutState.value = CheckoutState.Success(address)
                     }
                 }
@@ -97,15 +98,5 @@ class CheckoutViewModel(application: Application) : AndroidViewModel(application
 
     fun isValidCVV(cvv: String): Boolean {
         return creditCardCVVRegex.matches(cvv.trim())
-    }
-
-    fun clearCart() {
-        viewModelScope.launch {
-            try {
-                cartRepo.clearCart(userId)
-            } catch (e: Exception) {
-                _checkoutState.value = CheckoutState.Error(e.message ?: "Unable to clear cart")
-            }
-        }
     }
 }

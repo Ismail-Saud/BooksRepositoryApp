@@ -33,10 +33,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil3.compose.SubcomposeAsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.GlideSubcomposition
-import com.bumptech.glide.integration.compose.RequestState
+import com.bumptech.glide.request.RequestCoordinator
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.domain.model.Cart
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheetCompose
@@ -275,34 +275,28 @@ fun CartItemView(
                 contentAlignment = Alignment.Center
             ) {
                 if (cart.coverId != 0) {
-                    GlideSubcomposition(
+                    SubcomposeAsyncImage(
                         model = "https://covers.openlibrary.org/b/id/${cart.coverId}-L.jpg",
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        when (state) {
-                            RequestState.Loading -> {
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    CircularProgressIndicator()
-                                }
+                        contentDescription = cart.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.FillBounds,
+                        loading = {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
                             }
-                            is RequestState.Success -> {
-                                GlideImage(
-                                    model = "https://covers.openlibrary.org/b/id/${cart.coverId}-L.jpg",
-                                    contentDescription = cart.title,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.FillBounds
-                                )
-                            }
-                            RequestState.Failure -> {
-                                Image(
-                                    painter = painterResource(R.drawable.book_cover_img),
-                                    contentDescription = cart.title,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
+                        },
+                        error = {
+                            Image(
+                                painter = painterResource(R.drawable.book_cover_img),
+                                contentDescription = cart.title,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
                         }
-                    }
+                    )
                 } else {
                     Image(
                         painter = painterResource(R.drawable.book_cover_img),

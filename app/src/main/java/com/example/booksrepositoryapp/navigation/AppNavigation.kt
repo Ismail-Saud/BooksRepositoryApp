@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -30,7 +30,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.booksrepositoryapp.navigation.routes.Routes
 import com.example.booksrepositoryapp.ui.accountDetails.AccountDetailsEffect
 import com.example.booksrepositoryapp.ui.accountDetails.AccountDetailsScreen
+import com.example.booksrepositoryapp.ui.accountDetails.AccountDetailsViewModel
 import com.example.booksrepositoryapp.ui.addToCart.AddToCartScreen
+import com.example.booksrepositoryapp.ui.addToCart.AddToCartViewModel
+import com.example.booksrepositoryapp.ui.addressScreen.AddressListViewModel
 import com.example.booksrepositoryapp.ui.addressScreen.AddressScreenCompose
 import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedEffect
 import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedScreen
@@ -46,6 +49,7 @@ import com.example.booksrepositoryapp.ui.booksList.BooksListScreen
 import com.example.booksrepositoryapp.ui.booksList.BooksListViewModel
 import com.example.booksrepositoryapp.ui.checkout.CheckoutEffect
 import com.example.booksrepositoryapp.ui.checkout.CheckoutScreen
+import com.example.booksrepositoryapp.ui.checkout.CheckoutViewModel
 import com.example.booksrepositoryapp.ui.landingPage.LandingPageScreen
 import com.example.booksrepositoryapp.ui.maintenancePage.MaintenanceScreen
 import com.example.booksrepositoryapp.ui.successPayment.SuccessScreenCompose
@@ -187,7 +191,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.GetStarted.route) {
-                    val viewModel: GetStartedViewModel = viewModel()
+                    val viewModel: GetStartedViewModel = hiltViewModel()
                     GetStartedScreen(
                         viewModel = viewModel,
                         onNavigate = { effect ->
@@ -207,7 +211,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.Register.route) {
-                    val viewModel: RegisterViewModel = viewModel()
+                    val viewModel: RegisterViewModel = hiltViewModel()
                     RegisterScreen(
                         viewModel = viewModel,
                         onNavigate = { effect ->
@@ -227,7 +231,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.BooksCategory.route) {
-                    val viewModel: BooksCategoryViewModel = viewModel()
+                    val viewModel: BooksCategoryViewModel = hiltViewModel()
                     BookCategoryScreen(
                         viewModel = viewModel,
                         onNavigate = { effect ->
@@ -238,7 +242,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.BooksList.route) {
-                    val viewModel: BooksListViewModel = viewModel()
+                    val viewModel: BooksListViewModel = hiltViewModel()
                     BooksListScreen(
                         viewModel = viewModel,
                         onBackClick = {
@@ -253,7 +257,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.BookDetails.route) {
-                    val viewModel: BookDetailsViewModel = viewModel()
+                    val viewModel: BookDetailsViewModel = hiltViewModel()
                     BookDetailsScreenCompose(
                         viewModel = viewModel,
                         onBackClick = {
@@ -262,8 +266,9 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.AddToCart.route) {
+                    val viewModel: AddToCartViewModel = hiltViewModel()
                     AddToCartScreen(
-                        viewModel = viewModel(),
+                        viewModel = viewModel,
                         shippingFee = remoteConfig.getDouble("shipping_fee"),
                         onNavigate = { effect ->
                             navController.navigate(
@@ -274,8 +279,9 @@ fun AppNavigation(
                 }
                 composable(Routes.Checkout.route) { backStackEntry ->
                     val total = backStackEntry.arguments?.getString("total")?.toDoubleOrNull() ?: 0.0
+                    val viewModel: CheckoutViewModel = hiltViewModel()
                     CheckoutScreen(
-                        viewModel = viewModel(),
+                        viewModel = viewModel,
                         total = total,
                         isCheckoutEnabled = remoteConfig.getBoolean("checkout_enabled"),
                         onNavigate = { effect ->
@@ -301,8 +307,9 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.AddressList.route) {
+                    val viewModel: AddressListViewModel = hiltViewModel()
                     AddressScreenCompose(
-                        viewModel = viewModel(),
+                        viewModel = viewModel,
                         maxAddresses = remoteConfig.getLong("max_addresses"),
                         onBackClick = {
                             navController.navigateUp()
@@ -310,8 +317,9 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.Account.route) {
+                    val viewModel: AccountDetailsViewModel = hiltViewModel()
                     AccountDetailsScreen(
-                        viewModel = viewModel(),
+                        viewModel = viewModel,
                         onNavigate = { effect ->
                             if (effect is AccountDetailsEffect.NavigateToLandingPage) {
                                 navController.navigate(Routes.LandingPage.route) {

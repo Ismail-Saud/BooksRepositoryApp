@@ -1,16 +1,16 @@
 package com.example.booksrepositoryapp.ui.booksList
 
-import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresExtension
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booksrepositoryapp.data.repository.BooksRepositoryImpl
 import com.example.booksrepositoryapp.data.util.refreshResult.RefreshResult
 import com.example.booksrepositoryapp.domain.model.Book
+import com.example.booksrepositoryapp.domain.repository.BooksRepository
 import com.example.booksrepositoryapp.domain.usecase.GetBooksUseCase
 import com.example.booksrepositoryapp.domain.usecase.RefreshBooksUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -23,10 +23,15 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-class BooksListViewModel(application: Application, savedStateHandle: SavedStateHandle) : AndroidViewModel(application) {
+@HiltViewModel
+class BooksListViewModel @Inject constructor(
+    bookRepo: BooksRepository,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private val _bookState = MutableStateFlow<BooksListState>(BooksListState.Idle)
     val bookState = _bookState.asStateFlow()
     private val _searchQuery = MutableStateFlow("")
@@ -35,8 +40,6 @@ class BooksListViewModel(application: Application, savedStateHandle: SavedStateH
     private var maxPrice = Int.MAX_VALUE
 
     private var fetchBooksJob: Job? = null
-
-    private val bookRepo = BooksRepositoryImpl(application)
     private val getBooksUseCase = GetBooksUseCase(bookRepo)
     private val refreshBooksUseCase = RefreshBooksUseCase(bookRepo)
 
@@ -106,13 +109,6 @@ class BooksListViewModel(application: Application, savedStateHandle: SavedStateH
             matchesSearch && matchesPrice
         }
         _bookState.value = BooksListState.Success(result)
-    }
-
-    fun resetState() {
-        _searchQuery.value = ""
-        minPrice = 0
-        maxPrice = Int.MAX_VALUE
-        _bookState.value = BooksListState.Idle
     }
 
     init {

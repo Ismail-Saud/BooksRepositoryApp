@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.hilt.android)
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
@@ -130,4 +131,9 @@ dependencies {
     implementation("com.google.firebase:firebase-perf")
 
     implementation("com.google.firebase:firebase-config")
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 }

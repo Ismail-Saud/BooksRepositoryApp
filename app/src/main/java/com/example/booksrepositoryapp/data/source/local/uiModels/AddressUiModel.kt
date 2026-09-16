@@ -1,4 +1,4 @@
-package com.example.booksrepositoryapp.ui.addressScreen
+package com.example.booksrepositoryapp.data.source.local.uiModels
 
 import com.example.booksrepositoryapp.domain.model.Address
 

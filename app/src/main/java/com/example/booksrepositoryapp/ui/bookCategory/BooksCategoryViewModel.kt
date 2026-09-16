@@ -1,17 +1,19 @@
 package com.example.booksrepositoryapp.ui.bookCategory
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.Category
 import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.categories
+import dagger.hilt.android.lifecycle.HiltViewModel
+import jakarta.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class BooksCategoryViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class BooksCategoryViewModel @Inject constructor(): ViewModel() {
     private var activeSearch = ""
     private var allCategories: List<Category> = emptyList()
     private val _categoryState = MutableLiveData<BooksCategoryState>(BooksCategoryState.Idle)
@@ -27,7 +29,6 @@ class BooksCategoryViewModel(application: Application) : AndroidViewModel(applic
                     _effect.send(BooksCategoryEffect.NavigateToBooksList(event.apiValue, event.title))
                 }
             }
-
             BooksCategoryEvent.RefreshCategories -> allCategories
         }
     }
@@ -50,10 +51,6 @@ class BooksCategoryViewModel(application: Application) : AndroidViewModel(applic
             }
             _categoryState.value = BooksCategoryState.Success(result)
         }
-    }
-
-    fun resetState () {
-        _categoryState.value = BooksCategoryState.Idle
     }
 
     init {

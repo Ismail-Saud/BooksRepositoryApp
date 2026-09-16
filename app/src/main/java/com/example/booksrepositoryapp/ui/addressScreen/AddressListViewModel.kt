@@ -1,11 +1,15 @@
 package com.example.booksrepositoryapp.ui.addressScreen
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.content.Context
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booksrepositoryapp.data.repository.AddressRepositoryImpl
+import com.example.booksrepositoryapp.data.source.local.uiModels.AddressUiModel
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Address
+import com.example.booksrepositoryapp.domain.repository.AddressRepository
+import dagger.hilt.android.internal.Contexts.getApplication
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,13 +17,15 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AddressListViewModel(application: Application) : AndroidViewModel(application) {
-    private val addressRepo = AddressRepositoryImpl()
-    private val authRepo = AuthRepository()
-
+@HiltViewModel
+class AddressListViewModel @Inject constructor(
+    private val addressRepo: AddressRepository,
+    authRepo: AuthRepository,
+    @ApplicationContext private val appContext: Context
+) : ViewModel() {
     val userId = authRepo.getCurrentUserId() ?: ""
-
     private val _isFetchingLocation = MutableStateFlow<Map<String, Boolean>>(emptyMap())
     private val _isSaving = MutableStateFlow<Map<String, Boolean>>(emptyMap())
     private val _effect = Channel<AddressListEffect>()
@@ -79,7 +85,7 @@ class AddressListViewModel(application: Application) : AndroidViewModel(applicat
         viewModelScope.launch {
             setFetchingLocation(addressId, true)
             try {
-                val geocoder = android.location.Geocoder(getApplication())
+                val geocoder = android.location.Geocoder(getApplication(appContext))
                 val addresses = geocoder.getFromLocation(lat, lng, 1)
                 if (!addresses.isNullOrEmpty()) {
                     val address = addresses[0]
@@ -126,18 +132,6 @@ class AddressListViewModel(application: Application) : AndroidViewModel(applicat
         _isSaving.value += (addressId to isSaving)
     }
 
-    fun addAddress(address: Address) {
-        viewModelScope.launch {
-            addressRepo.addAddress(userId, address)
-        }
-    }
-
-    fun updateAddress(address: Address) {
-        viewModelScope.launch {
-            addressRepo.updateAddress(userId, address)
-        }
-    }
-
     fun addEmptyAddress() {
         viewModelScope.launch {
             val address = Address(
@@ -166,12 +160,6 @@ class AddressListViewModel(application: Application) : AndroidViewModel(applicat
     fun deleteAllAddresses() {
         viewModelScope.launch {
             addressRepo.deleteAllAddresses(userId)
-        }
-    }
-
-    fun updateSelectedAddress(addressId: String) {
-        viewModelScope.launch {
-            addressRepo.updateSelectedAddress(userId, addressId)
         }
     }
 }

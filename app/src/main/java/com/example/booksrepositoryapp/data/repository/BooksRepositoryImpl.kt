@@ -8,7 +8,9 @@ import android.util.Log
 import androidx.annotation.RequiresExtension
 import com.example.booksrepositoryapp.data.mapper.toDomain
 import com.example.booksrepositoryapp.data.source.local.room.DatabaseInstance
+import com.example.booksrepositoryapp.data.source.local.room.dao.BooksDao
 import com.example.booksrepositoryapp.data.source.local.room.entity.BookDetailsModel
+import com.example.booksrepositoryapp.data.source.remote.retrofit.ApiService
 import com.example.booksrepositoryapp.data.source.remote.retrofit.RetrofitInstance
 import com.example.booksrepositoryapp.data.util.generateRandomAmount
 import com.example.booksrepositoryapp.data.util.generateRandomRating
@@ -21,12 +23,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.IOException
+import javax.inject.Inject
 
-class BooksRepositoryImpl(context: Context) : BooksRepository {
-    private val booksApi = RetrofitInstance.api
-    private val dao = DatabaseInstance.getDatabase(context).BooksDao()
-    private val networkHelper = NetworkHelper(context)
-
+class BooksRepositoryImpl @Inject constructor(
+    private val booksApi: ApiService,
+    private val dao: BooksDao,
+    private val networkHelper: NetworkHelper
+) : BooksRepository {
     override fun getBooks(category: String): Flow<List<Book>> {
         return dao.getBooksByCategory(category).map { entities ->
             entities.map { it.toDomain() }

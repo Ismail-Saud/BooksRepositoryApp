@@ -1,23 +1,24 @@
 package com.example.booksrepositoryapp.ui.auth.register
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booksrepositoryapp.data.repository.UserRepositoryImpl
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.User
+import com.example.booksrepositoryapp.domain.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RegisterViewModel(application: Application) : AndroidViewModel(application) {
-    // Injected manually for now, should be Hilt later
-    private val userRepo = UserRepositoryImpl(application)
-    private val authRepo = AuthRepository()
-    
+@HiltViewModel
+class RegisterViewModel @Inject constructor(
+    private val userRepo: UserRepository,
+    private val authRepo: AuthRepository
+) : ViewModel() {
     private val _registerUser = MutableStateFlow<RegisterState>(RegisterState.Idle)
     val registerUser: StateFlow<RegisterState> = _registerUser.asStateFlow()
     private val _effect = Channel<RegisterEffect>(Channel.BUFFERED)

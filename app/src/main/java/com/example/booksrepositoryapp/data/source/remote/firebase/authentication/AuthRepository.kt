@@ -4,14 +4,11 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.userProfileChangeRequest
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class AuthRepository {
-    private val auth = FirebaseAuth.getInstance()
-
-    fun getCurrentUser(): FirebaseUser? {
-        return auth.currentUser
-    }
-
+class AuthRepository @Inject constructor(
+    private val auth: FirebaseAuth
+) {
     fun getCurrentUserId(): String? {
         return auth.currentUser?.uid
     }
