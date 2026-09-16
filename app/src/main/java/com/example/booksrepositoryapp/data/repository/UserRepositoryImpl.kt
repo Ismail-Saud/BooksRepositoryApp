@@ -8,10 +8,11 @@ import com.example.booksrepositoryapp.domain.model.User
 import com.example.booksrepositoryapp.domain.repository.UserRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
+import javax.inject.Inject
 
-class UserRepositoryImpl(context: Context? = null) : UserRepository {
-    private val firestore = FirebaseFirestore.getInstance()
-
+class UserRepositoryImpl @Inject constructor (
+    private val firestore: FirebaseFirestore
+) : UserRepository {
     override suspend fun createUserProfile(user: User) {
         firestore
             .collection("users")

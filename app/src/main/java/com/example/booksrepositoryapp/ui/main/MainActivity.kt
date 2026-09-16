@@ -24,18 +24,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.navigation.AppNavigation
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var binding: ActivityMainBinding
-
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars =
-            true
+        WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
         setContent {
             val navControllerCompose = rememberNavController()
             AppNavigation(
@@ -43,9 +42,5 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.safeDrawingPadding()
             )
         }
-    }
-
-    fun selectBottomNavItem(itemId:Int){
-        binding.bottomNav.selectedItemId = itemId
     }
 }

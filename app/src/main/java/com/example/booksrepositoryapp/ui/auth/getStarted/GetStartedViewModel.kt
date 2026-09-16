@@ -1,20 +1,21 @@
 package com.example.booksrepositoryapp.ui.auth.getStarted
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booksrepositoryapp.data.repository.UserRepositoryImpl
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class GetStartedViewModel(application: Application) : AndroidViewModel(application) {
-    private val authRepo = AuthRepository()
-    private val userRepo = UserRepositoryImpl(application)
+@HiltViewModel
+class GetStartedViewModel @Inject constructor(
+    private val authRepo: AuthRepository
+) : ViewModel() {
     private val _getStartedState = MutableStateFlow<GetStartedState>(GetStartedState.Idle)
     val getStartedState: StateFlow<GetStartedState> = _getStartedState.asStateFlow()
     private val _effect = Channel<GetStartedEffect>(Channel.BUFFERED)

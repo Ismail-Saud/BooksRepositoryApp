@@ -1,21 +1,24 @@
 package com.example.booksrepositoryapp.ui.addToCart
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booksrepositoryapp.data.repository.CartRepositoryImpl
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Cart
+import com.example.booksrepositoryapp.domain.repository.CartRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class AddToCartViewModel(application: Application) : AndroidViewModel(application) {
-    private val cartRepo = CartRepositoryImpl()
-    private val authRepo = AuthRepository()
+@HiltViewModel
+class AddToCartViewModel @Inject constructor(
+    private val cartRepo: CartRepository,
+    authRepo: AuthRepository,
+) : ViewModel() {
     private val userId = authRepo.getCurrentUserId() ?: ""
     private val _addToCartState = MutableStateFlow<AddToCartState>(AddToCartState.Idle)
     val addToCartState = _addToCartState.asStateFlow()

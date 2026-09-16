@@ -5,32 +5,36 @@ import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.repository.BooksRepositoryImpl
 import com.example.booksrepositoryapp.data.repository.CartRepositoryImpl
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Cart
+import com.example.booksrepositoryapp.domain.repository.BooksRepository
+import com.example.booksrepositoryapp.domain.repository.CartRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-class BookDetailsViewModel(
-    application: Application,
+@HiltViewModel
+class BookDetailsViewModel @Inject constructor(
+    private val authRepo: AuthRepository,
+    private val bookRepo: BooksRepository,
+    private val cartRepo: CartRepository,
     savedStateHandle: SavedStateHandle
-) : AndroidViewModel(application) {
-
+) : ViewModel() {
     private val _bookDetailState = MutableStateFlow<BookDetailsState>(BookDetailsState.Idle)
     val bookDetailState = _bookDetailState.asStateFlow()
 
     private val _effect = Channel<BookDetailsEffect>()
     val effect = _effect.receiveAsFlow()
 
-    private val authRepo = AuthRepository()
-    private val bookRepo = BooksRepositoryImpl(application)
-    private val cartRepo = CartRepositoryImpl()
     private val workId: String = savedStateHandle["workId"] ?: ""
 
     init {

@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,10 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.SubcomposeAsyncImage
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.integration.compose.GlideSubcomposition
-import com.bumptech.glide.integration.compose.RequestState
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
@@ -147,37 +144,28 @@ fun BookDetailsContent(
                 contentAlignment = Alignment.Center
             ) {
                 if (book.coverId != 0) {
-                    GlideSubcomposition(
+                    SubcomposeAsyncImage(
                         model = "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg",
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        when (state) {
-                            RequestState.Loading -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
+                        contentDescription = book.title,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.FillBounds,
+                        loading = {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator()
                             }
-                            is RequestState.Success -> {
-                                GlideImage(
-                                    model = "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg",
-                                    contentDescription = book.title,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.FillBounds
-                                )
-                            }
-                            RequestState.Failure -> {
-                                Image(
-                                    painter = painterResource(R.drawable.book_cover_img),
-                                    contentDescription = book.title,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
-                                )
-                            }
+                        },
+                        error = {
+                            Image(
+                                painter = painterResource(R.drawable.book_cover_img),
+                                contentDescription = book.title,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
                         }
-                    }
+                    )
                 } else {
                     Image(
                         painter = painterResource(R.drawable.book_cover_img),

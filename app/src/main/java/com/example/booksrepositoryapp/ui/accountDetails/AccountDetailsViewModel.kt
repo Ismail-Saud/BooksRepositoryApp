@@ -1,15 +1,17 @@
 package com.example.booksrepositoryapp.ui.accountDetails
 
-import android.app.Application
+import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booksrepositoryapp.data.repository.AddressRepositoryImpl
-import com.example.booksrepositoryapp.data.repository.UserRepositoryImpl
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Address
 import com.example.booksrepositoryapp.domain.model.User
+import com.example.booksrepositoryapp.domain.repository.AddressRepository
+import com.example.booksrepositoryapp.domain.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,15 +20,17 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
+import javax.inject.Inject
 
-class AccountDetailsViewModel(application: Application) : AndroidViewModel(application) {
-    private val appContext = application.applicationContext
-    private val userRepo = UserRepositoryImpl(application)
-    private val authRepo = AuthRepository()
-    private val addressRepo = AddressRepositoryImpl()
+@HiltViewModel
+class AccountDetailsViewModel @Inject constructor(
+    private val userRepo: UserRepository,
+    private val authRepo: AuthRepository,
+    addressRepo: AddressRepository,
+    @ApplicationContext private val appContext: Context
+) : ViewModel() {
 
     val id = authRepo.getCurrentUserId() ?: ""
-
     private val _userState = MutableStateFlow<AccountDetailsState>(AccountDetailsState.Idle)
     val userState: StateFlow<AccountDetailsState> = _userState
     private val _user = MutableStateFlow<User?>(null)
