@@ -17,12 +17,6 @@ android {
         abortOnError = true
         warningsAsErrors = false
     }
-    ktlint {
-        version.set("1.6.0")
-        android.set(true)
-        outputToConsole.set(true)
-        ignoreFailures.set(false)
-    }
     defaultConfig {
         applicationId = "com.example.booksrepositoryapp"
         minSdk = 24
@@ -56,84 +50,158 @@ android {
     }
 }
 
+ktlint {
+    version.set("1.6.0")
+    android.set(true)
+    outputToConsole.set(true)
+    ignoreFailures.set(false)
+}
+
 dependencies {
+    // Compose BOM
+    // Compose dependencies.
     implementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    // Jetpack Compose
     implementation(libs.androidx.activity.compose)
-    implementation(libs.androidx.camera.camera2.pipe)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.runtime.livedata)
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.credentials)
-    implementation(libs.androidx.credentials.play.services.auth)
-    implementation(libs.androidx.fragment)
-    implementation(libs.androidx.fragment.ktx)
-    implementation(libs.androidx.legacy.support.v4)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.ktx)
-    implementation(libs.androidx.navigation.common.ktx)
-    implementation(libs.androidx.recyclerview)
-    implementation(libs.firebase.auth)
-    implementation(libs.googleid)
-    testImplementation(libs.junit)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
+
+    // Extended Material Icons
+    implementation(libs.androidx.compose.material.icons.extended)
+
+    // Compose Testing
+    // Used for instrumented UI tests with Compose.
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+
+    // Espresso UI testing
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // AndroidX JUnit integration
     androidTestImplementation(libs.androidx.junit)
+
+    // Compose test manifest
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Compose Preview / Layout Inspector tooling
     debugImplementation(libs.androidx.compose.ui.tooling)
 
-    implementation("androidx.compose.material:material-icons-extended")
+    // AndroidX Core
+    implementation(libs.androidx.core.ktx)
 
-    implementation("com.google.code.gson:gson:2.14.0")
+    // Splash screen API
+    implementation(libs.androidx.core.splashscreen)
 
-    implementation("androidx.core:core-splashscreen:1.2.0")
-    implementation("com.google.android.material:material:1.14.0")
-    implementation("androidx.room:room-runtime:2.8.5")
-    implementation("androidx.room:room-ktx:2.8.5")
-    ksp("androidx.room:room-compiler:2.8.5")
+    // AndroidX Lifecycle
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
 
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    // AndroidX Navigation
+    // Compose Navigation
+    implementation(libs.androidx.navigation.compose)
 
-    implementation("com.github.bumptech.glide:glide:5.0.9")
+    // Shared Navigation APIs
+    implementation(libs.androidx.navigation.common.ktx)
 
-    implementation("com.facebook.shimmer:shimmer:0.5.0")
+    // Navigation UI helpers
+    implementation(libs.androidx.navigation.ui.ktx)
 
-    implementation("com.google.android.gms:play-services-location:21.4.0")
+    // Legacy support library
+    implementation(libs.androidx.legacy.support.v4)
 
-    implementation("com.google.android.gms:play-services-maps:20.0.0")
-    implementation("com.google.android.gms:play-services-location:21.4.0")
+    // Camera
+    implementation(libs.androidx.camera.camera2.pipe)
 
-    implementation("androidx.navigation:navigation-fragment-ktx:2.10.1")
-    implementation("androidx.navigation:navigation-ui-ktx:2.10.1")
+    // Google Credentials / Sign-In
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
-    implementation("com.squareup.okhttp3:logging-interceptor:5.5.0")
+    // Firebase BOM
+    // Controls compatible versions of Firebase libraries.
+    implementation(platform(libs.firebase.bom))
 
-    implementation("androidx.navigation:navigation-compose:2.10.1")
+    // Firebase Authentication
+    implementation(libs.firebase.auth)
 
-    implementation("com.github.bumptech.glide:compose:1.0.0-beta10")
+    // Firebase Firestore
+    implementation(libs.firebase.firestore)
 
-    implementation("io.coil-kt.coil3:coil-compose:3.6.2")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.2")
+    // Firebase Storage
+    implementation(libs.firebase.storage)
 
-    implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
-    implementation("com.google.firebase:firebase-crashlytics")
-    implementation("com.google.firebase:firebase-analytics")
+    // Firebase Analytics
+    implementation(libs.firebase.analytics)
 
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-storage")
+    // Firebase Crashlytics
+    implementation(libs.firebase.crashlytics)
 
-    implementation("com.google.firebase:firebase-perf")
+    // Firebase Performance Monitoring
+    implementation(libs.firebase.perf)
 
-    implementation("com.google.firebase:firebase-config")
+    // Firebase Remote Config
+    implementation(libs.firebase.config)
 
+    // Room Database
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
+
+    // Retrofit / Networking
+    implementation(libs.retrofit)
+
+    // Gson converter for Retrofit
+    implementation(libs.converter.gson)
+
+    // OkHttp logging interceptor
+    implementation(libs.logging.interceptor)
+
+    // JSON
+    implementation(libs.gson)
+
+    // Image Loading
+    implementation(libs.glide)
+
+    // Glide Compose integration
+    implementation(libs.compose)
+
+    // Coil Compose
+    implementation(libs.coil.compose)
+
+    // Coil OkHttp network integration
+    implementation(libs.coil.network.okhttp)
+
+
+    // Keep this if you still use Material XML/View-based components.
+    implementation(libs.material)
+
+    // Shimmer
+    implementation(libs.shimmer)
+
+    // Google Play Services
+    // Location
+    implementation(libs.play.services.location)
+
+    // Google Maps
+    implementation(libs.play.services.maps)
+
+    // Google Mobile Ads
+//    implementation(libs.play.services.ads)
+
+    // Hilt Dependency Injection
     implementation(libs.hilt.android)
+
+    // Hilt annotation processor
     ksp(libs.hilt.compiler)
 
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    // Hilt + Jetpack Compose Navigation integration
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    // Unit Testing
+    testImplementation(libs.junit)
 }

@@ -4,6 +4,16 @@ build/
 app/build/
 app/release/
 app/debug/
+app/.cxx/
+app/.externalNativeBuild/
+
+# Android build outputs and captures
+*.apk
+*.aab
+*.ap_
+*.dex
+captures/
+externalNativeBuild/
 
 # Android Studio / IntelliJ
 *.iml
@@ -30,6 +40,8 @@ app/debug/
 # Local configuration
 local.properties
 secrets.properties
+*.properties.local
+keystore.properties
 
 # Keystores / Signing
 *.jks
@@ -47,6 +59,8 @@ Thumbs.db
 
 # Logs
 *.log
+*.hprof
+hs_err_pid*
 
 # Baseline Profiles artifacts
 *.prof

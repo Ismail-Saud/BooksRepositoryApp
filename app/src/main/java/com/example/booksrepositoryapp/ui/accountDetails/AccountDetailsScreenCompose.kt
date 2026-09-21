@@ -224,7 +224,7 @@ fun AccountDetailsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         if (!user?.profilePicture.isNullOrEmpty()) {
-                            val profileFile = File(context.filesDir, user!!.profilePicture!!)
+                            val profileFile = File(context.filesDir, user.profilePicture)
                             if (profileFile.exists()) {
                                 GlideImage(
                                     model = profileFile,
@@ -256,12 +256,12 @@ fun AccountDetailsScreen(
                 item {
                     AccountInfoCard(
                         label = "Name:",
-                        value = user?.username.toString() ?: "Name not found",
+                        value = user?.username.toString(),
                         modifier = Modifier.padding(top = 32.dp)
                     )
                     AccountInfoCard(
                         label = "E-mail:",
-                        value = user?.email.toString() ?: "Email not found",
+                        value = user?.email.toString(),
                         modifier = Modifier.padding(top = 16.dp)
                     )
                     AccountInfoCard(
