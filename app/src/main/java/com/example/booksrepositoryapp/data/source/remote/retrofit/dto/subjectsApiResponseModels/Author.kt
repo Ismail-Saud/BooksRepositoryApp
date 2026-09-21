@@ -1,6 +1,8 @@
 package com.example.booksrepositoryapp.data.source.remote.retrofit.dto.subjectsApiResponseModels
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class Author(
-    val key: String,
-    val name: String
+    val name: String = "Unknown"
 )

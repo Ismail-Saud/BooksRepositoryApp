@@ -7,6 +7,7 @@ plugins {
     id("com.google.firebase.crashlytics")
     id("com.google.firebase.firebase-perf")
     id("org.jlleitschuh.gradle.ktlint")
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -204,4 +205,11 @@ dependencies {
 
     // Unit Testing
     testImplementation(libs.junit)
+
+    // Ktor
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.okhttp)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.logging)
 }

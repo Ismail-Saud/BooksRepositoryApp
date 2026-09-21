@@ -2,17 +2,26 @@ package com.example.booksrepositoryapp.data.source.remote.retrofit
 
 import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.bookDetailsResponse.BookDetailsResponse
 import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.subjectsApiResponseModels.SubjectApiResponseModel
-import retrofit2.http.GET
-import retrofit2.http.Path
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.request.get
 
-interface ApiService {
-    @GET("subjects/{subject}.json")
+class ApiService (
+    private val client: HttpClient
+) {
     suspend fun getBooksByCategory(
-        @Path("subject") subject: String
-    ): SubjectApiResponseModel
+        subject: String
+    ): SubjectApiResponseModel {
+        return client
+            .get("subjects/$subject.json")
+            .body()
+    }
 
-    @GET("{key}.json")
     suspend fun getBookDetails(
-        @Path("key") key: String
-    ): BookDetailsResponse
+        key: String
+    ): BookDetailsResponse {
+        return client
+            .get("$key.json")
+            .body()
+    }
 }

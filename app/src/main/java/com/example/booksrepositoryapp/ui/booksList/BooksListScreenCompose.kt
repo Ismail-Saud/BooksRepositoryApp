@@ -1,6 +1,7 @@
 package com.example.booksrepositoryapp.ui.booksList
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresExtension
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -71,6 +72,7 @@ fun BooksListScreen(
     onBackClick: () -> Unit,
 ) {
     val state by viewModel.bookState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     var searchQuery by rememberSaveable {
         mutableStateOf("")
     }
@@ -84,7 +86,7 @@ fun BooksListScreen(
                 is BooksListEffect.NavigateToBookDetails -> onNavigate(effect)
                 BooksListEffect.NavigateBack -> onBackClick()
                 is BooksListEffect.ShowError -> {
-                    // Handle error message, e.g., show a Snackbar
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 }
             }
         }

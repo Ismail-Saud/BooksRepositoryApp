@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -73,8 +74,12 @@ class BooksListViewModel @Inject constructor(
             }
 
             when (result) {
-                is RefreshResult.Offline -> _bookState.value = BooksListState.Offline
-                is RefreshResult.Error -> _bookState.value = BooksListState.Error(result.message)
+                is RefreshResult.Offline -> {
+                    _effect.trySend(BooksListEffect.ShowError("You're offline. Showing saved books."))
+                }
+                is RefreshResult.Error -> {
+                    _effect.trySend(BooksListEffect.ShowError(result.message))
+                }
                 else -> { /* Continue to collection */ }
             }
 
@@ -84,6 +89,10 @@ class BooksListViewModel @Inject constructor(
                     applyFilters()
                 } else if (result is RefreshResult.Success) {
                     _bookState.value = BooksListState.Success(emptyList())
+                } else if (result is RefreshResult.Offline) {
+                    _bookState.value = BooksListState.Offline
+                } else if (result is RefreshResult.Error) {
+                    _bookState.value = BooksListState.Error(result.message)
                 }
             }
         }
@@ -114,7 +123,7 @@ class BooksListViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             _searchQuery
-                .debounce(300L)
+                .debounce(300L.milliseconds)
                 .drop(1)
                 .collectLatest {
                     applyFilters()

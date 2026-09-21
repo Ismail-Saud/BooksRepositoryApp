@@ -49,7 +49,7 @@ class BooksRepositoryImpl @Inject constructor(
                     category = subject,
                     title = work.title,
                     author = work.authors.firstOrNull()?.name ?: "Unknown",
-                    coverId = work.cover_id,
+                    coverId = work.cover_id ?: 0,
                     rating = existingBook?.rating ?: generateRandomRating(),
                     price = existingBook?.price ?: generateRandomAmount(),
                     description = existingBook?.description
