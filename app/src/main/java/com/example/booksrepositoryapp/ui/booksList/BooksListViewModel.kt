@@ -10,7 +10,6 @@ import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.domain.repository.BooksRepository
 import com.example.booksrepositoryapp.domain.usecase.GetBooksUseCase
 import com.example.booksrepositoryapp.domain.usecase.RefreshBooksUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -23,12 +22,10 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @OptIn(FlowPreview::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-@HiltViewModel
-class BooksListViewModel @Inject constructor(
+class BooksListViewModel (
     bookRepo: BooksRepository,
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {

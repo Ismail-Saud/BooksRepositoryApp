@@ -8,8 +8,6 @@ import com.example.booksrepositoryapp.data.source.remote.firebase.authentication
 import com.example.booksrepositoryapp.domain.model.Address
 import com.example.booksrepositoryapp.domain.repository.AddressRepository
 import dagger.hilt.android.internal.Contexts.getApplication
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,13 +15,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class AddressListViewModel @Inject constructor(
+class AddressListViewModel (
     private val addressRepo: AddressRepository,
     authRepo: AuthRepository,
-    @ApplicationContext private val appContext: Context
+    private val appContext: Context
 ) : ViewModel() {
     val userId = authRepo.getCurrentUserId() ?: ""
     private val _isFetchingLocation = MutableStateFlow<Map<String, Boolean>>(emptyMap())

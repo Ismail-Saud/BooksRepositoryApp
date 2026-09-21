@@ -1,17 +1,14 @@
 package com.example.booksrepositoryapp.data.repository
 
-import android.content.Context
 import android.database.sqlite.SQLiteException
 import android.net.http.HttpException
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresExtension
 import com.example.booksrepositoryapp.data.mapper.toDomain
-import com.example.booksrepositoryapp.data.source.local.room.DatabaseInstance
 import com.example.booksrepositoryapp.data.source.local.room.dao.BooksDao
 import com.example.booksrepositoryapp.data.source.local.room.entity.BookDetailsModel
 import com.example.booksrepositoryapp.data.source.remote.retrofit.ApiService
-import com.example.booksrepositoryapp.data.source.remote.retrofit.RetrofitInstance
 import com.example.booksrepositoryapp.data.util.generateRandomAmount
 import com.example.booksrepositoryapp.data.util.generateRandomRating
 import com.example.booksrepositoryapp.data.util.refreshResult.RefreshResult
@@ -23,9 +20,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import java.io.IOException
-import javax.inject.Inject
 
-class BooksRepositoryImpl @Inject constructor(
+class BooksRepositoryImpl (
     private val booksApi: ApiService,
     private val dao: BooksDao,
     private val networkHelper: NetworkHelper

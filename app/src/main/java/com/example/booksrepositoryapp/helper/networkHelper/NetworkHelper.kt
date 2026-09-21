@@ -3,11 +3,9 @@ package com.example.booksrepositoryapp.helper.networkHelper
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 
-class NetworkHelper @Inject constructor(
-    @ApplicationContext private val context: Context
+class NetworkHelper (
+    private val context: Context
 ) {
     fun isNetworkAvailable(): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

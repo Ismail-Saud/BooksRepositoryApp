@@ -1,6 +1,5 @@
 package com.example.booksrepositoryapp.data.repository
 
-import android.content.Context
 import com.example.booksrepositoryapp.data.mapper.toDomain
 import com.example.booksrepositoryapp.data.mapper.toProfile
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.UserProfile
@@ -8,9 +7,8 @@ import com.example.booksrepositoryapp.domain.model.User
 import com.example.booksrepositoryapp.domain.repository.UserRepository
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
 
-class UserRepositoryImpl @Inject constructor (
+class UserRepositoryImpl (
     private val firestore: FirebaseFirestore
 ) : UserRepository {
     override suspend fun createUserProfile(user: User) {

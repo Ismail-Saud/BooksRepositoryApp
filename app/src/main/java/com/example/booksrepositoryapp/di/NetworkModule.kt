@@ -2,18 +2,16 @@ package com.example.booksrepositoryapp.di
 
 import com.example.booksrepositoryapp.data.source.remote.retrofit.ApiService
 import com.example.booksrepositoryapp.data.source.remote.retrofit.RetrofitInstance
-import dagger.Module
-import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import com.example.booksrepositoryapp.helper.networkHelper.NetworkHelper
+import org.koin.android.ext.koin.androidContext
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-object NetworkModule {
-    @Provides
-    @Singleton
-    fun provideBooksApi(): ApiService {
-        return RetrofitInstance.api
+val networkModule = module {
+    single<ApiService> {
+        RetrofitInstance.api
+    }
+
+    single<NetworkHelper> {
+        NetworkHelper(androidContext())
     }
 }

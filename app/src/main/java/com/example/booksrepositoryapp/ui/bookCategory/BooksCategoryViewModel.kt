@@ -6,14 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.Category
 import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.categories
-import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class BooksCategoryViewModel @Inject constructor(): ViewModel() {
+class BooksCategoryViewModel: ViewModel() {
     private var activeSearch = ""
     private var allCategories: List<Category> = emptyList()
     private val _categoryState = MutableLiveData<BooksCategoryState>(BooksCategoryState.Idle)

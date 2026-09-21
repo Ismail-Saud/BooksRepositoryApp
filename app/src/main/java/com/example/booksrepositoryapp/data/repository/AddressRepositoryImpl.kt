@@ -10,9 +10,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
 
-class AddressRepositoryImpl @Inject constructor(
+class AddressRepositoryImpl (
     private val firestore: FirebaseFirestore
 ) : AddressRepository {
     override fun getAddresses(userId: String): Flow<List<Address>> = callbackFlow {

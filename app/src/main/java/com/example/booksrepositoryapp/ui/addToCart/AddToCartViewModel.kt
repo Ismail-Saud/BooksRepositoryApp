@@ -5,17 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Cart
 import com.example.booksrepositoryapp.domain.repository.CartRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class AddToCartViewModel @Inject constructor(
+class AddToCartViewModel (
     private val cartRepo: CartRepository,
     authRepo: AuthRepository,
 ) : ViewModel() {

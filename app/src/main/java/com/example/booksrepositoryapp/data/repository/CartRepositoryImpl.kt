@@ -10,9 +10,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
-import javax.inject.Inject
 
-class CartRepositoryImpl @Inject constructor (
+class CartRepositoryImpl (
     private val firestore: FirebaseFirestore
 ) : CartRepository {
     override suspend fun insertCartItem(userId: String, cart: Cart) {

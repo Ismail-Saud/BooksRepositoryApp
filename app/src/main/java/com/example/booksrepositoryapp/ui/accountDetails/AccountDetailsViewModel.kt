@@ -10,8 +10,6 @@ import com.example.booksrepositoryapp.domain.model.Address
 import com.example.booksrepositoryapp.domain.model.User
 import com.example.booksrepositoryapp.domain.repository.AddressRepository
 import com.example.booksrepositoryapp.domain.repository.UserRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,14 +18,12 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.IOException
-import javax.inject.Inject
 
-@HiltViewModel
-class AccountDetailsViewModel @Inject constructor(
+class AccountDetailsViewModel (
     private val userRepo: UserRepository,
     private val authRepo: AuthRepository,
     addressRepo: AddressRepository,
-    @ApplicationContext private val appContext: Context
+    private val appContext: Context
 ) : ViewModel() {
 
     val id = authRepo.getCurrentUserId() ?: ""

@@ -22,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -57,6 +56,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
+import org.koin.compose.viewmodel.koinViewModel
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
@@ -191,7 +191,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.GetStarted.route) {
-                    val viewModel: GetStartedViewModel = hiltViewModel()
+                    val viewModel: GetStartedViewModel = koinViewModel()
                     GetStartedScreen(
                         viewModel = viewModel,
                         onNavigate = { effect ->
@@ -211,7 +211,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.Register.route) {
-                    val viewModel: RegisterViewModel = hiltViewModel()
+                    val viewModel: RegisterViewModel = koinViewModel()
                     RegisterScreen(
                         viewModel = viewModel,
                         onNavigate = { effect ->
@@ -231,7 +231,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.BooksCategory.route) {
-                    val viewModel: BooksCategoryViewModel = hiltViewModel()
+                    val viewModel: BooksCategoryViewModel = koinViewModel()
                     BookCategoryScreen(
                         viewModel = viewModel,
                         onNavigate = { effect ->
@@ -242,7 +242,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.BooksList.route) {
-                    val viewModel: BooksListViewModel = hiltViewModel()
+                    val viewModel: BooksListViewModel = koinViewModel()
                     BooksListScreen(
                         viewModel = viewModel,
                         onBackClick = {
@@ -257,7 +257,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.BookDetails.route) {
-                    val viewModel: BookDetailsViewModel = hiltViewModel()
+                    val viewModel: BookDetailsViewModel = koinViewModel()
                     BookDetailsScreenCompose(
                         viewModel = viewModel,
                         onBackClick = {
@@ -266,7 +266,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.AddToCart.route) {
-                    val viewModel: AddToCartViewModel = hiltViewModel()
+                    val viewModel: AddToCartViewModel = koinViewModel()
                     AddToCartScreen(
                         viewModel = viewModel,
                         shippingFee = remoteConfig.getDouble("shipping_fee"),
@@ -279,7 +279,7 @@ fun AppNavigation(
                 }
                 composable(Routes.Checkout.route) { backStackEntry ->
                     val total = backStackEntry.arguments?.getString("total")?.toDoubleOrNull() ?: 0.0
-                    val viewModel: CheckoutViewModel = hiltViewModel()
+                    val viewModel: CheckoutViewModel = koinViewModel()
                     CheckoutScreen(
                         viewModel = viewModel,
                         total = total,
@@ -307,7 +307,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.AddressList.route) {
-                    val viewModel: AddressListViewModel = hiltViewModel()
+                    val viewModel: AddressListViewModel = koinViewModel()
                     AddressScreenCompose(
                         viewModel = viewModel,
                         maxAddresses = remoteConfig.getLong("max_addresses"),
@@ -317,7 +317,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.Account.route) {
-                    val viewModel: AccountDetailsViewModel = hiltViewModel()
+                    val viewModel: AccountDetailsViewModel = koinViewModel()
                     AccountDetailsScreen(
                         viewModel = viewModel,
                         onNavigate = { effect ->

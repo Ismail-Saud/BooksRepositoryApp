@@ -87,53 +87,60 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation(libs.androidx.compose.material.icons.extended)
 
-    implementation("com.google.code.gson:gson:2.14.0")
+    implementation(libs.gson)
 
-    implementation("androidx.core:core-splashscreen:1.2.0")
-    implementation("com.google.android.material:material:1.14.0")
-    implementation("androidx.room:room-runtime:2.8.5")
-    implementation("androidx.room:room-ktx:2.8.5")
-    ksp("androidx.room:room-compiler:2.8.5")
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.material)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
 
-    implementation("com.squareup.retrofit2:retrofit:3.0.0")
-    implementation("com.squareup.retrofit2:converter-gson:3.0.0")
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
 
-    implementation("com.github.bumptech.glide:glide:5.0.9")
+    implementation(libs.glide)
 
-    implementation("com.facebook.shimmer:shimmer:0.5.0")
+    implementation(libs.shimmer)
 
-    implementation("com.google.android.gms:play-services-location:21.4.0")
+    implementation(libs.play.services.location)
 
-    implementation("com.google.android.gms:play-services-maps:20.0.0")
-    implementation("com.google.android.gms:play-services-location:21.4.0")
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
 
-    implementation("androidx.navigation:navigation-fragment-ktx:2.10.1")
-    implementation("androidx.navigation:navigation-ui-ktx:2.10.1")
+    implementation(libs.androidx.navigation.fragment.ktx)
+    implementation(libs.androidx.navigation.ui.ktx)
 
+    //noinspection UseTomlInstead
     implementation("com.squareup.okhttp3:logging-interceptor:5.5.0")
 
-    implementation("androidx.navigation:navigation-compose:2.10.1")
+    implementation(libs.androidx.navigation.compose)
 
-    implementation("com.github.bumptech.glide:compose:1.0.0-beta10")
+    implementation(libs.compose)
 
-    implementation("io.coil-kt.coil3:coil-compose:3.6.2")
-    implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.2")
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
 
-    implementation(platform("com.google.firebase:firebase-bom:34.19.0"))
-    implementation("com.google.firebase:firebase-crashlytics")
-    implementation("com.google.firebase:firebase-analytics")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
 
-    implementation("com.google.firebase:firebase-firestore")
-    implementation("com.google.firebase:firebase-storage")
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
 
-    implementation("com.google.firebase:firebase-perf")
+    implementation(libs.firebase.perf)
 
-    implementation("com.google.firebase:firebase-config")
+    implementation(libs.firebase.config)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    implementation(platform(libs.koin.bom))
+
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.compose.viewmodel)
 }
