@@ -111,9 +111,6 @@ dependencies {
     // Navigation UI helpers
     implementation(libs.androidx.navigation.ui.ktx)
 
-    // Legacy support library
-    implementation(libs.androidx.legacy.support.v4)
-
     // Camera
     implementation(libs.androidx.camera.camera2.pipe)
 

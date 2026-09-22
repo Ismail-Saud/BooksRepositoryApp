@@ -21,14 +21,16 @@ class CartRepositoryImpl @Inject constructor (
             .document(userId)
             .collection("cart")
             .document(sanitizeId(cart.bookId))
-        
-        val snapshot = cartRef.get().await()
-        if (snapshot.exists()) {
-            val currentQuantity = snapshot.getLong("quantity")?.toInt() ?: 0
-            cartRef.update("quantity", currentQuantity + 1).await()
-        } else {
-            cartRef.set(cart.toFirestore()).await()
-        }
+
+        firestore.runTransaction { transaction ->
+            val snapshot = transaction.get(cartRef)
+            if (snapshot.exists()) {
+                val quantity = snapshot.getLong("quantity") ?: 0
+                transaction.update(cartRef, "quantity", quantity + 1)
+            } else {
+                transaction.set(cartRef, cart.toFirestore())
+            }
+        }.await()
     }
 
     override fun getCart(userId: String?): Flow<List<Cart>> = callbackFlow {

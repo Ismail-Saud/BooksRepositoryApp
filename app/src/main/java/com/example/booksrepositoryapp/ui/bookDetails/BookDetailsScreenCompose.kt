@@ -51,6 +51,7 @@ fun BookDetailsScreenCompose(
     onBackClick: () -> Unit
 ) {
     val state by viewModel.bookDetailState.collectAsStateWithLifecycle()
+    val isAddingToCart by viewModel.isAddingToCart.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -81,7 +82,8 @@ fun BookDetailsScreenCompose(
                 BookDetailsContent(
                     book = book,
                     onBackClick = { viewModel.onEvent(BookDetailsEvent.BackClicked) },
-                    onAddToCartClick = { viewModel.onEvent(BookDetailsEvent.AddToCartClicked) }
+                    onAddToCartClick = { viewModel.onEvent(BookDetailsEvent.AddToCartClicked) },
+                    isAddingToCart = isAddingToCart
                 )
             }
         }
@@ -93,7 +95,8 @@ fun BookDetailsScreenCompose(
 fun BookDetailsContent(
     book: Book,
     onBackClick: () -> Unit,
-    onAddToCartClick: () -> Unit
+    onAddToCartClick: () -> Unit,
+    isAddingToCart: Boolean = false
 ) {
     Column(
         modifier = Modifier
@@ -213,6 +216,7 @@ fun BookDetailsContent(
                     onClick = {
                         onAddToCartClick()
                     },
+                    enabled = !isAddingToCart,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 10.dp),
@@ -222,7 +226,7 @@ fun BookDetailsContent(
                     )
                 ) {
                     Text(
-                        text = "Add to Cart",
+                        text = if (isAddingToCart) "Adding…" else "Add to Cart",
                         fontSize = 18.sp
                     )
                 }

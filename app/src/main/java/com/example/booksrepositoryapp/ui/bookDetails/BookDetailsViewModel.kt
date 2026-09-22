@@ -32,8 +32,10 @@ class BookDetailsViewModel @Inject constructor(
     private val _bookDetailState = MutableStateFlow<BookDetailsState>(BookDetailsState.Idle)
     val bookDetailState = _bookDetailState.asStateFlow()
 
-    private val _effect = Channel<BookDetailsEffect>()
+    private val _effect = Channel<BookDetailsEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
+    private val _isAddingToCart = MutableStateFlow(false)
+    val isAddingToCart = _isAddingToCart.asStateFlow()
 
     private val workId: String = savedStateHandle["workId"] ?: ""
 
@@ -67,22 +69,41 @@ class BookDetailsViewModel @Inject constructor(
     }
 
     private fun addToCart() {
+        if (_isAddingToCart.value) return
+
         val userId = authRepo.getCurrentUserId() ?: ""
         val state = _bookDetailState.value
-        if (state is BookDetailsState.Success && state.books != null) {
-            val book = state.books
-            val cart = Cart(
-                bookId = book.id,
-                title = book.title,
-                author = book.author,
-                price = book.price ?: 0.0,
-                coverId = book.coverId,
-                category = book.category,
-                quantity = 1
+        if (userId.isEmpty()) {
+            _effect.trySend(
+                BookDetailsEffect.ShowToast("Please sign in before adding items to your cart")
             )
-            viewModelScope.launch {
+            return
+        }
+        if (state !is BookDetailsState.Success || state.books == null) return
+
+        val book = state.books
+        val cart = Cart(
+            bookId = book.id,
+            title = book.title,
+            author = book.author,
+            price = book.price ?: 0.0,
+            coverId = book.coverId,
+            category = book.category,
+            quantity = 1
+        )
+        _isAddingToCart.value = true
+        viewModelScope.launch {
+            try {
                 cartRepo.insertCartItem(userId, cart)
-                _effect.send(BookDetailsEffect.ShowToast("Added to Cart"))
+                _effect.trySend(BookDetailsEffect.ShowToast("Added to Cart"))
+            } catch (exception: Exception) {
+                _effect.trySend(
+                    BookDetailsEffect.ShowToast(
+                        exception.message ?: "Unable to add this book to your cart"
+                    )
+                )
+            } finally {
+                _isAddingToCart.value = false
             }
         }
     }
