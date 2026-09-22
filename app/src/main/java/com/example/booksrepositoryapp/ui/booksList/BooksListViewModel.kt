@@ -22,6 +22,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -109,7 +110,7 @@ class BooksListViewModel (
     init {
         viewModelScope.launch {
             _searchQuery
-                .debounce(300L)
+                .debounce(300L.milliseconds)
                 .drop(1)
                 .collectLatest {
                     applyFilters()
