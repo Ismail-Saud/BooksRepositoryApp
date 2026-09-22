@@ -1,14 +1,10 @@
 package com.example.booksrepositoryapp.ui.bookDetails
 
-import android.app.Application
 import android.os.Build
 import androidx.annotation.RequiresExtension
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booksrepositoryapp.data.repository.BooksRepositoryImpl
-import com.example.booksrepositoryapp.data.repository.CartRepositoryImpl
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Cart
 import com.example.booksrepositoryapp.domain.repository.BooksRepository
@@ -106,9 +102,5 @@ class BookDetailsViewModel @Inject constructor(
                 _isAddingToCart.value = false
             }
         }
-    }
-
-    fun resetState() {
-        _bookDetailState.value = BookDetailsState.Idle
     }
 }
