@@ -69,18 +69,16 @@ class BooksListViewModel (
                 refreshBooksUseCase(subject)
             }
 
-            when (result) {
-                is RefreshResult.Offline -> _bookState.value = BooksListState.Offline
-                is RefreshResult.Error -> _bookState.value = BooksListState.Error(result.message)
-                else -> { /* Continue to collection */ }
-            }
-
             getBooksUseCase(subject).collect { books ->
                 allBooks = books
                 if (books.isNotEmpty()) {
                     applyFilters()
-                } else if (result is RefreshResult.Success) {
-                    _bookState.value = BooksListState.Success(emptyList())
+                } else {
+                    _bookState.value = when (result) {
+                        is RefreshResult.Success -> BooksListState.Success(emptyList())
+                        is RefreshResult.Offline -> BooksListState.Offline
+                        is RefreshResult.Error -> BooksListState.Error(result.message)
+                    }
                 }
             }
         }

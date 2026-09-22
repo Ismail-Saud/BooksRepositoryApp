@@ -9,7 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.Icons.Default
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -117,7 +117,7 @@ fun AppNavigation(
                             },
                             icon = {
                                 Icon(
-                                    Icons.Default.Home,
+                                    Default.Home,
                                     contentDescription = "Home"
                                 )
                             },
@@ -138,7 +138,7 @@ fun AppNavigation(
                             },
                             icon = {
                                 Icon(
-                                    Icons.Default.ShoppingCart,
+                                    Default.ShoppingCart,
                                     contentDescription = "Cart"
                                 )
                             },
@@ -159,7 +159,7 @@ fun AppNavigation(
                             },
                             icon = {
                                 Icon(
-                                    Icons.Default.Person,
+                                    Default.Person,
                                     contentDescription = "Account"
                                 )
                             },

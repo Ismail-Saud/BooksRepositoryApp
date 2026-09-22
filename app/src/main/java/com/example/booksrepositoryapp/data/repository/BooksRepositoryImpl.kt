@@ -8,7 +8,7 @@ import androidx.annotation.RequiresExtension
 import com.example.booksrepositoryapp.data.mapper.toDomain
 import com.example.booksrepositoryapp.data.source.local.room.dao.BooksDao
 import com.example.booksrepositoryapp.data.source.local.room.entity.BookDetailsModel
-import com.example.booksrepositoryapp.data.source.remote.retrofit.ApiService
+import com.example.booksrepositoryapp.data.source.remote.ktor.ApiService
 import com.example.booksrepositoryapp.data.util.generateRandomAmount
 import com.example.booksrepositoryapp.data.util.generateRandomRating
 import com.example.booksrepositoryapp.data.util.refreshResult.RefreshResult

@@ -1,4 +1,4 @@
-package com.example.booksrepositoryapp.data.source.remote.retrofit.dto.subjectsApiResponseModels
+package com.example.booksrepositoryapp.data.source.remote.ktor.dto.subjectsApiResponseModels
 
 data class Availability(
     val __src__: String,

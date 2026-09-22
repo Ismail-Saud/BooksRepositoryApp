@@ -1,5 +1,8 @@
-package com.example.booksrepositoryapp.data.source.remote.retrofit.dto.bookDetailsResponse
+package com.example.booksrepositoryapp.data.source.remote.ktor.dto.bookDetailsResponse
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class BookDetailsResponse(
     val authors: List<Author>,
     val cover_edition: CoverEdition,
