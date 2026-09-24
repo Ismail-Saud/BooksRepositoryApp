@@ -1,0 +1,5 @@
+# Module build and generated outputs
+/build/
+/release/
+/debug/
+/captures/

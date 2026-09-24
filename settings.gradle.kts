@@ -24,4 +24,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "BooksRepositoryApp"
 include(":app")
- 
+include(":shared")

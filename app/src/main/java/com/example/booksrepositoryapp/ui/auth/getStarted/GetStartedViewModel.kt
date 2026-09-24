@@ -1,8 +1,10 @@
 package com.example.booksrepositoryapp.ui.auth.getStarted
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,8 +13,9 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class GetStartedViewModel (
-    private val authRepo: AuthRepository
-) : ViewModel() {
+    private val authRepo: AuthRepository,
+) {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val _getStartedState = MutableStateFlow<GetStartedState>(GetStartedState.Idle)
     val getStartedState: StateFlow<GetStartedState> = _getStartedState.asStateFlow()
     private val _effect = Channel<GetStartedEffect>(Channel.BUFFERED)
@@ -27,7 +30,7 @@ class GetStartedViewModel (
     }
 
     fun login(email: String, password: String) {
-        viewModelScope.launch {
+        scope.launch {
             _getStartedState.value = GetStartedState.Loading
             val result = authRepo.login(email, password)
             result.onSuccess {
@@ -43,8 +46,10 @@ class GetStartedViewModel (
     }
 
     private fun sendEffect(effect: GetStartedEffect) {
-        viewModelScope.launch {
-            _effect.send(effect)
-        }
+        _effect.trySend(effect)
+    }
+
+    fun clear() {
+        scope.cancel()
     }
 }

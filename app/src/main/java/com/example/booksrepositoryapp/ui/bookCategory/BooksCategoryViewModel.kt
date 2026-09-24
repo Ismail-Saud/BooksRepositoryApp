@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.Category
-import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.categories
+import com.example.booksrepositoryapp.data.source.remote.ktor.dto.Category
+import com.example.booksrepositoryapp.data.source.remote.ktor.dto.categories
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch

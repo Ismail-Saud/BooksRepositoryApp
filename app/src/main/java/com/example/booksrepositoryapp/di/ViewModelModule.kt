@@ -16,11 +16,16 @@ import org.koin.dsl.module
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 val viewmodelModule = module {
-    viewModel {
-        GetStartedViewModel(get())
+    factory {
+        GetStartedViewModel(
+            get(),
+        )
     }
-    viewModel {
-        RegisterViewModel(get(), get())
+    factory {
+        RegisterViewModel(
+            get(),
+            get(),
+        )
     }
     viewModel {
         BooksCategoryViewModel()

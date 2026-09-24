@@ -71,13 +71,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
+import coil3.compose.AsyncImage
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheetCompose
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 import java.io.File
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccountDetailsScreen(
     viewModel: AccountDetailsViewModel,
@@ -224,9 +223,9 @@ fun AccountDetailsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         if (!user?.profilePicture.isNullOrEmpty()) {
-                            val profileFile = File(context.filesDir, user!!.profilePicture!!)
+                            val profileFile = File(context.filesDir, user.profilePicture)
                             if (profileFile.exists()) {
-                                GlideImage(
+                                AsyncImage(
                                     model = profileFile,
                                     contentDescription = "Profile",
                                     contentScale = ContentScale.Crop,

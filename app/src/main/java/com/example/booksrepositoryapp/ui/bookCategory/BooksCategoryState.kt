@@ -1,6 +1,6 @@
 package com.example.booksrepositoryapp.ui.bookCategory
 
-import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.Category
+import com.example.booksrepositoryapp.data.source.remote.ktor.dto.Category
 
 sealed class BooksCategoryState {
     object Idle: BooksCategoryState()

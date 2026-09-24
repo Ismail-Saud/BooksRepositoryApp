@@ -266,14 +266,3 @@ fun GetStartedScreen(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun GetStartedScreenPreview() {
-    BooksRepositoryAppTheme {
-        GetStartedScreen (
-            viewModel = viewModel(),
-            onNavigate = {}
-        )
-    }
-}

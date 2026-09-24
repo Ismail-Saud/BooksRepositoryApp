@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.SubcomposeAsyncImage
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
@@ -88,7 +87,6 @@ fun BookDetailsScreenCompose(
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun BookDetailsContent(
     book: Book,

@@ -40,7 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.booksrepositoryapp.data.source.remote.retrofit.dto.Category
+import com.example.booksrepositoryapp.data.source.remote.ktor.dto.Category
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @Composable

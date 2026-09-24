@@ -258,14 +258,3 @@ fun RegisterScreen(
         }
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun RegisterScreenPreview() {
-    BooksRepositoryAppTheme {
-        RegisterScreen(
-            viewModel = viewModel(),
-            onNavigate = {}
-        )
-    }
-}

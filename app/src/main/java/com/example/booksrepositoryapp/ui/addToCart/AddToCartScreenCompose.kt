@@ -34,9 +34,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.SubcomposeAsyncImage
-import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.request.RequestCoordinator
 import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.domain.model.Cart
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheetCompose
@@ -249,7 +246,6 @@ fun CheckoutButton(enabled: Boolean, modifier: Modifier = Modifier, onClick: () 
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun CartItemView(
     cart: Cart,
