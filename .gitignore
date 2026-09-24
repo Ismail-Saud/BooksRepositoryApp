@@ -1,9 +1,15 @@
-# Build artifacts
+# Gradle and build outputs
 .gradle/
-build/
-app/build/
-app/release/
-app/debug/
+**/build/
+**/release/
+**/debug/
+**/captures/
+*.aab
+*.apk
+*.apks
+*.aab-unsigned
+*.apk-unsigned
+*.class
 
 # Android Studio / IntelliJ
 *.iml
@@ -23,8 +29,9 @@ app/debug/
 .idea/appInsightsSettings.xml
 .idea/deploymentTargetSelector.xml
 
-# Kotlin
+# Kotlin and generated metadata
 .kotlin/
+**/.kotlin/
 .base_profile/
 
 # Local configuration
@@ -37,9 +44,9 @@ secrets.properties
 *.pk8
 *.pem
 
-# Google Services
-google-services.json
-app/google-services.json
+# Generated/local Google Services variants
+google-services-*.json
+app/google-services-*.json
 
 # OS files
 .DS_Store
