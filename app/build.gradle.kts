@@ -58,6 +58,9 @@ ktlint {
 }
 
 dependencies {
+    // Shared module
+    implementation(project(":shared"))
+
     // Compose BOM
     // Compose dependencies.
     implementation(platform(libs.androidx.compose.bom))

@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Author(
-    val author: AuthorX,
-    val type: TypeXX
+    val author: AuthorX? = null,
+    val type: TypeXX? = null
 )

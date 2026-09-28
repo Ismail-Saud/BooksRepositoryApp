@@ -1,7 +1,9 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -68,6 +70,8 @@ kotlin {
         commonTest {
             dependencies {
                 implementation(libs.kotlin.test)
+                implementation(libs.ktor.client.mock)
+                implementation(libs.kotlinx.coroutines.test)
             }
         }
 
@@ -76,27 +80,36 @@ kotlin {
                 // Ktor Android engine
                 implementation(libs.ktor.client.okhttp)
 
-                // Android-specific Koin
+                // Koin Android
                 implementation(libs.koin.android)
 
-                // Firebase
+                // Firebase Authentication
                 implementation(libs.firebase.auth)
+
+                // Firebase Firestore
+                implementation(libs.firebase.firestore)
+
+                // Enables kotlinx.coroutines.tasks.await() for Firebase Task APIs.
+                implementation(libs.kotlinx.coroutines.play.services)
 
                 // Room
                 implementation(libs.androidx.room.runtime)
+                implementation(libs.androidx.room.ktx)
 
-                // Location
+                // Android Location APIs
                 implementation(libs.play.services.location)
             }
         }
 
-//        getByName("androidDeviceTest") {
-//            dependencies {
-//                implementation(libs.androidx.core)
-//                implementation(libs.androidx.junit)
-//                implementation(libs.androidx.runner)
-//            }
-//        }
+        getByName("androidDeviceTest") {
+            dependencies {
+                implementation(libs.androidx.junit)
+                implementation(libs.androidx.test.core)
+                implementation(libs.androidx.espresso.core)
+                implementation(libs.kotlin.test)
+                implementation(libs.kotlinx.coroutines.test)
+            }
+        }
 //
 //        iosMain {
 //            dependencies {
@@ -105,4 +118,14 @@ kotlin {
 //            }
 //        }
     }
+}
+
+dependencies {
+    // The KMP source-set dependency DSL does not expose platform(). Declare the
+    // Firebase BoM on Android's generated implementation configuration instead.
+    add("androidMainImplementation", platform(libs.firebase.bom))
+
+    // Room entities and DAOs are in androidMain, so only Android requires
+    // Room's code generator.
+    add("kspAndroid", libs.androidx.room.compiler)
 }

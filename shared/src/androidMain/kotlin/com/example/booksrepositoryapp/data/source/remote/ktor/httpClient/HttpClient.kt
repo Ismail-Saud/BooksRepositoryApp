@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 
 actual fun createHttpClient(): HttpClient {
     return HttpClient(OkHttp) {
+        expectSuccess = true
         defaultRequest {
             url("https://openlibrary.org/")
         }

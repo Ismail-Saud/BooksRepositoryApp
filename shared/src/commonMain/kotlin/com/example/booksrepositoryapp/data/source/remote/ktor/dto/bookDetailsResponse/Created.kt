@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Created(
-    val type: String,
-    val value: String
+    val type: String? = null,
+    val value: String? = null
 )

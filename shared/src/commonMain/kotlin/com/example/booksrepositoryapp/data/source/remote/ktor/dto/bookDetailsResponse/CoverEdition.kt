@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CoverEdition(
-    val key: String
+    val key: String? = null
 )

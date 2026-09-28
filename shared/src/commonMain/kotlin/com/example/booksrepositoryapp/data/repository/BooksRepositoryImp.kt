@@ -20,12 +20,16 @@ class BooksRepositoryImpl(
         return localDataSource.getBooksByCategory(category)
     }
 
-    override suspend fun refreshBooks(subject: String): RefreshResult {
+    override suspend fun refreshBooks(
+        subject: String,
+        limit: Int?,
+        offset: Int?
+    ): RefreshResult {
         if (!networkHelper.isNetworkAvailable()) {
             return RefreshResult.Offline
         }
         return try {
-            val response = booksApi.getBooksByCategory(subject)
+            val response = booksApi.getBooksByCategory(subject, limit = limit, offset = offset)
             val existingBooks = localDataSource.getAllBooksByCategory(subject)
             val existingMap = existingBooks.associateBy { it.id }
             val books = response.works.map { work ->

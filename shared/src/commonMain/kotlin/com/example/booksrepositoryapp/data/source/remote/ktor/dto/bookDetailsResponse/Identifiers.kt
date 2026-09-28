@@ -4,5 +4,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Identifiers(
-    val wikidata: List<String>
+    val wikidata: List<String>? = null
 )

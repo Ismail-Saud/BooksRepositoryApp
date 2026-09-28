@@ -7,7 +7,7 @@ import com.example.booksrepositoryapp.data.source.local.room.entity.BookDetailsM
 
 @Database(
     entities = [BookDetailsModel::class],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 
