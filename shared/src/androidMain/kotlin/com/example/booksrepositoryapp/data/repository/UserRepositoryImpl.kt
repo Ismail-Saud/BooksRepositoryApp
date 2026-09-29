@@ -1,7 +1,7 @@
 package com.example.booksrepositoryapp.data.repository
 
 import android.content.Context
-import android.net.Uri
+import androidx.core.net.toUri
 import com.example.booksrepositoryapp.data.mapper.toDomain
 import com.example.booksrepositoryapp.data.mapper.toProfile
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.UserProfile
@@ -11,7 +11,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.io.IOException
-import androidx.core.net.toUri
 
 class UserRepositoryImpl (
     private val firestore: FirebaseFirestore,
