@@ -1,13 +1,12 @@
 package com.example.booksrepositoryapp.ui.addressScreen
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.source.local.uiModels.AddressUiModel
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Address
 import com.example.booksrepositoryapp.domain.repository.AddressRepository
-import dagger.hilt.android.internal.Contexts.getApplication
+import com.example.booksrepositoryapp.helper.locationHelper.LocationHelper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,11 +14,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 class AddressListViewModel (
     private val addressRepo: AddressRepository,
     authRepo: AuthRepository,
-    private val appContext: Context
+    private val locationHelper: LocationHelper
 ) : ViewModel() {
     val userId = authRepo.getCurrentUserId() ?: ""
     private val _isFetchingLocation = MutableStateFlow<Map<String, Boolean>>(emptyMap())
@@ -70,10 +70,43 @@ class AddressListViewModel (
     private fun saveAddress(address: Address, fullAddress: String) {
         viewModelScope.launch {
             setSaving(address.id, true)
-            val updatedAddress = address.copy(fullAddress = fullAddress)
-            addressRepo.updateAddress(userId, updatedAddress)
-            setSaving(address.id, false)
-            _effect.send(AddressListEffect.ShowToast("Address saved successfully"))
+            try {
+                val location = locationHelper.getLocationFromAddress(fullAddress)
+                if (location == null) {
+                    _effect.send(
+                        AddressListEffect.ShowToast(
+                            "Could not find this address"
+                        )
+                    )
+                    return@launch
+                }
+                val updatedAddress = address.copy(
+                    fullAddress = fullAddress,
+                    latitude = location.latitude,
+                    longitude = location.longitude
+                )
+                addressRepo.updateAddress(
+                    userId = userId,
+                    address = updatedAddress
+                )
+                addressRepo.updateSelectedAddress(
+                    userId = userId,
+                    addressId = address.id
+                )
+                _effect.send(
+                    AddressListEffect.ShowToast(
+                        "Address saved successfully"
+                    )
+                )
+            } catch (e: Exception) {
+                _effect.send(
+                    AddressListEffect.ShowToast(
+                        "Failed to save address: ${e.message}"
+                    )
+                )
+            } finally {
+                setSaving(address.id, false)
+            }
         }
     }
 
@@ -81,11 +114,8 @@ class AddressListViewModel (
         viewModelScope.launch {
             setFetchingLocation(addressId, true)
             try {
-                val geocoder = android.location.Geocoder(getApplication(appContext))
-                val addresses = geocoder.getFromLocation(lat, lng, 1)
-                if (!addresses.isNullOrEmpty()) {
-                    val address = addresses[0]
-                    val fullAddress = address.getAddressLine(0) ?: ""
+                val fullAddress = locationHelper.getAddressFromLocation(lat, lng) ?: ""
+                if (fullAddress.isNotEmpty()) {
                     val list = addressRepo.getAddresses(userId).first()
                     list.find { it.id == addressId }?.let { original ->
                         val updated = original.copy(
@@ -141,7 +171,7 @@ class AddressListViewModel (
                 latitude = 0.0,
                 longitude = 0.0,
                 isSelected = false,
-                createdAt = System.currentTimeMillis()
+                createdAt = Clock.System.now().toEpochMilliseconds()
             )
             addressRepo.addAddress(userId, address)
         }

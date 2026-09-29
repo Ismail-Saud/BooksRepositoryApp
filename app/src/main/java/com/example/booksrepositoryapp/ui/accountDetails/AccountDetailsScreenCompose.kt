@@ -110,7 +110,7 @@ fun AccountDetailsScreen(
     ) { success ->
         if (success) {
             cameraImageUri?.let {
-                viewModel.onEvent(AccountDetailsEvent.ProfilePictureSelected(it))
+                viewModel.onEvent(AccountDetailsEvent.ProfilePictureSelected(it.toString()))
             }
         }
     }
@@ -165,7 +165,7 @@ fun AccountDetailsScreen(
         ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         uri?.let {
-            viewModel.onEvent(AccountDetailsEvent.ProfilePictureSelected(it))
+            viewModel.onEvent(AccountDetailsEvent.ProfilePictureSelected(it.toString()))
         }
     }
 
@@ -255,12 +255,12 @@ fun AccountDetailsScreen(
                 item {
                     AccountInfoCard(
                         label = "Name:",
-                        value = user?.username.toString() ?: "Name not found",
+                        value = user?.username.toString(),
                         modifier = Modifier.padding(top = 32.dp)
                     )
                     AccountInfoCard(
                         label = "E-mail:",
-                        value = user?.email.toString() ?: "Email not found",
+                        value = user?.email.toString(),
                         modifier = Modifier.padding(top = 16.dp)
                     )
                     AccountInfoCard(

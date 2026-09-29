@@ -4,20 +4,20 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import androidx.core.content.ContextCompat
-import com.google.android.gms.location.FusedLocationProviderClient
+import com.example.booksrepositoryapp.helper.locationHelper.LocationCoordinates
+import com.example.booksrepositoryapp.helper.locationHelper.LocationHelper
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-class LocationHelper(
+class AndroidLocationHelper(
     private val context: Context
-) {
+) : LocationHelper {
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
     fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
@@ -36,20 +36,28 @@ class LocationHelper(
             onFailure(exception)
         }
     }
-    suspend fun getAddressFromLocation(latitude: Double, longitude: Double): Address? {
+    override suspend fun getAddressFromLocation(latitude: Double, longitude: Double): String? {
         return withContext(Dispatchers.IO) {
             try {
-                Geocoder(context, Locale.getDefault()).getFromLocation(latitude, longitude, 1)?.firstOrNull()
+                val geocoder = Geocoder(context, Locale.getDefault())
+                val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+                addresses?.firstOrNull()?.getAddressLine(0)
             } catch (e: Exception) {
                 null
             }
         }
     }
 
-    suspend fun getLocationFromAddress(fullAddress: String): Address? {
+    override suspend fun getLocationFromAddress(fullAddress: String): LocationCoordinates? {
         return withContext(Dispatchers.IO) {
             try {
-                Geocoder(context, Locale.getDefault()).getFromLocationName(fullAddress, 1)?.firstOrNull()
+                val geocoder = Geocoder(context, Locale.getDefault())
+                geocoder
+                    .getFromLocationName(fullAddress, 1)
+                    ?.firstOrNull()
+                    ?.let { address ->
+                        LocationCoordinates(latitude = address.latitude, longitude = address.longitude)
+                    }
             } catch (e: Exception) {
                 null
             }

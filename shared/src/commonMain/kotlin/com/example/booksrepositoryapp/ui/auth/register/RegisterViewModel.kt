@@ -1,9 +1,10 @@
 package com.example.booksrepositoryapp.ui.auth.register
 
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.User
 import com.example.booksrepositoryapp.domain.repository.UserRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,8 +15,7 @@ import kotlinx.coroutines.launch
 class RegisterViewModel (
     private val userRepo: UserRepository,
     private val authRepo: AuthRepository,
-    private val scope: CoroutineScope
-) {
+): ViewModel() {
     private val _registerUser = MutableStateFlow<RegisterState>(RegisterState.Idle)
     val registerUser: StateFlow<RegisterState> = _registerUser.asStateFlow()
     private val _effect = Channel<RegisterEffect>(Channel.BUFFERED)
@@ -43,7 +43,7 @@ class RegisterViewModel (
             !passwordPattern.matches(password) -> sendError("Enter valid password")
             password != confirmPass -> sendError("Password does not match")
             else -> {
-                scope.launch {
+                viewModelScope.launch {
                     _registerUser.value = RegisterState.Loading
                     try {
                         val result = authRepo.createUser(username, email, password)

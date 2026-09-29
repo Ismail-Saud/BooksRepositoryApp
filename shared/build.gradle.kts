@@ -51,6 +51,10 @@ kotlin {
 
         commonMain {
             dependencies {
+                // AndroidX Lifecycle KMP
+                api(libs.androidx.lifecycle.viewmodel)
+                api(libs.androidx.lifecycle.runtime)
+
                 implementation(libs.kotlin.stdlib)
                 implementation(libs.kotlinx.coroutines.core)
 

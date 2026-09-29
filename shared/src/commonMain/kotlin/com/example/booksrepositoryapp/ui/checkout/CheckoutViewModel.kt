@@ -68,15 +68,13 @@ class CheckoutViewModel (
         viewModelScope.launch {
             addressRepo.getSelectedAddress(userId)
                 .catch { error ->
-                    _checkoutState.value = CheckoutState.Error(error.message ?: "Something went wrong")
+                    _checkoutState.value = CheckoutState.Error(
+                        error.message ?: "Something went wrong"
+                    )
                 }
                 .collectLatest { address ->
                     _selectedAddress.value = address
-                    if (address == null) {
-                        _checkoutState.value = CheckoutState.Idle
-                    } else {
-                        _checkoutState.value = CheckoutState.Success(address)
-                    }
+                    _checkoutState.value = CheckoutState.Success(address)
                 }
         }
     }

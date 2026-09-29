@@ -1,7 +1,5 @@
 package com.example.booksrepositoryapp.ui.booksList
 
-import android.os.Build
-import androidx.annotation.RequiresExtension
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -12,6 +10,7 @@ import com.example.booksrepositoryapp.domain.usecase.GetBooksUseCase
 import com.example.booksrepositoryapp.domain.usecase.RefreshBooksUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +24,6 @@ import kotlinx.coroutines.withContext
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(FlowPreview::class)
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 class BooksListViewModel (
     bookRepo: BooksRepository,
     savedStateHandle: SavedStateHandle
@@ -61,7 +59,6 @@ class BooksListViewModel (
         }
     }
 
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getBooksByCategory(subject: String) {
         fetchBooksJob?.cancel()
         fetchBooksJob = viewModelScope.launch {

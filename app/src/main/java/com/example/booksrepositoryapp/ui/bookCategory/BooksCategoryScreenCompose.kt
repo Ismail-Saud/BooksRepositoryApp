@@ -25,8 +25,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -40,7 +40,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.booksrepositoryapp.data.source.remote.ktor.dto.Category
+import com.example.booksrepositoryapp.R
+import com.example.booksrepositoryapp.domain.model.Category
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @Composable
@@ -48,7 +49,7 @@ fun BookCategoryScreen(
     viewModel: BooksCategoryViewModel,
     onNavigate: (BooksCategoryEffect.NavigateToBooksList) -> Unit
 ) {
-    val state by viewModel.categoryState.observeAsState(BooksCategoryState.Idle)
+    val state by viewModel.categoryState.collectAsState()
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -137,11 +138,17 @@ fun BookCategoryContent(
         }
     }
 }
+
 @Composable
 fun CategoryCard(
     category: Category,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    val imageResId = remember(category.imageName) {
+        val id = context.resources.getIdentifier(category.imageName, "drawable", context.packageName)
+        if (id != 0) id else R.drawable.fantasy_bg
+    }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -151,7 +158,7 @@ fun CategoryCard(
     ) {
         Box {
             Image(
-                painter = painterResource(category.imgSrc),
+                painter = painterResource(imageResId),
                 contentDescription = category.title,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,

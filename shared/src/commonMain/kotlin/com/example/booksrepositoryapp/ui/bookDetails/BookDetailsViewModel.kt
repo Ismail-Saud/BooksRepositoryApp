@@ -1,7 +1,5 @@
 package com.example.booksrepositoryapp.ui.bookDetails
 
-import android.os.Build
-import androidx.annotation.RequiresExtension
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 class BookDetailsViewModel (
     private val authRepo: AuthRepository,
     private val bookRepo: BooksRepository,
@@ -36,7 +33,6 @@ class BookDetailsViewModel (
         }
     }
 
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun onEvent(event: BookDetailsEvent) {
         when (event) {
             BookDetailsEvent.AddToCartClicked -> addToCart()
@@ -49,7 +45,6 @@ class BookDetailsViewModel (
         }
     }
 
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     fun getBookDetails(key: String) {
         viewModelScope.launch {
             _bookDetailState.value = BookDetailsState.Loading
@@ -78,9 +73,5 @@ class BookDetailsViewModel (
                 _effect.send(BookDetailsEffect.ShowToast("Added to Cart"))
             }
         }
-    }
-
-    fun resetState() {
-        _bookDetailState.value = BookDetailsState.Idle
     }
 }

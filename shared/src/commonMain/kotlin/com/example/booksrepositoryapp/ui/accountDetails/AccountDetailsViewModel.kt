@@ -1,8 +1,5 @@
 package com.example.booksrepositoryapp.ui.accountDetails
 
-import android.content.Context
-import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
@@ -16,14 +13,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.IOException
 
 class AccountDetailsViewModel (
     private val userRepo: UserRepository,
     private val authRepo: AuthRepository,
-    addressRepo: AddressRepository,
-    private val appContext: Context
+    addressRepo: AddressRepository
 ) : ViewModel() {
 
     val id = authRepo.getCurrentUserId() ?: ""
@@ -44,7 +38,7 @@ class AccountDetailsViewModel (
                     _effect.send(AccountDetailsEffect.NavigateToLandingPage)
                 }
                 is AccountDetailsEvent.ProfilePictureSelected -> {
-                    saveUserProfilePicture(event.uri)
+                    saveUserProfilePicture(event.imageUri)
                 }
                 AccountDetailsEvent.RemoveProfilePictureClicked -> {
                     removeUserProfilePicture()
@@ -84,37 +78,14 @@ class AccountDetailsViewModel (
         authRepo.logout()
     }
 
-    fun saveUserProfilePicture(uri: Uri) {
-        val uid = authRepo.getCurrentUserId()
-        if (uid == null) {
-            Log.e("ProfilePicture", "UID is null")
-            return
-        }
+    fun saveUserProfilePicture(imageUri: String) {
+        val uid = authRepo.getCurrentUserId() ?: return
         viewModelScope.launch {
             try {
-                Log.d("ProfilePicture", "Saving image locally")
-
-                _user.value?.profilePicture?.let { oldFileName ->
-                    deleteLocalProfilePicture(oldFileName)
-                }
-
-                val fileName = "profile_${uid}_${System.currentTimeMillis()}.jpg"
-                val destFile = File(appContext.filesDir, fileName)
-
-                appContext.contentResolver.openInputStream(uri)?.use { input ->
-                    destFile.outputStream().use { output ->
-                        input.copyTo(output)
-                    }
-                } ?: throw IOException("Could not open URI")
-
-                Log.d("ProfilePicture", "Local file saved: $fileName")
-
-                userRepo.updateProfilePicture(uid = uid, profilePicture = fileName)
-                
-                Log.d("ProfilePicture", "Firestore update successful with local filename")
+                val oldFileName = _user.value?.profilePicture
+                userRepo.saveProfilePicture(uid = uid, imageUri = imageUri, oldFileName = oldFileName)
                 getUser()
             } catch (e: Exception) {
-                Log.e("ProfilePicture", "Local profile picture operation failed", e)
                 _userState.value = AccountDetailsState.Error(e.message ?: "Failed to save profile picture")
             }
         }
@@ -125,24 +96,13 @@ class AccountDetailsViewModel (
         viewModelScope.launch {
             try {
                 _user.value?.profilePicture?.let { fileName ->
-                    deleteLocalProfilePicture(fileName)
+                    userRepo.deleteLocalProfilePicture(fileName)
                 }
                 userRepo.updateProfilePicture(uid = uid, profilePicture = null)
                 getUser()
             } catch (e: Exception) {
                 _userState.value = AccountDetailsState.Error(e.message ?: "Failed to remove profile picture")
             }
-        }
-    }
-
-    private fun deleteLocalProfilePicture(fileName: String) {
-        try {
-            val file = File(appContext.filesDir, fileName)
-            if (file.exists()) {
-                file.delete()
-            }
-        } catch (e: Exception) {
-            Log.e("ProfilePicture", "Failed to delete local file: $fileName", e)
         }
     }
 }

@@ -105,7 +105,15 @@ class AddressRepositoryImpl (
                     close(error)
                     return@addSnapshotListener
                 }
-                val address = snapshot?.documents?.firstOrNull()?.toObject(AddressModelFB::class.java)?.toDomain()
+                val address = snapshot
+                    ?.documents
+                    ?.firstOrNull()
+                    ?.let { document ->
+                        document
+                            .toObject(AddressModelFB::class.java)
+                            ?.copy(id = document.id)
+                            ?.toDomain()
+                    }
                 trySend(address)
             }
         awaitClose {

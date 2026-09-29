@@ -1,11 +1,9 @@
 package com.example.booksrepositoryapp.ui.accountDetails
 
-import android.net.Uri
-
 sealed class AccountDetailsEvent {
     object LoadUser : AccountDetailsEvent()
     object LogoutClicked : AccountDetailsEvent()
-    data class ProfilePictureSelected(val uri: Uri) : AccountDetailsEvent()
+    data class ProfilePictureSelected(val imageUri: String) : AccountDetailsEvent()
     object RemoveProfilePictureClicked : AccountDetailsEvent()
     object CameraPermissionDeniedPermanent : AccountDetailsEvent()
 }

@@ -44,7 +44,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,10 +57,9 @@ import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.booksrepositoryapp.data.source.local.uiModels.AddressUiModel
-import com.example.booksrepositoryapp.helper.LocationHelper
+import com.example.booksrepositoryapp.helper.AndroidLocationHelper
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheetCompose
 import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
-import kotlinx.coroutines.launch
 
 @Composable
 fun AddressScreenCompose(
@@ -73,7 +71,7 @@ fun AddressScreenCompose(
     val addresses by viewModel.addresses.collectAsState(initial = emptyList())
     val addressCount by viewModel.addressCount.collectAsState(initial = 0)
 
-    val locationHelper = remember { LocationHelper(context) }
+    val locationHelper = remember { AndroidLocationHelper(context) }
 
     var addressIdBeingLocated by remember { mutableStateOf<String?>(null) }
     var showPermissionDialog by remember { mutableStateOf(false) }

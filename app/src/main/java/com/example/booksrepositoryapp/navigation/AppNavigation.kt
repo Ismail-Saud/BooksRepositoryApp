@@ -19,18 +19,13 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
-import com.example.booksrepositoryapp.domain.repository.UserRepository
 import com.example.booksrepositoryapp.navigation.routes.Routes
 import com.example.booksrepositoryapp.ui.accountDetails.AccountDetailsEffect
 import com.example.booksrepositoryapp.ui.accountDetails.AccountDetailsScreen
@@ -61,7 +56,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
-import org.koin.compose.getKoin
 import org.koin.compose.viewmodel.koinViewModel
 
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
@@ -197,15 +191,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.GetStarted.route) {
-                    val authRepository: AuthRepository = getKoin().get()
-                    val viewModel = remember {
-                        GetStartedViewModel(authRepository)
-                    }
-                    DisposableEffect(Unit) {
-                        onDispose {
-                            viewModel.clear()
-                        }
-                    }
+                    val viewModel: GetStartedViewModel = koinViewModel()
                     GetStartedScreen(
                         viewModel = viewModel,
                         onNavigate = { effect ->
@@ -229,16 +215,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.Register.route) {
-                    val authRepository: AuthRepository = getKoin().get()
-                    val userRepository: UserRepository = getKoin().get()
-                    val viewModel = remember {
-                        RegisterViewModel(userRepository, authRepository)
-                    }
-                    DisposableEffect(Unit) {
-                        onDispose {
-                            viewModel.clear()
-                        }
-                    }
+                    val viewModel: RegisterViewModel = koinViewModel()
                     RegisterScreen(
                         viewModel = viewModel,
                         onNavigate = { effect ->
