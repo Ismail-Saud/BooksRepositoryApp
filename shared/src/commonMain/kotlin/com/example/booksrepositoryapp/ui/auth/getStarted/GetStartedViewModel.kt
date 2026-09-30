@@ -32,12 +32,12 @@ class GetStartedViewModel (
             val result = authRepo.login(email, password)
             result.onSuccess {
                 _getStartedState.value = GetStartedState.Success
-                sendEffect(GetStartedEffect.ShowToast("Login Successful"))
+                sendEffect(GetStartedEffect.ShowMessage("Login Successful"))
                 sendEffect(GetStartedEffect.NavigateToHome)
             }
             result.onFailure { exception ->
                 _getStartedState.value = GetStartedState.Error(exception.message ?: "Login Failed")
-                sendEffect(GetStartedEffect.ShowToast(exception.message ?: "Login Failed"))
+                sendEffect(GetStartedEffect.ShowMessage(exception.message ?: "Login Failed"))
             }
         }
     }

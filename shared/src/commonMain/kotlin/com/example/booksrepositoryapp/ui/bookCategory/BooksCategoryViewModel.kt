@@ -39,12 +39,13 @@ class BooksCategoryViewModel : ViewModel() {
     fun searchCategories(query: String) {
         activeSearch = query
         viewModelScope.launch {
-            val result = if (activeSearch.isEmpty()) {
+            val result = if (activeSearch.isBlank()) {
                 allCategories
             } else {
                 allCategories.filter { category ->
-                    category.title.contains(activeSearch, ignoreCase = true) ||
-                            category.apiValue.contains(activeSearch, ignoreCase = true)
+                    category.apiValue.contains(activeSearch, ignoreCase = true) ||
+                        category.apiValue.replace("_", " ").contains(activeSearch, ignoreCase = true) ||
+                        category.apiValue.replace("_", "-").contains(activeSearch, ignoreCase = true)
                 }
             }
             _categoryState.value = BooksCategoryState.Success(result)

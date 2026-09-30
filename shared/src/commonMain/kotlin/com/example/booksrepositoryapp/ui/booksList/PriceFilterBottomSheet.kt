@@ -24,47 +24,48 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun PriceFilterBottomSheet(
     onApply: (Int, Int) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     var priceRange by remember {
         mutableStateOf(15f..36f)
     }
     ModalBottomSheet(
-        onDismissRequest = onDismiss
+        onDismissRequest = onDismiss,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = "Price Filter",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 IconButton(
-                    onClick = onDismiss
+                    onClick = onDismiss,
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Close"
+                        contentDescription = "Close",
                     )
                 }
             }
             Spacer(
-                modifier = Modifier.height(20.dp)
+                modifier = Modifier.height(20.dp),
             )
             Text(
                 text = "Price: $${priceRange.start.toInt()} - $${priceRange.endInclusive.toInt()}",
-                fontSize = 16.sp
+                fontSize = 16.sp,
             )
             Spacer(
-                modifier = Modifier.height(12.dp)
+                modifier = Modifier.height(12.dp),
             )
             RangeSlider(
                 value = priceRange,
@@ -72,35 +73,35 @@ fun PriceFilterBottomSheet(
                     priceRange = it
                 },
                 valueRange = 15f..36f,
-                steps = 20
+                steps = 20,
             )
             Spacer(
-                modifier = Modifier.height(20.dp)
+                modifier = Modifier.height(20.dp),
             )
             Button(
                 onClick = {
                     onApply(
                         priceRange.start.toInt(),
-                        priceRange.endInclusive.toInt()
+                        priceRange.endInclusive.toInt(),
                     )
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Apply Filter")
             }
             Spacer(
-                modifier = Modifier.height(8.dp)
+                modifier = Modifier.height(8.dp),
             )
             OutlinedButton(
                 onClick = {
                     priceRange = 15f..36f
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text("Reset Filter")
             }
             Spacer(
-                modifier = Modifier.height(20.dp)
+                modifier = Modifier.height(20.dp),
             )
         }
     }

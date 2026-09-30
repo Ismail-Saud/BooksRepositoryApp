@@ -78,30 +78,31 @@ fun AddressScreenCompose(
     var addressToDeleteId by remember { mutableStateOf<String?>(null) }
     var showDeleteAllDialog by remember { mutableStateOf(false) }
 
-    val locationPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        if (isGranted) {
-            addressIdBeingLocated?.let { id ->
-                locationHelper.getCurrentLocation(
-                    onSuccess = { location ->
-                        if (location != null) {
-                            viewModel.onEvent(AddressListEvent.LocationReceived(id, location.latitude, location.longitude))
-                        } else {
+    val locationPermissionLauncher =
+        rememberLauncherForActivityResult(
+            contract = ActivityResultContracts.RequestPermission(),
+        ) { isGranted ->
+            if (isGranted) {
+                addressIdBeingLocated?.let { id ->
+                    locationHelper.getCurrentLocation(
+                        onSuccess = { location ->
+                            if (location != null) {
+                                viewModel.onEvent(AddressListEvent.LocationReceived(id, location.latitude, location.longitude))
+                            } else {
+                                viewModel.setFetchingLocation(id, false)
+                                Toast.makeText(context, "Unable to get location", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        onFailure = {
                             viewModel.setFetchingLocation(id, false)
-                            Toast.makeText(context, "Unable to get location", Toast.LENGTH_SHORT).show()
-                        }
-                    },
-                    onFailure = {
-                        viewModel.setFetchingLocation(id, false)
-                        Toast.makeText(context, "Failed to get location", Toast.LENGTH_SHORT).show()
-                    }
-                )
+                            Toast.makeText(context, "Failed to get location", Toast.LENGTH_SHORT).show()
+                        },
+                    )
+                }
+            } else {
+                showPermissionDialog = true
             }
-        } else {
-            showPermissionDialog = true
         }
-    }
 
     fun checkAndRequestLocation(addressId: String) {
         addressIdBeingLocated = addressId
@@ -119,12 +120,12 @@ fun AddressScreenCompose(
                     onFailure = {
                         viewModel.setFetchingLocation(addressId, false)
                         Toast.makeText(context, "Failed to get location", Toast.LENGTH_SHORT).show()
-                    }
+                    },
                 )
             }
             ActivityCompat.shouldShowRequestPermissionRationale(
                 context as Activity,
-                Manifest.permission.ACCESS_FINE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION,
             ) -> {
                 locationPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION)
             }
@@ -143,9 +144,10 @@ fun AddressScreenCompose(
                 is AddressListEffect.ShowDeleteAllConfirmation -> showDeleteAllDialog = true
                 is AddressListEffect.ShowDeleteAddressConfirmation -> addressToDeleteId = effect.addressId
                 is AddressListEffect.OpenAppSettings -> {
-                    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                        data = Uri.fromParts("package", context.packageName, null)
-                    }
+                    val intent =
+                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.fromParts("package", context.packageName, null)
+                        }
                     context.startActivity(intent)
                 }
             }
@@ -159,13 +161,14 @@ fun AddressScreenCompose(
             positiveButtonText = "Go to Settings",
             onConfirm = {
                 viewModel.onEvent(AddressListEvent.BackClick) // Using an event to signal intent
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.fromParts("package", context.packageName, null)
-                }
+                val intent =
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
                 context.startActivity(intent)
                 showPermissionDialog = false
             },
-            onDismiss = { showPermissionDialog = false }
+            onDismiss = { showPermissionDialog = false },
         )
     }
 
@@ -178,7 +181,7 @@ fun AddressScreenCompose(
                 viewModel.onEvent(AddressListEvent.ConfirmDeleteAllAddresses)
                 showDeleteAllDialog = false
             },
-            onDismiss = { showDeleteAllDialog = false }
+            onDismiss = { showDeleteAllDialog = false },
         )
     }
 
@@ -193,47 +196,50 @@ fun AddressScreenCompose(
                 }
                 addressToDeleteId = null
             },
-            onDismiss = { addressToDeleteId = null }
+            onDismiss = { addressToDeleteId = null },
         )
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
         ) {
             IconButton(
                 onClick = { viewModel.onEvent(AddressListEvent.BackClick) },
-                modifier = Modifier
-                    .size(48.dp)
-                    .align(Alignment.CenterStart)
-                    .padding(start = 8.dp)
+                modifier =
+                    Modifier
+                        .size(48.dp)
+                        .align(Alignment.CenterStart)
+                        .padding(start = 8.dp),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.Black
+                    tint = Color.Black,
                 )
             }
             Text(
                 text = "Address List",
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
             )
         }
         Spacer(modifier = Modifier.height(16.dp))
         LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             items(
                 items = addresses,
-                key = { it.id }
+                key = { it.id },
             ) { uiModel ->
                 AddressItem(
                     uiModel = uiModel,
@@ -245,41 +251,46 @@ fun AddressScreenCompose(
                     },
                     onDeleteClick = {
                         viewModel.onEvent(AddressListEvent.DeleteAddress(uiModel.id))
-                    }
+                    },
                 )
             }
         }
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, bottom = 20.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
         ) {
             OutlinedButton(
                 onClick = { viewModel.onEvent(AddressListEvent.AddAddress(addressCount, maxAddresses.toInt())) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
                 shape = RoundedCornerShape(6.dp),
                 border = BorderStroke(1.dp, Color(0xFF555555)),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = Color.White,
-                    contentColor = Color(0xFF333333)
-                )
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.White,
+                        contentColor = Color(0xFF333333),
+                    ),
             ) {
                 Text("Add Delivery Address")
             }
             Spacer(modifier = Modifier.height(18.dp))
             OutlinedButton(
                 onClick = { viewModel.onEvent(AddressListEvent.DeleteAllAddresses) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
                 shape = RoundedCornerShape(6.dp),
                 border = BorderStroke(1.dp, Color(0xFF555555)),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = Color.White,
-                    contentColor = Color(0xFF333333)
-                )
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        containerColor = Color.White,
+                        contentColor = Color(0xFF333333),
+                    ),
             ) {
                 Text("Delete All Addresses")
             }
@@ -302,17 +313,19 @@ fun AddressItem(
     }
     val isProcessing = uiModel.isFetchingLocation || uiModel.isSaving
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 5.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(bottom = 5.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF151515))
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF151515)),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             OutlinedTextField(
                 value = addressText,
@@ -321,14 +334,15 @@ fun AddressItem(
                 label = { Text("Delivery Address") },
                 maxLines = 3,
                 textStyle = LocalTextStyle.current.copy(color = Color.White, fontSize = 16.sp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.White,
-                    focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.LightGray,
-                    unfocusedTextColor = Color.White,
-                    focusedTextColor = Color.White
-                )
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = Color.White,
+                        unfocusedBorderColor = Color.White,
+                        focusedLabelColor = Color.White,
+                        unfocusedLabelColor = Color.LightGray,
+                        unfocusedTextColor = Color.White,
+                        focusedTextColor = Color.White,
+                    ),
             )
             Spacer(modifier = Modifier.width(8.dp))
             IconButton(onClick = onLocationClick, enabled = !isProcessing) {
@@ -336,13 +350,13 @@ fun AddressItem(
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         color = Color.White,
-                        strokeWidth = 2.dp
+                        strokeWidth = 2.dp,
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = "Location",
-                        tint = Color.White
+                        tint = Color.White,
                     )
                 }
             }
@@ -351,13 +365,13 @@ fun AddressItem(
                     CircularProgressIndicator(
                         modifier = Modifier.size(20.dp),
                         color = Color.White,
-                        strokeWidth = 2.dp
+                        strokeWidth = 2.dp,
                     )
                 } else {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = "Save",
-                        tint = Color.White
+                        tint = Color.White,
                     )
                 }
             }
@@ -365,7 +379,7 @@ fun AddressItem(
                 Icon(
                     imageVector = Icons.Default.Delete,
                     contentDescription = "Delete",
-                    tint = Color.White
+                    tint = Color.White,
                 )
             }
         }
@@ -379,7 +393,7 @@ fun AddressPreview() {
         AddressScreenCompose(
             viewModel = viewModel(),
             maxAddresses = 4L,
-            onBackClick = {}
+            onBackClick = {},
         )
     }
 }

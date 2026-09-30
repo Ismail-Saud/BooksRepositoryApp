@@ -4,7 +4,20 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,7 +25,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,40 +46,43 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.SubcomposeAsyncImage
-import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.domain.model.Cart
+import com.example.booksrepositoryapp.domain.model.Category
+import com.example.booksrepositoryapp.ui.bookCategory.imageResource
+import com.example.booksrepositoryapp.ui.bookCategory.titleResource
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheetCompose
-import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun AddToCartScreen(
     viewModel: AddToCartViewModel,
     onNavigate: (AddToCartEffect.NavigateToCheckout) -> Unit,
-    shippingFee: Double
+    shippingFee: Double,
 ) {
     val state by viewModel.addToCartState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
-            when(effect) {
+            when (effect) {
                 is AddToCartEffect.NavigateToCheckout -> onNavigate(effect)
-                is AddToCartEffect.ShowToast -> {}
+                is AddToCartEffect.ShowToast -> {
+                    snackbarHostState.showSnackbar(message = effect.message)
+                }
             }
         }
     }
 
-    when(val currentState = state) {
+    when (val currentState = state) {
         AddToCartState.Idle -> {}
         AddToCartState.Loading -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -95,34 +120,35 @@ fun AddToCartScreen(
                     onDismiss = {
                         selectedCart = null
                         showConfirmation = false
-                    }
+                    },
                 )
             }
 
             Column(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
                 ) {
                     Text(
                         text = "Cart",
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color(0xFF111111),
-                        modifier = Modifier.align(Alignment.Center)
+                        modifier = Modifier.align(Alignment.Center),
                     )
                 }
                 BoxWithConstraints(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     val isLandscape = maxWidth > maxHeight
                     if (isLandscape) {
                         LazyColumn(
                             modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 14.dp)
+                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 14.dp),
                         ) {
                             items(items = carts, key = { it.bookId }) { cartItem ->
                                 CartItemView(
@@ -141,7 +167,7 @@ fun AddToCartScreen(
                                         } else {
                                             viewModel.onEvent(AddToCartEvent.DecreaseQuantity(cartItem))
                                         }
-                                    }
+                                    },
                                 )
                             }
                             item {
@@ -156,10 +182,11 @@ fun AddToCartScreen(
                     } else {
                         Column(modifier = Modifier.fillMaxSize()) {
                             LazyColumn(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .fillMaxWidth(),
-                                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp)
+                                modifier =
+                                    Modifier
+                                        .weight(1f)
+                                        .fillMaxWidth(),
+                                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
                             ) {
                                 items(items = carts, key = { it.bookId }) { cartItem ->
                                     CartItemView(
@@ -178,7 +205,7 @@ fun AddToCartScreen(
                                             } else {
                                                 viewModel.onEvent(AddToCartEvent.DecreaseQuantity(cartItem))
                                             }
-                                        }
+                                        },
                                     )
                                 }
                             }
@@ -196,14 +223,19 @@ fun AddToCartScreen(
 }
 
 @Composable
-fun OrderSummary(subTotal: Double, shipping: Double, total: Double, modifier: Modifier = Modifier) {
+fun OrderSummary(
+    subTotal: Double,
+    shipping: Double,
+    total: Double,
+    modifier: Modifier = Modifier,
+) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = "Order Summary",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF222222),
-            modifier = Modifier.padding(bottom = 12.dp)
+            modifier = Modifier.padding(bottom = 12.dp),
         )
         SummaryRow("Subtotal", subTotal)
         Spacer(modifier = Modifier.height(10.dp))
@@ -219,7 +251,10 @@ fun OrderSummary(subTotal: Double, shipping: Double, total: Double, modifier: Mo
 }
 
 @Composable
-fun SummaryRow(label: String, value: Double) {
+fun SummaryRow(
+    label: String,
+    value: Double,
+) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(text = label, fontSize = 14.sp, color = Color(0xFF555555))
         Text(text = "$%.2f".format(value), fontSize = 14.sp, color = Color(0xFF222222))
@@ -227,20 +262,26 @@ fun SummaryRow(label: String, value: Double) {
 }
 
 @Composable
-fun CheckoutButton(enabled: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
+fun CheckoutButton(
+    enabled: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+) {
     Button(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(52.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(52.dp),
         shape = RoundedCornerShape(4.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF111111),
-            contentColor = Color.White,
-            disabledContainerColor = Color(0xFF696969),
-            disabledContentColor = Color.White
-        )
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = Color(0xFF111111),
+                contentColor = Color.White,
+                disabledContainerColor = Color(0xFF696969),
+                disabledContentColor = Color.White,
+            ),
     ) {
         Text(text = "Proceed to Checkout", fontSize = 14.sp)
     }
@@ -251,24 +292,29 @@ fun CartItemView(
     cart: Cart,
     onRemoveClick: () -> Unit,
     onDecreaseClick: () -> Unit,
-    onIncreaseClick: () -> Unit
+    onIncreaseClick: () -> Unit,
 ) {
+    val category = Category(cart.category)
+    val categoryTitle = stringResource(category.titleResource())
+    val categoryImage = category.imageResource()
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp)
-            .padding(bottom = 14.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(150.dp)
+                .padding(bottom = 14.dp),
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFF111111)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
             Box(
-                modifier = Modifier
-                    .width(84.dp)
-                    .fillMaxHeight()
-                    .background(Color(0xFFBDBDBD)),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .width(84.dp)
+                        .fillMaxHeight()
+                        .background(Color(0xFFBDBDBD)),
+                contentAlignment = Alignment.Center,
             ) {
                 if (cart.coverId != 0) {
                     SubcomposeAsyncImage(
@@ -279,65 +325,73 @@ fun CartItemView(
                         loading = {
                             Box(
                                 modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
+                                contentAlignment = Alignment.Center,
                             ) {
                                 CircularProgressIndicator()
                             }
                         },
                         error = {
                             Image(
-                                painter = painterResource(R.drawable.book_cover_img),
+                                painter = painterResource(categoryImage),
                                 contentDescription = cart.title,
                                 modifier = Modifier.fillMaxSize(),
-                                contentScale = ContentScale.Crop
+                                contentScale = ContentScale.Crop,
                             )
-                        }
+                        },
                     )
                 } else {
                     Image(
-                        painter = painterResource(R.drawable.book_cover_img),
+                        painter = painterResource(categoryImage),
                         contentDescription = cart.title,
                         modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop
+                        contentScale = ContentScale.Crop,
                     )
                 }
             }
-            Box(modifier = Modifier
-                .weight(1f)
-                .fillMaxHeight()) {
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 8.dp, top = 12.dp, end = 32.dp)) {
-                    Text(text = cart.category, color = Color(0xFF888888), fontSize = 9.sp)
+            Box(
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
+            ) {
+                Column(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 8.dp, top = 12.dp, end = 32.dp),
+                ) {
+                    Text(text = categoryTitle, color = Color(0xFF888888), fontSize = 9.sp)
                     Text(
                         text = cart.title,
                         color = Color.White,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = cart.author,
                         color = Color(0xFFAAAAAA),
                         fontSize = 8.sp,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 IconButton(
                     onClick = onRemoveClick,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .align(Alignment.TopEnd)
+                    modifier =
+                        Modifier
+                            .size(32.dp)
+                            .align(Alignment.TopEnd),
                 ) {
                     Icon(imageVector = Icons.Default.Close, contentDescription = "Remove", tint = Color.White)
                 }
                 Row(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(start = 8.dp, bottom = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier =
+                        Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(start = 8.dp, bottom = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     QuantityButton(Icons.Default.Remove, onDecreaseClick)
                     Text(
@@ -345,7 +399,7 @@ fun CartItemView(
                         modifier = Modifier.width(24.dp),
                         color = Color.White,
                         fontSize = 12.sp,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                     QuantityButton(Icons.Default.Add, onIncreaseClick)
                 }
@@ -355,26 +409,18 @@ fun CartItemView(
 }
 
 @Composable
-fun QuantityButton(icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+fun QuantityButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit,
+) {
     Box(
-        modifier = Modifier
-            .size(20.dp)
-            .background(color = Color.White, shape = RoundedCornerShape(4.dp))
-            .clickable { onClick() },
-        contentAlignment = Alignment.Center
+        modifier =
+            Modifier
+                .size(20.dp)
+                .background(color = Color.White, shape = RoundedCornerShape(4.dp))
+                .clickable { onClick() },
+        contentAlignment = Alignment.Center,
     ) {
         Icon(imageVector = icon, contentDescription = null, tint = Color(0xFF111111), modifier = Modifier.size(12.dp))
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AddToCartPreview() {
-    BooksRepositoryAppTheme {
-        AddToCartScreen(
-            viewModel = viewModel(),
-            onNavigate = {},
-            shippingFee = 5.0
-        )
     }
 }

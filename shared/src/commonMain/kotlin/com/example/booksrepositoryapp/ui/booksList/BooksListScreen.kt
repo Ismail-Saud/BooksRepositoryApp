@@ -1,7 +1,5 @@
 package com.example.booksrepositoryapp.ui.booksList
 
-import android.os.Build
-import androidx.annotation.RequiresExtension
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -35,11 +33,14 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -48,35 +49,29 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil3.compose.SubcomposeAsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
-import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.domain.model.Book
-import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
+import com.example.booksrepositoryapp.domain.model.Category
+import com.example.booksrepositoryapp.ui.bookCategory.imageResource
+import com.example.booksrepositoryapp.ui.bookCategory.titleResource
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import coil3.compose.SubcomposeAsyncImage
 
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun BooksListScreen(
     viewModel: BooksListViewModel,
     onNavigate: (BooksListEffect.NavigateToBookDetails) -> Unit,
     onBackClick: () -> Unit,
 ) {
-    val state by viewModel.bookState.collectAsStateWithLifecycle()
-    var searchQuery by rememberSaveable {
-        mutableStateOf("")
-    }
-    var showFilterSheet by rememberSaveable {
-        mutableStateOf(false)
-    }
+    val state by viewModel.bookState.collectAsState()
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+    var showFilterSheet by rememberSaveable { mutableStateOf(false) }
+
+    val snackbarHostState = remember { SnackbarHostState() }
+
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
@@ -84,45 +79,48 @@ fun BooksListScreen(
                 is BooksListEffect.NavigateToBookDetails -> onNavigate(effect)
                 BooksListEffect.NavigateBack -> onBackClick()
                 is BooksListEffect.ShowError -> {
-                    // Handle error message, e.g., show a Snackbar
+                    snackbarHostState.showSnackbar(message = effect.message)
                 }
             }
         }
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
         ) {
             IconButton(
                 onClick = { viewModel.onEvent(BooksListEvent.BackClicked) },
-                modifier = Modifier
-                    .size(48.dp)
-                    .align(Alignment.CenterStart)
-                    .padding(start = 8.dp)
+                modifier =
+                    Modifier
+                        .size(48.dp)
+                        .align(Alignment.CenterStart)
+                        .padding(start = 8.dp),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.Black
+                    tint = Color.Black,
                 )
             }
             Text(
                 text = viewModel.title,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
             )
         }
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             OutlinedTextField(
                 value = searchQuery,
@@ -136,78 +134,81 @@ fun BooksListScreen(
                 trailingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = "Search",
                     )
                 },
                 singleLine = true,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             IconButton(
                 onClick = {
                     showFilterSheet = true
-                }
+                },
             ) {
                 Icon(
                     imageVector = Icons.Default.FilterAlt,
-                    contentDescription = "Filter"
+                    contentDescription = "Filter",
                 )
             }
         }
         Spacer(
-            modifier = Modifier.height(8.dp)
+            modifier = Modifier.height(8.dp),
         )
         when (val currentState = state) {
             BooksListState.Idle -> {}
             BooksListState.Loading -> {
                 BooksGridLoading(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
             is BooksListState.Error -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                    contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = currentState.message,
-                        fontSize = 16.sp
+                        fontSize = 16.sp,
                     )
                 }
             }
             is BooksListState.Success -> {
                 if (currentState.books.isEmpty()) {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f),
-                        contentAlignment = Alignment.Center
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = "No books found",
-                            fontSize = 16.sp
+                            fontSize = 16.sp,
                         )
                     }
                 } else {
                     LazyVerticalGrid(
                         columns = GridCells.Fixed(2),
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(4.dp),
+                        modifier =
+                            Modifier
+                                .weight(1f)
+                                .padding(4.dp),
                         contentPadding = PaddingValues(16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(
                             items = currentState.books,
-                            key = { book -> book.id }
+                            key = { book -> book.id },
                         ) { book ->
                             BookCard(
                                 book = book,
                                 onClick = {
                                     viewModel.onEvent(BooksListEvent.BookClicked(book.id))
-                                }
+                                },
                             )
                         }
                     }
@@ -224,7 +225,7 @@ fun BooksListScreen(
             onApply = { min, max ->
                 viewModel.onEvent(BooksListEvent.FilterByPrice(min, max))
                 showFilterSheet = false
-            }
+            },
         )
     }
 }
@@ -232,183 +233,199 @@ fun BooksListScreen(
 @Composable
 fun BookCard(
     book: Book,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
+    val category = Category(book.category)
+    val categoryTitle = stringResource(category.titleResource())
+    val categoryImage = category.imageResource()
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(250.dp)
-            .clickable {
-                onClick()
-            },
-        shape = RoundedCornerShape(8.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(250.dp)
+                .clickable {
+                    onClick()
+                },
+        shape = RoundedCornerShape(8.dp),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(Color.LightGray),
-                contentAlignment = Alignment.Center
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .background(Color.LightGray),
+                contentAlignment = Alignment.Center,
             ) {
-                val imageUrl = if (book.coverId != 0) {
-                    "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg"
-                } else {
-                    null
-                }
+                val imageUrl =
+                    if (book.coverId != 0) {
+                        "https://covers.openlibrary.org/b/id/${book.coverId}-L.jpg"
+                    } else {
+                        null
+                    }
+
                 SubcomposeAsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(imageUrl)
-                        .crossfade(true)
-                        .build(),
+                    model = imageUrl,
                     contentDescription = book.title,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.FillHeight,
                     loading = {
                         Box(
                             modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.Center,
                         ) {
                             CircularProgressIndicator()
                         }
                     },
                     error = {
                         Image(
-                            painter = painterResource(R.drawable.book_cover_img),
+                            painter = painterResource(categoryImage),
                             contentDescription = book.title,
                             modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
+                            contentScale = ContentScale.Crop,
                         )
-                    }
+                    },
                 )
             }
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .background(Color(0xFF151515))
-                    .padding(8.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .background(Color(0xFF151515))
+                        .padding(8.dp),
             ) {
                 Text(
-                    text = book.category.replaceFirstChar { it.uppercaseChar() },
+                    text = categoryTitle,
                     fontSize = 12.sp,
                     color = Color.Gray,
-                    maxLines = 1
+                    maxLines = 1,
                 )
                 Text(
                     text = book.title,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    maxLines = 2
+                    maxLines = 2,
                 )
                 Text(
                     text = book.author,
                     fontSize = 12.sp,
                     color = Color.LightGray,
                     maxLines = 1,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = 4.dp),
                 )
                 Spacer(
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 Text(
                     text = "$${book.price}",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    color = Color.White,
                 )
             }
         }
     }
 }
 
-
 @Composable
-fun BooksGridLoading(
-    modifier: Modifier = Modifier
-) {
-    val transition = rememberInfiniteTransition(
-        label = "shimmer"
-    )
+fun BooksGridLoading(modifier: Modifier = Modifier) {
+    val transition =
+        rememberInfiniteTransition(
+            label = "shimmer",
+        )
     val translateAnimation by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 1000,
-                easing = LinearEasing
+        animationSpec =
+            infiniteRepeatable(
+                animation =
+                    tween(
+                        durationMillis = 1000,
+                        easing = LinearEasing,
+                    ),
+                repeatMode = RepeatMode.Restart,
             ),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "shimmer"
+        label = "shimmer",
     )
-    val shimmerColors = listOf(
-        Color.LightGray.copy(alpha = 0.6f),
-        Color.White.copy(alpha = 0.9f),
-        Color.LightGray.copy(alpha = 0.6f)
-    )
-    val shimmerBrush = Brush.linearGradient(
-        colors = shimmerColors,
-        start = Offset(
-            translateAnimation - 300f,
-            0f
-        ),
-        end = Offset(
-            translateAnimation,
-            0f
+    val shimmerColors =
+        listOf(
+            Color.LightGray.copy(alpha = 0.6f),
+            Color.White.copy(alpha = 0.9f),
+            Color.LightGray.copy(alpha = 0.6f),
         )
-    )
+    val shimmerBrush =
+        Brush.linearGradient(
+            colors = shimmerColors,
+            start =
+                Offset(
+                    translateAnimation - 300f,
+                    0f,
+                ),
+            end =
+                Offset(
+                    translateAnimation,
+                    0f,
+                ),
+        )
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = modifier,
         contentPadding = PaddingValues(16.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(6) {
             Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp),
-                shape = RoundedCornerShape(8.dp)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(250.dp),
+                shape = RoundedCornerShape(8.dp),
             ) {
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                            .background(shimmerBrush)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .height(120.dp)
+                                .background(shimmerBrush),
                     )
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(8.dp)
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .weight(1f)
+                                .padding(8.dp),
                     ) {
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth(0.4f)
-                                .height(12.dp)
-                                .background(shimmerBrush)
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth(0.4f)
+                                    .height(12.dp)
+                                    .background(shimmerBrush),
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth(0.8f)
-                                .height(18.dp)
-                                .background(shimmerBrush)
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth(0.8f)
+                                    .height(18.dp)
+                                    .background(shimmerBrush),
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Box(
-                            modifier = Modifier
-                                .fillMaxWidth(0.6f)
-                                .height(12.dp)
-                                .background(shimmerBrush)
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth(0.6f)
+                                    .height(12.dp)
+                                    .background(shimmerBrush),
                         )
                     }
                 }
@@ -416,17 +433,3 @@ fun BooksGridLoading(
         }
     }
 }
-
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
-@Preview(showBackground = true)
-@Composable
-fun BooksListScreenComposePreview() {
-    BooksRepositoryAppTheme {
-        BooksListScreen(
-            viewModel = viewModel(),
-            onBackClick = {},
-            onNavigate = {}
-        )
-    }
-}
-

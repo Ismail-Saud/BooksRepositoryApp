@@ -46,11 +46,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -80,7 +82,7 @@ import java.io.File
 @Composable
 fun AccountDetailsScreen(
     viewModel: AccountDetailsViewModel,
-    onNavigate: (AccountDetailsEffect) -> Unit
+    onNavigate: (AccountDetailsEffect) -> Unit,
 ) {
     val context = LocalContext.current
     val userState by viewModel.userState.collectAsStateWithLifecycle()
@@ -91,13 +93,16 @@ fun AccountDetailsScreen(
     var showRemovePictureSheet by rememberSaveable { mutableStateOf(false) }
     var showPermissionDeniedToast by rememberSaveable { mutableStateOf(false) }
     var showCameraSettingsSheet by rememberSaveable { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(AccountDetailsEvent.LoadUser)
         viewModel.effect.collect { effect ->
             when (effect) {
                 AccountDetailsEffect.NavigateToLandingPage -> onNavigate(effect)
-                is AccountDetailsEffect.ShowToast -> Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                is AccountDetailsEffect.ShowMessage -> {
+                    snackbarHostState.showSnackbar(message = effect.message)
+                }
                 AccountDetailsEffect.OpenAppSettings -> {
                     showCameraSettingsSheet = true
                 }
@@ -105,15 +110,16 @@ fun AccountDetailsScreen(
         }
     }
 
-    val cameraLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.TakePicture()
-    ) { success ->
-        if (success) {
-            cameraImageUri?.let {
-                viewModel.onEvent(AccountDetailsEvent.ProfilePictureSelected(it.toString()))
+    val cameraLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.TakePicture(),
+        ) { success ->
+            if (success) {
+                cameraImageUri?.let {
+                    viewModel.onEvent(AccountDetailsEvent.ProfilePictureSelected(it.toString()))
+                }
             }
         }
-    }
 
     fun createImageUri(): Uri {
         val fileName = "temp_profile_${System.currentTimeMillis()}.jpg"
@@ -128,28 +134,29 @@ fun AccountDetailsScreen(
         cameraLauncher.launch(uri)
     }
 
-    val cameraPermissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (granted) {
-            openCamera()
-        } else {
-            val activity = context as? Activity
-            val shouldShowRationale = activity?.let {
-                ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.CAMERA)
-            } ?: false
-            if (shouldShowRationale) {
-                showPermissionDeniedToast = true
+    val cameraPermissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { granted ->
+            if (granted) {
+                openCamera()
             } else {
-                viewModel.onEvent(AccountDetailsEvent.CameraPermissionDeniedPermanent)
+                val activity = context as? Activity
+                val shouldShowRationale =
+                    activity?.let {
+                        ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.CAMERA)
+                    } ?: false
+                if (shouldShowRationale) {
+                    showPermissionDeniedToast = true
+                } else {
+                    viewModel.onEvent(AccountDetailsEvent.CameraPermissionDeniedPermanent)
+                }
             }
         }
-    }
 
     fun onCameraClicked() {
         when {
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_GRANTED -> openCamera()
+            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED -> openCamera()
 
             (context as? Activity)?.let {
                 ActivityCompat.shouldShowRequestPermissionRationale(it, Manifest.permission.CAMERA)
@@ -161,17 +168,18 @@ fun AccountDetailsScreen(
         }
     }
 
-    val galleryLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let {
-            viewModel.onEvent(AccountDetailsEvent.ProfilePictureSelected(it.toString()))
+    val galleryLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.PickVisualMedia(),
+        ) { uri ->
+            uri?.let {
+                viewModel.onEvent(AccountDetailsEvent.ProfilePictureSelected(it.toString()))
+            }
         }
-    }
 
     fun onGalleryClicked() {
         galleryLauncher.launch(
-            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
         )
     }
 
@@ -198,47 +206,53 @@ fun AccountDetailsScreen(
             AccountDetailsShimmer(modifier = Modifier.fillMaxSize())
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 item {
                     Text(
                         text = "Account",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = Color.Black,
                     )
                 }
 
                 item {
                     Box(
-                        modifier = Modifier
-                            .padding(top = 32.dp)
-                            .size(90.dp)
-                            .clip(CircleShape)
-                            .background(Color.Black)
-                            .clickable { showPictureSheet = true },
-                        contentAlignment = Alignment.Center
+                        modifier =
+                            Modifier
+                                .padding(top = 32.dp)
+                                .size(90.dp)
+                                .clip(CircleShape)
+                                .background(Color.Black)
+                                .clickable { showPictureSheet = true },
+                        contentAlignment = Alignment.Center,
                     ) {
-                        if (!user?.profilePicture.isNullOrEmpty()) {
-                            val profileFile = File(context.filesDir, user.profilePicture)
+                        val profilePicture = user?.profilePicture
+
+                        if (!profilePicture.isNullOrEmpty()) {
+                            val profileFile = File(context.filesDir, profilePicture)
+
                             if (profileFile.exists()) {
                                 AsyncImage(
                                     model = profileFile,
                                     contentDescription = "Profile",
                                     contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .clip(CircleShape)
+                                    modifier =
+                                        Modifier
+                                            .fillMaxSize()
+                                            .clip(CircleShape),
                                 )
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.AccountCircle,
                                     contentDescription = "Profile",
                                     tint = Color.White,
-                                    modifier = Modifier.size(50.dp)
+                                    modifier = Modifier.size(50.dp),
                                 )
                             }
                         } else {
@@ -246,7 +260,7 @@ fun AccountDetailsScreen(
                                 imageVector = Icons.Default.AccountCircle,
                                 contentDescription = "Profile",
                                 tint = Color.White,
-                                modifier = Modifier.size(50.dp)
+                                modifier = Modifier.size(50.dp),
                             )
                         }
                     }
@@ -255,18 +269,19 @@ fun AccountDetailsScreen(
                 item {
                     AccountInfoCard(
                         label = "Name:",
-                        value = user?.username.toString(),
-                        modifier = Modifier.padding(top = 32.dp)
+                        value = user?.username ?: "No name",
+                        modifier = Modifier.padding(top = 32.dp),
                     )
                     AccountInfoCard(
                         label = "E-mail:",
-                        value = user?.email.toString(),
-                        modifier = Modifier.padding(top = 16.dp)
+                        value = user?.email ?: "No email",
+                        modifier = Modifier.padding(top = 16.dp),
                     )
+
                     AccountInfoCard(
                         label = "Address:",
                         value = selectedAddress?.fullAddress ?: "No address selected",
-                        modifier = Modifier.padding(top = 16.dp)
+                        modifier = Modifier.padding(top = 16.dp),
                     )
                 }
 
@@ -275,16 +290,18 @@ fun AccountDetailsScreen(
                         onClick = {
                             viewModel.onEvent(AccountDetailsEvent.LogoutClicked)
                         },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 8.dp, top = 24.dp)
-                            .height(50.dp),
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(start = 8.dp, top = 24.dp)
+                                .height(50.dp),
                         shape = RoundedCornerShape(8.dp),
                         border = BorderStroke(width = 1.dp, color = Color.Black),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = Color.White,
-                            contentColor = Color.Black
-                        )
+                        colors =
+                            ButtonDefaults.outlinedButtonColors(
+                                containerColor = Color.White,
+                                contentColor = Color.Black,
+                            ),
                     ) {
                         Text(text = "Log out", fontSize = 14.sp)
                     }
@@ -309,7 +326,7 @@ fun AccountDetailsScreen(
                 onRemoveClicked = {
                     showPictureSheet = false
                     showRemovePictureSheet = true
-                }
+                },
             )
         }
     }
@@ -325,7 +342,7 @@ fun AccountDetailsScreen(
             },
             onDismiss = {
                 showRemovePictureSheet = false
-            }
+            },
         )
     }
 
@@ -336,14 +353,15 @@ fun AccountDetailsScreen(
             positiveButtonText = "Open Settings",
             onConfirm = {
                 showCameraSettingsSheet = false
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = Uri.fromParts("package", context.packageName, null)
-                }
+                val intent =
+                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                        data = Uri.fromParts("package", context.packageName, null)
+                    }
                 context.startActivity(intent)
             },
             onDismiss = {
                 showCameraSettingsSheet = false
-            }
+            },
         )
     }
 }
@@ -353,57 +371,64 @@ fun ProfilePictureSheetContent(
     showRemoveOption: Boolean,
     onCameraClicked: () -> Unit,
     onGalleryClicked: () -> Unit,
-    onRemoveClicked: () -> Unit
+    onRemoveClicked: () -> Unit,
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         ListItem(
             headlineContent = { Text("Take a photo") },
             leadingContent = { Icon(Icons.Default.CameraAlt, contentDescription = null) },
-            modifier = Modifier.clickable { onCameraClicked() }
+            modifier = Modifier.clickable { onCameraClicked() },
         )
         ListItem(
             headlineContent = { Text("Choose from gallery") },
             leadingContent = { Icon(Icons.Default.Photo, contentDescription = null) },
-            modifier = Modifier.clickable { onGalleryClicked() }
+            modifier = Modifier.clickable { onGalleryClicked() },
         )
         if (showRemoveOption) {
             ListItem(
                 headlineContent = { Text("Remove photo") },
                 leadingContent = { Icon(Icons.Default.Delete, contentDescription = null) },
-                modifier = Modifier.clickable { onRemoveClicked() }
+                modifier = Modifier.clickable { onRemoveClicked() },
             )
         }
     }
 }
 
 @Composable
-fun AccountInfoCard(label: String, value: String, modifier: Modifier = Modifier) {
+fun AccountInfoCard(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+) {
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = 55.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .heightIn(min = 55.dp),
         shape = RoundedCornerShape(6.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.Top
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+            verticalAlignment = Alignment.Top,
         ) {
             Text(
                 text = label,
-                modifier = Modifier
-                    .width(80.dp)
-                    .align(Alignment.CenterVertically),
-                color = Color.Black
+                modifier =
+                    Modifier
+                        .width(80.dp)
+                        .align(Alignment.CenterVertically),
+                color = Color.Black,
             )
             Text(
                 text = value,
                 modifier = Modifier.weight(1f),
                 color = Color.Black,
                 maxLines = 3,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
             )
         }
     }
@@ -414,71 +439,78 @@ fun AccountDetailsShimmer(modifier: Modifier = Modifier) {
     val shimmerBrush = rememberShimmerBrush()
 
     Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier =
+            modifier
+                .fillMaxSize()
+                .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            modifier = Modifier
-                .padding(top = 4.dp)
-                .size(width = 90.dp, height = 20.dp)
-                .clip(RoundedCornerShape(4.dp))
-                .background(shimmerBrush)
+            modifier =
+                Modifier
+                    .padding(top = 4.dp)
+                    .size(width = 90.dp, height = 20.dp)
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(shimmerBrush),
         )
 
         Box(
-            modifier = Modifier
-                .padding(top = 32.dp)
-                .size(90.dp)
-                .clip(CircleShape)
-                .background(shimmerBrush)
+            modifier =
+                Modifier
+                    .padding(top = 32.dp)
+                    .size(90.dp)
+                    .clip(CircleShape)
+                    .background(shimmerBrush),
         )
 
         repeat(3) { index ->
             Box(
-                modifier = Modifier
-                    .padding(top = if (index == 0) 32.dp else 16.dp)
-                    .fillMaxWidth()
-                    .heightIn(min = 55.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(shimmerBrush)
+                modifier =
+                    Modifier
+                        .padding(top = if (index == 0) 32.dp else 16.dp)
+                        .fillMaxWidth()
+                        .heightIn(min = 55.dp)
+                        .clip(RoundedCornerShape(6.dp))
+                        .background(shimmerBrush),
             )
         }
         Box(
-            modifier = Modifier
-                .padding(start = 8.dp, top = 24.dp)
-                .fillMaxWidth()
-                .height(50.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(shimmerBrush)
+            modifier =
+                Modifier
+                    .padding(start = 8.dp, top = 24.dp)
+                    .fillMaxWidth()
+                    .height(50.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(shimmerBrush),
         )
     }
 }
 
 @Composable
 private fun rememberShimmerBrush(): Brush {
-    val shimmerColors = listOf(
-        Color.LightGray.copy(alpha = 0.6f),
-        Color.LightGray.copy(alpha = 0.2f),
-        Color.LightGray.copy(alpha = 0.6f)
-    )
+    val shimmerColors =
+        listOf(
+            Color.LightGray.copy(alpha = 0.6f),
+            Color.LightGray.copy(alpha = 0.2f),
+            Color.LightGray.copy(alpha = 0.6f),
+        )
 
     val transition = rememberInfiniteTransition(label = "shimmer")
     val translateAnim by transition.animateFloat(
         initialValue = 0f,
         targetValue = 1000f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1200, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "shimmerTranslate"
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(durationMillis = 1200, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
+        label = "shimmerTranslate",
     )
 
     return Brush.linearGradient(
         colors = shimmerColors,
         start = Offset(translateAnim - 500f, translateAnim - 500f),
-        end = Offset(translateAnim, translateAnim)
+        end = Offset(translateAnim, translateAnim),
     )
 }
 
@@ -488,7 +520,7 @@ fun AddToCartPreview() {
     BooksRepositoryAppTheme {
         AccountDetailsScreen(
             viewModel = viewModel(),
-            onNavigate = {}
+            onNavigate = {},
         )
     }
 }

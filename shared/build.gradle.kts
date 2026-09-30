@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.android.kotlin.multiplatform.library)
     alias(libs.plugins.android.lint)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.kotlin.compose)
 }
 
 kotlin {
@@ -55,8 +57,8 @@ kotlin {
                 api(libs.androidx.lifecycle.viewmodel)
                 api(libs.androidx.lifecycle.runtime)
 
-                implementation(libs.kotlin.stdlib)
-                implementation(libs.kotlinx.coroutines.core)
+                api(libs.kotlin.stdlib)
+                api(libs.kotlinx.coroutines.core)
 
                 // Ktor
                 implementation(libs.ktor.client.core)
@@ -64,10 +66,23 @@ kotlin {
                 implementation(libs.ktor.serialization.kotlinx.json)
                 implementation(libs.ktor.client.logging)
 
+                // Coil
+                implementation(libs.coil.compose)
+                implementation(libs.coil.network.ktor3)
+
                 // Koin
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
+
+                api(compose.runtime)
+                api(compose.foundation)
+                api(compose.material3)
+                api(compose.ui)
+
+                api(compose.components.resources)
+
+                api(compose.materialIconsExtended)
             }
         }
 

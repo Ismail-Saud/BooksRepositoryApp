@@ -1,6 +1,5 @@
 package com.example.booksrepositoryapp.ui.bookCategory
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +21,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,29 +34,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.booksrepositoryapp.R
 import com.example.booksrepositoryapp.domain.model.Category
-import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun BookCategoryScreen(
     viewModel: BooksCategoryViewModel,
-    onNavigate: (BooksCategoryEffect.NavigateToBooksList) -> Unit
+    onNavigate: (BooksCategoryEffect.NavigateToBooksList) -> Unit,
 ) {
     val state by viewModel.categoryState.collectAsState()
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is BooksCategoryEffect.ShowError -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                    snackbarHostState.showSnackbar(message = effect.message)
                 }
                 is BooksCategoryEffect.NavigateToBooksList -> {
                     onNavigate(effect)
@@ -77,7 +74,7 @@ fun BookCategoryScreen(
                 onSearchQueryChanged = { viewModel.onEvent(BooksCategoryEvent.SearchQueryChanged(it)) },
                 onCategoryClicked = { apiValue, title ->
                     viewModel.onEvent(BooksCategoryEvent.CategoryClicked(apiValue, title))
-                }
+                },
             )
         }
 
@@ -100,12 +97,12 @@ fun BookCategoryScreen(
 fun BookCategoryContent(
     categories: List<Category>,
     onSearchQueryChanged: (String) -> Unit,
-    onCategoryClicked: (String, String) -> Unit
+    onCategoryClicked: (String, String) -> Unit,
 ) {
     var searchQuery by remember { mutableStateOf("") }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         OutlinedTextField(
             value = searchQuery,
@@ -117,9 +114,10 @@ fun BookCategoryContent(
             trailingIcon = {
                 Icon(Icons.Default.Search, contentDescription = "Search")
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp, 16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp, 16.dp),
         )
 
         LazyVerticalGrid(
@@ -127,12 +125,12 @@ fun BookCategoryContent(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             items(categories) { category ->
                 CategoryCard(
                     category = category,
-                    onClick = { onCategoryClicked(category.apiValue, category.title) }
+                    onCategoryClicked = onCategoryClicked,
                 )
             }
         }
@@ -142,50 +140,38 @@ fun BookCategoryContent(
 @Composable
 fun CategoryCard(
     category: Category,
-    onClick: () -> Unit
+    onCategoryClicked: (String, String) -> Unit,
 ) {
-    val context = LocalContext.current
-    val imageResId = remember(category.imageName) {
-        val id = context.resources.getIdentifier(category.imageName, "drawable", context.packageName)
-        if (id != 0) id else R.drawable.fantasy_bg
-    }
+    val title = stringResource(category.titleResource())
+    val image = category.imageResource()
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(120.dp)
-            .clickable { onClick() },
-        elevation = CardDefaults.cardElevation(4.dp)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .clickable { onCategoryClicked(category.apiValue, title) },
+        elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Box {
             Image(
-                painter = painterResource(imageResId),
-                contentDescription = category.title,
+                painter = painterResource(image),
+                contentDescription = title,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
-                alpha = 0.7f
+                alpha = 0.7f,
             )
 
             Text(
-                text = category.title,
+                text = title,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(12.dp)
+                modifier =
+                    Modifier
+                        .align(Alignment.Center)
+                        .padding(12.dp),
             )
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun BooksCategoryScreenComposePreview() {
-    BooksRepositoryAppTheme {
-        BookCategoryContent(
-            categories = emptyList(),
-            onSearchQueryChanged = {},
-            onCategoryClicked = { _, _ -> }
-        )
     }
 }

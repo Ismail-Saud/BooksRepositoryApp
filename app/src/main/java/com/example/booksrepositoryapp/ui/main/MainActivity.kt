@@ -1,11 +1,9 @@
 package com.example.booksrepositoryapp.ui.main
 
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -14,8 +12,6 @@ import androidx.navigation.compose.rememberNavController
 import com.example.booksrepositoryapp.navigation.AppNavigation
 
 class MainActivity : ComponentActivity() {
-
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
@@ -25,7 +21,7 @@ class MainActivity : ComponentActivity() {
             val navControllerCompose = rememberNavController()
             AppNavigation(
                 navController = navControllerCompose,
-                modifier = Modifier.safeDrawingPadding()
+                modifier = Modifier.safeDrawingPadding(),
             )
         }
     }

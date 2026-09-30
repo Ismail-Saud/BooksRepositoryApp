@@ -58,7 +58,9 @@ class BookDetailsViewModel (
         val userId = authRepo.getCurrentUserId() ?: ""
         val state = _bookDetailState.value
         if (state is BookDetailsState.Success && state.books != null) {
+            if (state.isAddingToCart) return
             val book = state.books
+            _bookDetailState.value = state.copy(isAddingToCart = true)
             val cart = Cart(
                 bookId = book.id,
                 title = book.title,
@@ -69,8 +71,17 @@ class BookDetailsViewModel (
                 quantity = 1
             )
             viewModelScope.launch {
-                cartRepo.insertCartItem(userId, cart)
-                _effect.send(BookDetailsEffect.ShowToast("Added to Cart"))
+                try {
+                    cartRepo.insertCartItem(userId, cart)
+                    _effect.send(BookDetailsEffect.ShowMessage("Added to Cart"))
+                } catch (e: Exception) {
+                    _effect.send(BookDetailsEffect.ShowMessage(e.message ?: "Failed to add to cart"))
+                } finally {
+                    val currentState = _bookDetailState.value
+                    if (currentState is BookDetailsState.Success) {
+                        _bookDetailState.value = currentState.copy(isAddingToCart = false)
+                    }
+                }
             }
         }
     }

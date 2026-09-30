@@ -4,5 +4,5 @@ sealed class GetStartedEffect {
     object NavigateToHome: GetStartedEffect()
     object NavigateBack: GetStartedEffect()
     object NavigateToRegister: GetStartedEffect()
-    data class ShowToast(val message: String): GetStartedEffect()
+    data class ShowMessage(val message: String): GetStartedEffect()
 }

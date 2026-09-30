@@ -6,5 +6,8 @@ sealed class BookDetailsState {
     object Idle: BookDetailsState()
     object Loading: BookDetailsState()
     data class Error(val message: String): BookDetailsState()
-    data class Success(val books: Book?): BookDetailsState()
+    data class Success(
+        val books: Book?,
+        val isAddingToCart: Boolean = false,
+    ): BookDetailsState()
 }

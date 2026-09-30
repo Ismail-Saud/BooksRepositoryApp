@@ -23,7 +23,7 @@ class BooksRepositoryApp : Application() {
                 networkModule,
                 repositoryModule,
                 roomModule,
-                commonViewModelModule
+                commonViewModelModule,
             )
         }
     }

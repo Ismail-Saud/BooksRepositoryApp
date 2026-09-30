@@ -1,8 +1,6 @@
 package com.example.booksrepositoryapp.navigation
 
 import android.net.Uri
-import android.os.Build
-import androidx.annotation.RequiresExtension
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -58,34 +56,37 @@ import com.google.firebase.remoteconfig.remoteConfig
 import com.google.firebase.remoteconfig.remoteConfigSettings
 import org.koin.compose.viewmodel.koinViewModel
 
-@RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
 @Composable
 fun AppNavigation(
     navController: NavHostController,
-    modifier: Modifier
+    modifier: Modifier,
 ) {
     val remoteConfig = Firebase.remoteConfig
     LaunchedEffect(Unit) {
-        val configSettings = remoteConfigSettings {
-            minimumFetchIntervalInSeconds = 0
-        }
+        val configSettings =
+            remoteConfigSettings {
+                minimumFetchIntervalInSeconds = 0
+            }
         remoteConfig.setConfigSettingsAsync(configSettings)
-        remoteConfig.setDefaultsAsync(mapOf(
-            "max_addresses" to 5L,
-            "checkout_enabled" to true,
-            "shipping_fee" to 5.0,
-            "is_maintenance_mode" to false
-        ))
+        remoteConfig.setDefaultsAsync(
+            mapOf(
+                "max_addresses" to 5L,
+                "checkout_enabled" to true,
+                "shipping_fee" to 5.0,
+                "is_maintenance_mode" to false,
+            ),
+        )
         remoteConfig.fetchAndActivate()
     }
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
-    val bottomBarRoutes = setOf(
-        Routes.BooksCategory.route,
-        Routes.BooksList.route,
-        Routes.AddToCart.route,
-        Routes.Account.route
-    )
+    val bottomBarRoutes =
+        setOf(
+            Routes.BooksCategory.route,
+            Routes.BooksList.route,
+            Routes.AddToCart.route,
+            Routes.Account.route,
+        )
     val isLoggedIn = FirebaseAuth.getInstance().currentUser != null
     val isMaintenanceModeByRemote = remoteConfig.getBoolean("is_maintenance_mode")
 
@@ -96,12 +97,14 @@ fun AppNavigation(
             bottomBar = {
                 AnimatedVisibility(
                     visible = currentRoute in bottomBarRoutes,
-                    enter = slideInVertically(
-                        initialOffsetY = { it }
-                    ) + fadeIn(),
-                    exit = slideOutVertically(
-                        targetOffsetY = { it }
-                    ) + fadeOut()
+                    enter =
+                        slideInVertically(
+                            initialOffsetY = { it },
+                        ) + fadeIn(),
+                    exit =
+                        slideOutVertically(
+                            targetOffsetY = { it },
+                        ) + fadeOut(),
                 ) {
                     NavigationBar {
                         NavigationBarItem(
@@ -118,12 +121,12 @@ fun AppNavigation(
                             icon = {
                                 Icon(
                                     Default.Home,
-                                    contentDescription = "Home"
+                                    contentDescription = "Home",
                                 )
                             },
                             label = {
                                 Text("Home")
-                            }
+                            },
                         )
                         NavigationBarItem(
                             selected = currentRoute == Routes.AddToCart.route,
@@ -139,12 +142,12 @@ fun AppNavigation(
                             icon = {
                                 Icon(
                                     Default.ShoppingCart,
-                                    contentDescription = "Cart"
+                                    contentDescription = "Cart",
                                 )
                             },
                             label = {
                                 Text("Cart")
-                            }
+                            },
                         )
                         NavigationBarItem(
                             selected = currentRoute == Routes.Account.route,
@@ -160,25 +163,26 @@ fun AppNavigation(
                             icon = {
                                 Icon(
                                     Default.Person,
-                                    contentDescription = "Account"
+                                    contentDescription = "Account",
                                 )
                             },
                             label = {
                                 Text("Account")
-                            }
+                            },
                         )
                     }
                 }
-            }
+            },
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = if (isLoggedIn) {
-                    Routes.BooksCategory.route
-                } else {
-                    Routes.LandingPage.route
-                },
-                modifier = Modifier.padding(innerPadding)
+                startDestination =
+                    if (isLoggedIn) {
+                        Routes.BooksCategory.route
+                    } else {
+                        Routes.LandingPage.route
+                    },
+                modifier = Modifier.padding(innerPadding),
             ) {
                 composable(Routes.LandingPage.route) {
                     LandingPageScreen(
@@ -187,7 +191,7 @@ fun AppNavigation(
                         },
                         onGetStartedClick = {
                             navController.navigate(Routes.GetStarted.route)
-                        }
+                        },
                     )
                 }
                 composable(Routes.GetStarted.route) {
@@ -235,7 +239,7 @@ fun AppNavigation(
                                 }
                                 else -> {}
                             }
-                        }
+                        },
                     )
                 }
                 composable(Routes.BooksCategory.route) {
@@ -244,9 +248,9 @@ fun AppNavigation(
                         viewModel = viewModel,
                         onNavigate = { effect ->
                             navController.navigate(
-                                Routes.BooksList.createRoute(effect.apiValue, effect.title)
+                                Routes.BooksList.createRoute(effect.apiValue, effect.title),
                             )
-                        }
+                        },
                     )
                 }
                 composable(Routes.BooksList.route) {
@@ -259,9 +263,9 @@ fun AppNavigation(
                         onNavigate = { effect ->
                             val cleanedWorkId = Uri.encode(effect.workId)
                             navController.navigate(
-                                Routes.BookDetails.createRoute(cleanedWorkId)
+                                Routes.BookDetails.createRoute(cleanedWorkId),
                             )
-                        }
+                        },
                     )
                 }
                 composable(Routes.BookDetails.route) {
@@ -270,7 +274,7 @@ fun AppNavigation(
                         viewModel = viewModel,
                         onBackClick = {
                             navController.navigateUp()
-                        }
+                        },
                     )
                 }
                 composable(Routes.AddToCart.route) {
@@ -280,9 +284,9 @@ fun AppNavigation(
                         shippingFee = remoteConfig.getDouble("shipping_fee"),
                         onNavigate = { effect ->
                             navController.navigate(
-                                Routes.Checkout.createRoute(effect.total)
+                                Routes.Checkout.createRoute(effect.total),
                             )
-                        }
+                        },
                     )
                 }
                 composable(Routes.Checkout.route) { backStackEntry ->
@@ -296,22 +300,24 @@ fun AppNavigation(
                             when (effect) {
                                 CheckoutEffect.NavigateBack -> navController.navigateUp()
                                 CheckoutEffect.NavigateToAddressList -> navController.navigate(Routes.AddressList.route)
-                                CheckoutEffect.NavigateToSuccess -> navController.navigate(Routes.Success.route)
+                                CheckoutEffect.NavigateToSuccess -> {
+                                    navController.navigate(Routes.Success.route) {
+                                        popUpTo(Routes.BooksCategory.route) {
+                                            inclusive = false
+                                        }
+                                        launchSingleTop = true
+                                    }
+                                }
                                 else -> {}
                             }
-                        }
+                        },
                     )
                 }
-                composable(Routes.Success.route){
+                composable(Routes.Success.route) {
                     SuccessScreenCompose(
                         onGoToHome = {
-                            navController.navigate(Routes.BooksCategory.route) {
-                                popUpTo(Routes.AddToCart.route) {
-                                    inclusive = true
-                                }
-                                launchSingleTop = true
-                            }
-                        }
+                            navController.popBackStack()
+                        },
                     )
                 }
                 composable(Routes.AddressList.route) {
@@ -321,7 +327,7 @@ fun AppNavigation(
                         maxAddresses = remoteConfig.getLong("max_addresses"),
                         onBackClick = {
                             navController.navigateUp()
-                        }
+                        },
                     )
                 }
                 composable(Routes.Account.route) {
@@ -335,7 +341,7 @@ fun AppNavigation(
                                     restoreState = false
                                 }
                             }
-                        }
+                        },
                     )
                 }
             }

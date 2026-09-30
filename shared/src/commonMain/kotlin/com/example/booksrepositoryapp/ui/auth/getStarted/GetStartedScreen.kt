@@ -1,6 +1,5 @@
 package com.example.booksrepositoryapp.ui.auth.getStarted
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +26,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,36 +38,35 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.booksrepositoryapp.ui.theme.BooksRepositoryAppTheme
 
 @Composable
 fun GetStartedScreen(
     viewModel: GetStartedViewModel,
-    onNavigate: (GetStartedEffect) -> Unit
+    onNavigate: (GetStartedEffect) -> Unit,
 ) {
     val getStartedState by viewModel.getStartedState.collectAsState()
-    val context = LocalContext.current
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val isLoading = getStartedState is GetStartedState.Loading
+
+
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is GetStartedEffect.ShowToast -> {
-                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                is GetStartedEffect.ShowMessage -> {
+                    snackbarHostState.showSnackbar(message = effect.message)
                 }
                 else -> onNavigate(effect)
             }
@@ -75,28 +74,31 @@ fun GetStartedScreen(
     }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(vertical = 10.dp)
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.surface)
+                .padding(vertical = 10.dp),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .height(40.dp),
         ) {
             IconButton(
                 onClick = {
                     viewModel.onEvent(GetStartedEvent.BackClicked)
                 },
-                modifier = Modifier
-                    .padding(start = 8.dp)
-                    .align(Alignment.TopStart)
+                modifier =
+                    Modifier
+                        .padding(start = 8.dp)
+                        .align(Alignment.TopStart),
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color(0xFF111111)
+                    tint = Color(0xFF111111),
                 )
             }
             Text(
@@ -104,20 +106,21 @@ fun GetStartedScreen(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color(0xFF111111),
-                modifier = Modifier.align(Alignment.Center)
+                modifier = Modifier.align(Alignment.Center),
             )
         }
         Text(
             text = "Please fill your details to login.",
             fontSize = 12.sp,
             color = Color(0xFF333333),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 24.dp,
-                    end = 24.dp,
-                    top = 64.dp
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 24.dp,
+                        end = 24.dp,
+                        top = 64.dp,
+                    ),
         )
         OutlinedTextField(
             value = email,
@@ -128,25 +131,28 @@ fun GetStartedScreen(
                 Text("Username/email")
             },
             singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email
-            ),
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color(0xFFDDDDDD),
-                focusedContainerColor = Color(0xFFDDDDDD),
-                unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Color(0xFF111111),
-                unfocusedLabelColor = Color(0xFF555555),
-                focusedLabelColor = Color(0xFF111111)
-            ),
+            keyboardOptions =
+                KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                ),
+            colors =
+                OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color(0xFFDDDDDD),
+                    focusedContainerColor = Color(0xFFDDDDDD),
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedBorderColor = Color(0xFF111111),
+                    unfocusedLabelColor = Color(0xFF555555),
+                    focusedLabelColor = Color(0xFF111111),
+                ),
             shape = RoundedCornerShape(5.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 24.dp,
-                    end = 24.dp,
-                    top = 28.dp
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 24.dp,
+                        end = 24.dp,
+                        top = 28.dp,
+                    ),
         )
         OutlinedTextField(
             value = password,
@@ -157,70 +163,76 @@ fun GetStartedScreen(
                 Text("Password")
             },
             singleLine = true,
-            visualTransformation = if (passwordVisible) {
-                VisualTransformation.None
-            } else {
-                PasswordVisualTransformation()
-            },
+            visualTransformation =
+                if (passwordVisible) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation()
+                },
             trailingIcon = {
                 IconButton(
                     onClick = {
                         passwordVisible = !passwordVisible
-                    }
+                    },
                 ) {
                     Icon(
-                        imageVector = if (passwordVisible) {
-                            Icons.Default.Visibility
-                        } else {
-                            Icons.Default.VisibilityOff
-                        },
-                        contentDescription = "Toggle password"
+                        imageVector =
+                            if (passwordVisible) {
+                                Icons.Default.Visibility
+                            } else {
+                                Icons.Default.VisibilityOff
+                            },
+                        contentDescription = "Toggle password",
                     )
                 }
             },
-            colors = OutlinedTextFieldDefaults.colors(
-                unfocusedContainerColor = Color(0xFFDDDDDD),
-                focusedContainerColor = Color(0xFFDDDDDD),
-                unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = Color(0xFF111111),
-                unfocusedLabelColor = Color(0xFF555555),
-                focusedLabelColor = Color(0xFF111111)
-            ),
+            colors =
+                OutlinedTextFieldDefaults.colors(
+                    unfocusedContainerColor = Color(0xFFDDDDDD),
+                    focusedContainerColor = Color(0xFFDDDDDD),
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedBorderColor = Color(0xFF111111),
+                    unfocusedLabelColor = Color(0xFF555555),
+                    focusedLabelColor = Color(0xFF111111),
+                ),
             shape = RoundedCornerShape(5.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 24.dp,
-                    end = 24.dp,
-                    top = 18.dp
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 24.dp,
+                        end = 24.dp,
+                        top = 18.dp,
+                    ),
         )
         Button(
             onClick = {
                 viewModel.onEvent(GetStartedEvent.GetStartedClicked(email, password))
             },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 24.dp,
-                    end = 24.dp,
-                    top = 24.dp
-                ),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 24.dp,
+                        end = 24.dp,
+                        top = 24.dp,
+                    ),
             shape = RoundedCornerShape(6.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF111111),
-                contentColor = Color.White
-            ),
-            enabled = !isLoading
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF111111),
+                    contentColor = Color.White,
+                ),
+            enabled = !isLoading,
         ) {
             if (isLoading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(12.dp)
+                    modifier = Modifier.size(12.dp),
                 )
             } else {
                 Text(
                     text = "Get Started",
-                    fontSize = 12.sp
+                    fontSize = 12.sp,
                 )
             }
         }
@@ -228,40 +240,43 @@ fun GetStartedScreen(
             text = "forgot password?",
             fontSize = 11.sp,
             color = Color(0xFF222222),
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 22.dp)
-                .clickable {}
+            modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 22.dp)
+                    .clickable {},
         )
         Spacer(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         Row(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(bottom = 20.dp),
+            modifier =
+                Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 20.dp),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
                 text = "New member? ",
                 fontSize = 15.sp,
-                color = Color(0xFF111111)
+                color = Color(0xFF111111),
             )
             Text(
                 text = "Register",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 color = if (isLoading) Color.Gray else Color(0xFF022BFF),
-                modifier = Modifier.then(
-                    if (!isLoading) {
-                        Modifier.clickable {
-                            viewModel.onEvent(GetStartedEvent.RegisterClicked)
-                        }
-                    } else {
-                        Modifier
-                    }
-                )
+                modifier =
+                    Modifier.then(
+                        if (!isLoading) {
+                            Modifier.clickable {
+                                viewModel.onEvent(GetStartedEvent.RegisterClicked)
+                            }
+                        } else {
+                            Modifier
+                        },
+                    ),
             )
         }
     }

@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.*
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -34,33 +34,34 @@ fun ConfirmationBottomSheetCompose(
     message: String,
     positiveButtonText: String,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        containerColor = Color.White
+        containerColor = Color.White,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 24.dp,
-                    end = 24.dp,
-                    top = 8.dp,
-                    bottom = 24.dp
-                )
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 24.dp,
+                        end = 24.dp,
+                        top = 8.dp,
+                        bottom = 24.dp,
+                    ),
         ) {
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 IconButton(
                     onClick = onDismiss,
-                    modifier = Modifier.align(Alignment.TopEnd)
+                    modifier = Modifier.align(Alignment.TopEnd),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
-                        tint = Color.Black
+                        tint = Color.Black,
                     )
                 }
             }
@@ -69,28 +70,28 @@ fun ConfirmationBottomSheetCompose(
                 text = title,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF111111)
+                color = Color(0xFF111111),
             )
             Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = message,
                 fontSize = 15.sp,
                 color = Color(0xFF555555),
-                lineHeight = 22.sp
+                lineHeight = 22.sp,
             )
             Spacer(modifier = Modifier.height(24.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 OutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(6.dp)
+                    shape = RoundedCornerShape(6.dp),
                 ) {
                     Text(
                         text = "Cancel",
-                        color = Color(0xFF111111)
+                        color = Color(0xFF111111),
                     )
                 }
                 Button(
@@ -100,13 +101,14 @@ fun ConfirmationBottomSheetCompose(
                     },
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(6.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF111111),
-                        contentColor = Color.White
-                    )
+                    colors =
+                        ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF111111),
+                            contentColor = Color.White,
+                        ),
                 ) {
                     Text(
-                        text = positiveButtonText
+                        text = positiveButtonText,
                     )
                 }
             }
@@ -123,7 +125,7 @@ fun ConfirmationBottomSheetComposePreview() {
             message = "Delete all addresses",
             positiveButtonText = "Delete",
             onConfirm = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }
