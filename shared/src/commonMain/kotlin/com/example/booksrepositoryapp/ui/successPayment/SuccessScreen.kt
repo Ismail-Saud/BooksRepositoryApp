@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun SuccessScreenCompose(onGoToHome: () -> Unit) {
+fun SuccessScreen(onGoToHome: () -> Unit) {
 
     Box(
         modifier =

@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 
 @Composable
-fun LoadingScreenCompose(showDialog: Boolean) {
+fun LoadingScreen(showDialog: Boolean) {
     if (showDialog) {
         Dialog(
             onDismissRequest = {},

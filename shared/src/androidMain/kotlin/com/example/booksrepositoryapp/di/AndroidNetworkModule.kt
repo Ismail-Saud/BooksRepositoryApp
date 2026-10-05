@@ -1,6 +1,8 @@
 package com.example.booksrepositoryapp.di
 
 import com.example.booksrepositoryapp.helper.AndroidLocationHelper
+import com.example.booksrepositoryapp.helper.cameraHelper.AndroidCameraHelper
+import com.example.booksrepositoryapp.helper.cameraHelper.CameraHelper
 import com.example.booksrepositoryapp.helper.locationHelper.LocationHelper
 import com.example.booksrepositoryapp.helper.networkHelper.AndroidNetworkHelper
 import com.example.booksrepositoryapp.helper.networkHelper.NetworkHelper
@@ -13,5 +15,8 @@ val androidNetworkModule = module {
     }
     single<LocationHelper> {
         AndroidLocationHelper(androidContext())
+    }
+    single<CameraHelper> {
+        AndroidCameraHelper(androidContext())
     }
 }

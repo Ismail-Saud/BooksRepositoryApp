@@ -85,7 +85,6 @@ androidx-test-core = { group = "androidx.test", name = "core", version.ref = "an
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
 kotlin-test = { group = "org.jetbrains.kotlin", name = "kotlin-test", version.ref = "kotlinTest" }
-compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,6 +1,5 @@
 package com.example.booksrepositoryapp.ui.addToCart
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,6 +36,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -44,20 +44,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.SubcomposeAsyncImage
 import com.example.booksrepositoryapp.domain.model.Cart
 import com.example.booksrepositoryapp.domain.model.Category
 import com.example.booksrepositoryapp.ui.bookCategory.imageResource
 import com.example.booksrepositoryapp.ui.bookCategory.titleResource
-import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheetCompose
+import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheet
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -67,159 +66,168 @@ fun AddToCartScreen(
     onNavigate: (AddToCartEffect.NavigateToCheckout) -> Unit,
     shippingFee: Double,
 ) {
-    val state by viewModel.addToCartState.collectAsStateWithLifecycle()
-    val context = LocalContext.current
+    val state by viewModel.addToCartState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is AddToCartEffect.NavigateToCheckout -> onNavigate(effect)
-                is AddToCartEffect.ShowToast -> {
+                is AddToCartEffect.ShowMessage -> {
                     snackbarHostState.showSnackbar(message = effect.message)
                 }
             }
         }
     }
 
-    when (val currentState = state) {
-        AddToCartState.Idle -> {}
-        AddToCartState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = Color(0xFF111111))
-            }
-        }
-
-        is AddToCartState.Error -> {
-            Toast.makeText(context, currentState.message, Toast.LENGTH_SHORT).show()
-        }
-
-        is AddToCartState.Success -> {
-            val carts = currentState.cart
-            val subTotal = carts.sumOf { it.price * it.quantity }
-            val shipping = if (carts.isEmpty()) 0.0 else shippingFee
-            val total = subTotal + shipping
-            var showConfirmation by remember {
-                mutableStateOf(false)
-            }
-            var selectedCart by remember {
-                mutableStateOf<Cart?>(null)
-            }
-            if (showConfirmation && selectedCart != null) {
-                ConfirmationBottomSheetCompose(
-                    title = "Remove Item",
-                    message = "Remove this item from your cart?",
-                    positiveButtonText = "Remove",
-                    onConfirm = {
-                        selectedCart?.let { cartItem ->
-                            viewModel.onEvent(AddToCartEvent.RemoveItem(cartItem))
-                        }
-                        selectedCart = null
-                        showConfirmation = false
-                    },
-                    onDismiss = {
-                        selectedCart = null
-                        showConfirmation = false
-                    },
-                )
-            }
-
-            Column(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .height(48.dp),
-                ) {
-                    Text(
-                        text = "Cart",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF111111),
-                        modifier = Modifier.align(Alignment.Center),
-                    )
+    Box(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        when (val currentState = state) {
+                AddToCartState.Idle -> {}
+                AddToCartState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color(0xFF111111))
+                    }
                 }
-                BoxWithConstraints(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    val isLandscape = maxWidth > maxHeight
-                    if (isLandscape) {
-                        LazyColumn(
-                            modifier = Modifier.fillMaxSize(),
-                            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 14.dp),
-                        ) {
-                            items(items = carts, key = { it.bookId }) { cartItem ->
-                                CartItemView(
-                                    cart = cartItem,
-                                    onRemoveClick = {
-                                        selectedCart = cartItem
-                                        showConfirmation = true
-                                    },
-                                    onIncreaseClick = {
-                                        viewModel.onEvent(AddToCartEvent.IncreaseQuantity(cartItem))
-                                    },
-                                    onDecreaseClick = {
-                                        if (cartItem.quantity == 1) {
-                                            selectedCart = cartItem
-                                            showConfirmation = true
-                                        } else {
-                                            viewModel.onEvent(AddToCartEvent.DecreaseQuantity(cartItem))
-                                        }
-                                    },
-                                )
-                            }
-                            item {
-                                OrderSummary(subTotal, shipping, total)
-                            }
-                            item {
-                                CheckoutButton(carts.isNotEmpty()) {
-                                    viewModel.onEvent(AddToCartEvent.ProceedToCheckout(total))
+
+                is AddToCartState.Error -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = currentState.message,
+                            color = Color.Red,
+                            fontSize = 16.sp,
+                        )
+                    }
+                }
+
+                is AddToCartState.Success -> {
+                    val carts = currentState.cart
+                    val subTotal = carts.sumOf { it.price * it.quantity }
+                    val shipping = if (carts.isEmpty()) 0.0 else shippingFee
+                    val total = subTotal + shipping
+                    var showConfirmation by remember {
+                        mutableStateOf(false)
+                    }
+                    var selectedCart by remember {
+                        mutableStateOf<Cart?>(null)
+                    }
+                    if (showConfirmation && selectedCart != null) {
+                        ConfirmationBottomSheet(
+                            title = "Remove Item",
+                            message = "Remove this item from your cart?",
+                            positiveButtonText = "Remove",
+                            onConfirm = {
+                                selectedCart?.let { cartItem ->
+                                    viewModel.onEvent(AddToCartEvent.RemoveItem(cartItem))
                                 }
-                            }
+                                selectedCart = null
+                                showConfirmation = false
+                            },
+                            onDismiss = {
+                                selectedCart = null
+                                showConfirmation = false
+                            },
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        Box(
+                            modifier =
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp),
+                        ) {
+                            Text(
+                                text = "Cart",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF111111),
+                                modifier = Modifier.align(Alignment.Center),
+                            )
                         }
-                    } else {
-                        Column(modifier = Modifier.fillMaxSize()) {
-                            LazyColumn(
-                                modifier =
-                                    Modifier
-                                        .weight(1f)
-                                        .fillMaxWidth(),
-                                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
-                            ) {
-                                items(items = carts, key = { it.bookId }) { cartItem ->
-                                    CartItemView(
-                                        cart = cartItem,
-                                        onRemoveClick = {
-                                            selectedCart = cartItem
-                                            showConfirmation = true
-                                        },
-                                        onIncreaseClick = {
-                                            viewModel.onEvent(AddToCartEvent.IncreaseQuantity(cartItem))
-                                        },
-                                        onDecreaseClick = {
-                                            if (cartItem.quantity == 1) {
+                        BoxWithConstraints(
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            val isLandscape = maxWidth > maxHeight
+                            if (isLandscape) {
+                                LazyColumn(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 14.dp),
+                                ) {
+                                    items(items = carts, key = { it.bookId }) { cartItem ->
+                                        CartItemView(
+                                            cart = cartItem,
+                                            onRemoveClick = {
                                                 selectedCart = cartItem
                                                 showConfirmation = true
-                                            } else {
-                                                viewModel.onEvent(AddToCartEvent.DecreaseQuantity(cartItem))
-                                            }
-                                        },
-                                    )
+                                            },
+                                            onIncreaseClick = {
+                                                viewModel.onEvent(AddToCartEvent.IncreaseQuantity(cartItem))
+                                            },
+                                            onDecreaseClick = {
+                                                if (cartItem.quantity == 1) {
+                                                    selectedCart = cartItem
+                                                    showConfirmation = true
+                                                } else {
+                                                    viewModel.onEvent(AddToCartEvent.DecreaseQuantity(cartItem))
+                                                }
+                                            },
+                                        )
+                                    }
+                                    item {
+                                        OrderSummary(subTotal, shipping, total)
+                                    }
+                                    item {
+                                        CheckoutButton(carts.isNotEmpty()) {
+                                            viewModel.onEvent(AddToCartEvent.ProceedToCheckout(total))
+                                        }
+                                    }
+                                }
+                            } else {
+                                Column(modifier = Modifier.fillMaxSize()) {
+                                    LazyColumn(
+                                        modifier =
+                                            Modifier
+                                                .weight(1f)
+                                                .fillMaxWidth(),
+                                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+                                    ) {
+                                        items(items = carts, key = { it.bookId }) { cartItem ->
+                                            CartItemView(
+                                                cart = cartItem,
+                                                onRemoveClick = {
+                                                    selectedCart = cartItem
+                                                    showConfirmation = true
+                                                },
+                                                onIncreaseClick = {
+                                                    viewModel.onEvent(AddToCartEvent.IncreaseQuantity(cartItem))
+                                                },
+                                                onDecreaseClick = {
+                                                    if (cartItem.quantity == 1) {
+                                                        selectedCart = cartItem
+                                                        showConfirmation = true
+                                                    } else {
+                                                        viewModel.onEvent(AddToCartEvent.DecreaseQuantity(cartItem))
+                                                    }
+                                                },
+                                            )
+                                        }
+                                    }
+                                    OrderSummary(subTotal, shipping, total, Modifier.padding(10.dp))
+                                    CheckoutButton(carts.isNotEmpty(), Modifier.padding(10.dp)) {
+                                        viewModel.onEvent(AddToCartEvent.ProceedToCheckout(total))
+                                    }
+                                    Spacer(modifier = Modifier.height(10.dp))
                                 }
                             }
-                            OrderSummary(subTotal, shipping, total, Modifier.padding(10.dp))
-                            CheckoutButton(carts.isNotEmpty(), Modifier.padding(10.dp)) {
-                                viewModel.onEvent(AddToCartEvent.ProceedToCheckout(total))
-                            }
-                            Spacer(modifier = Modifier.height(10.dp))
                         }
                     }
                 }
             }
         }
-    }
 }
 
 @Composable
@@ -245,9 +253,16 @@ fun OrderSummary(
         Spacer(modifier = Modifier.height(10.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(text = "Total", fontSize = 18.sp, color = Color(0xFF222222))
-            Text(text = "$%.2f".format(total), fontSize = 18.sp, color = Color(0xFF222222))
+            Text(text = "$${total.formatTwoDecimals()}", fontSize = 18.sp, color = Color(0xFF222222))
         }
     }
+}
+
+private fun Double.formatTwoDecimals(): String {
+    val rounded = (this * 100).let { if (it >= 0) (it + 0.5).toLong() else (it - 0.5).toLong() }
+    val dollars = rounded / 100
+    val cents = kotlin.math.abs(rounded % 100)
+    return "$dollars.${cents.toString().padStart(2, '0')}"
 }
 
 @Composable
@@ -257,7 +272,7 @@ fun SummaryRow(
 ) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text(text = label, fontSize = 14.sp, color = Color(0xFF555555))
-        Text(text = "$%.2f".format(value), fontSize = 14.sp, color = Color(0xFF222222))
+        Text(text = "$${value.formatTwoDecimals()}", fontSize = 14.sp, color = Color(0xFF222222))
     }
 }
 
@@ -410,7 +425,7 @@ fun CartItemView(
 
 @Composable
 fun QuantityButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     onClick: () -> Unit,
 ) {
     Box(

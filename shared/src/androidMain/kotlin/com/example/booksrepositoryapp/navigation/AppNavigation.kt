@@ -31,7 +31,7 @@ import com.example.booksrepositoryapp.ui.accountDetails.AccountDetailsViewModel
 import com.example.booksrepositoryapp.ui.addToCart.AddToCartScreen
 import com.example.booksrepositoryapp.ui.addToCart.AddToCartViewModel
 import com.example.booksrepositoryapp.ui.addressScreen.AddressListViewModel
-import com.example.booksrepositoryapp.ui.addressScreen.AddressScreenCompose
+import com.example.booksrepositoryapp.ui.addressScreen.AddressScreen
 import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedEffect
 import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedScreen
 import com.example.booksrepositoryapp.ui.auth.getStarted.GetStartedViewModel
@@ -40,16 +40,16 @@ import com.example.booksrepositoryapp.ui.auth.register.RegisterScreen
 import com.example.booksrepositoryapp.ui.auth.register.RegisterViewModel
 import com.example.booksrepositoryapp.ui.bookCategory.BookCategoryScreen
 import com.example.booksrepositoryapp.ui.bookCategory.BooksCategoryViewModel
-import com.example.booksrepositoryapp.ui.bookDetails.BookDetailsScreenCompose
+import com.example.booksrepositoryapp.ui.bookDetails.BookDetailsScreen
 import com.example.booksrepositoryapp.ui.bookDetails.BookDetailsViewModel
 import com.example.booksrepositoryapp.ui.booksList.BooksListScreen
 import com.example.booksrepositoryapp.ui.booksList.BooksListViewModel
 import com.example.booksrepositoryapp.ui.checkout.CheckoutEffect
 import com.example.booksrepositoryapp.ui.checkout.CheckoutScreen
 import com.example.booksrepositoryapp.ui.checkout.CheckoutViewModel
-import com.example.booksrepositoryapp.ui.landingPage.LandingPageScreen
+import com.example.booksrepositoryapp.ui.landingPage.LandingPage
 import com.example.booksrepositoryapp.ui.maintenancePage.MaintenanceScreen
-import com.example.booksrepositoryapp.ui.successPayment.SuccessScreenCompose
+import com.example.booksrepositoryapp.ui.successPayment.SuccessScreen
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.remoteconfig.remoteConfig
@@ -185,7 +185,7 @@ fun AppNavigation(
                 modifier = Modifier.padding(innerPadding),
             ) {
                 composable(Routes.LandingPage.route) {
-                    LandingPageScreen(
+                    LandingPage(
                         onRegisterClick = {
                             navController.navigate(Routes.Register.route)
                         },
@@ -270,7 +270,7 @@ fun AppNavigation(
                 }
                 composable(Routes.BookDetails.route) {
                     val viewModel: BookDetailsViewModel = koinViewModel()
-                    BookDetailsScreenCompose(
+                    BookDetailsScreen(
                         viewModel = viewModel,
                         onBackClick = {
                             navController.navigateUp()
@@ -314,7 +314,7 @@ fun AppNavigation(
                     )
                 }
                 composable(Routes.Success.route) {
-                    SuccessScreenCompose(
+                    SuccessScreen(
                         onGoToHome = {
                             navController.popBackStack()
                         },
@@ -322,7 +322,7 @@ fun AppNavigation(
                 }
                 composable(Routes.AddressList.route) {
                     val viewModel: AddressListViewModel = koinViewModel()
-                    AddressScreenCompose(
+                    AddressScreen(
                         viewModel = viewModel,
                         maxAddresses = remoteConfig.getLong("max_addresses"),
                         onBackClick = {

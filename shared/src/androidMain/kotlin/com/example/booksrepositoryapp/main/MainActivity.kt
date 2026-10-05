@@ -1,4 +1,4 @@
-package com.example.booksrepositoryapp.ui.main
+package com.example.booksrepositoryapp.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity

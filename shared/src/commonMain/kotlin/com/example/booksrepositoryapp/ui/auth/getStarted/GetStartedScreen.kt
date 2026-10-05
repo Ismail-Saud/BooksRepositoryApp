@@ -26,6 +26,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -73,211 +75,219 @@ fun GetStartedScreen(
         }
     }
 
-    Column(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.surface)
-                .padding(vertical = 10.dp),
-    ) {
-        Box(
+    Scaffold(
+        snackbarHost = {
+            SnackbarHost(
+                hostState = snackbarHostState,
+            )
+        },
+    ) { paddingValues ->
+        Column(
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .height(40.dp),
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(paddingValues),
         ) {
-            IconButton(
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(40.dp),
+            ) {
+                IconButton(
+                    onClick = {
+                        viewModel.onEvent(GetStartedEvent.BackClicked)
+                    },
+                    modifier =
+                        Modifier
+                            .padding(start = 8.dp)
+                            .align(Alignment.TopStart),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back",
+                        tint = Color(0xFF111111),
+                    )
+                }
+                Text(
+                    text = "Get Started",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF111111),
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+            Text(
+                text = "Please fill your details to login.",
+                fontSize = 12.sp,
+                color = Color(0xFF333333),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = 24.dp,
+                            end = 24.dp,
+                            top = 64.dp,
+                        ),
+            )
+            OutlinedTextField(
+                value = email,
+                onValueChange = {
+                    email = it
+                },
+                label = {
+                    Text("Username/email")
+                },
+                singleLine = true,
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                    ),
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFFDDDDDD),
+                        focusedContainerColor = Color(0xFFDDDDDD),
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = Color(0xFF111111),
+                        unfocusedLabelColor = Color(0xFF555555),
+                        focusedLabelColor = Color(0xFF111111),
+                    ),
+                shape = RoundedCornerShape(5.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = 24.dp,
+                            end = 24.dp,
+                            top = 28.dp,
+                        ),
+            )
+            OutlinedTextField(
+                value = password,
+                onValueChange = {
+                    password = it
+                },
+                label = {
+                    Text("Password")
+                },
+                singleLine = true,
+                visualTransformation =
+                    if (passwordVisible) {
+                        VisualTransformation.None
+                    } else {
+                        PasswordVisualTransformation()
+                    },
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            passwordVisible = !passwordVisible
+                        },
+                    ) {
+                        Icon(
+                            imageVector =
+                                if (passwordVisible) {
+                                    Icons.Default.Visibility
+                                } else {
+                                    Icons.Default.VisibilityOff
+                                },
+                            contentDescription = "Toggle password",
+                        )
+                    }
+                },
+                colors =
+                    OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = Color(0xFFDDDDDD),
+                        focusedContainerColor = Color(0xFFDDDDDD),
+                        unfocusedBorderColor = Color.Transparent,
+                        focusedBorderColor = Color(0xFF111111),
+                        unfocusedLabelColor = Color(0xFF555555),
+                        focusedLabelColor = Color(0xFF111111),
+                    ),
+                shape = RoundedCornerShape(5.dp),
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            start = 24.dp,
+                            end = 24.dp,
+                            top = 18.dp,
+                        ),
+            )
+            Button(
                 onClick = {
-                    viewModel.onEvent(GetStartedEvent.BackClicked)
+                    viewModel.onEvent(GetStartedEvent.GetStartedClicked(email, password))
                 },
                 modifier =
                     Modifier
-                        .padding(start = 8.dp)
-                        .align(Alignment.TopStart),
+                        .fillMaxWidth()
+                        .padding(
+                            start = 24.dp,
+                            end = 24.dp,
+                            top = 24.dp,
+                        ),
+                shape = RoundedCornerShape(6.dp),
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF111111),
+                        contentColor = Color.White,
+                    ),
+                enabled = !isLoading,
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color(0xFF111111),
-                )
-            }
-            Text(
-                text = "Get Started",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color(0xFF111111),
-                modifier = Modifier.align(Alignment.Center),
-            )
-        }
-        Text(
-            text = "Please fill your details to login.",
-            fontSize = 12.sp,
-            color = Color(0xFF333333),
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 24.dp,
-                        end = 24.dp,
-                        top = 64.dp,
-                    ),
-        )
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-            },
-            label = {
-                Text("Username/email")
-            },
-            singleLine = true,
-            keyboardOptions =
-                KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                ),
-            colors =
-                OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = Color(0xFFDDDDDD),
-                    focusedContainerColor = Color(0xFFDDDDDD),
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedBorderColor = Color(0xFF111111),
-                    unfocusedLabelColor = Color(0xFF555555),
-                    focusedLabelColor = Color(0xFF111111),
-                ),
-            shape = RoundedCornerShape(5.dp),
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 24.dp,
-                        end = 24.dp,
-                        top = 28.dp,
-                    ),
-        )
-        OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it
-            },
-            label = {
-                Text("Password")
-            },
-            singleLine = true,
-            visualTransformation =
-                if (passwordVisible) {
-                    VisualTransformation.None
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(12.dp),
+                    )
                 } else {
-                    PasswordVisualTransformation()
-                },
-            trailingIcon = {
-                IconButton(
-                    onClick = {
-                        passwordVisible = !passwordVisible
-                    },
-                ) {
-                    Icon(
-                        imageVector =
-                            if (passwordVisible) {
-                                Icons.Default.Visibility
-                            } else {
-                                Icons.Default.VisibilityOff
-                            },
-                        contentDescription = "Toggle password",
+                    Text(
+                        text = "Get Started",
+                        fontSize = 12.sp,
                     )
                 }
-            },
-            colors =
-                OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = Color(0xFFDDDDDD),
-                    focusedContainerColor = Color(0xFFDDDDDD),
-                    unfocusedBorderColor = Color.Transparent,
-                    focusedBorderColor = Color(0xFF111111),
-                    unfocusedLabelColor = Color(0xFF555555),
-                    focusedLabelColor = Color(0xFF111111),
-                ),
-            shape = RoundedCornerShape(5.dp),
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 24.dp,
-                        end = 24.dp,
-                        top = 18.dp,
-                    ),
-        )
-        Button(
-            onClick = {
-                viewModel.onEvent(GetStartedEvent.GetStartedClicked(email, password))
-            },
-            modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        start = 24.dp,
-                        end = 24.dp,
-                        top = 24.dp,
-                    ),
-            shape = RoundedCornerShape(6.dp),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF111111),
-                    contentColor = Color.White,
-                ),
-            enabled = !isLoading,
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(12.dp),
-                )
-            } else {
+            }
+            Text(
+                text = "forgot password?",
+                fontSize = 11.sp,
+                color = Color(0xFF222222),
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 22.dp)
+                        .clickable {},
+            )
+            Spacer(
+                modifier = Modifier.weight(1f),
+            )
+            Row(
+                modifier =
+                    Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(bottom = 20.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
-                    text = "Get Started",
-                    fontSize = 12.sp,
+                    text = "New member? ",
+                    fontSize = 15.sp,
+                    color = Color(0xFF111111),
+                )
+                Text(
+                    text = "Register",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isLoading) Color.Gray else Color(0xFF022BFF),
+                    modifier =
+                        Modifier.then(
+                            if (!isLoading) {
+                                Modifier.clickable {
+                                    viewModel.onEvent(GetStartedEvent.RegisterClicked)
+                                }
+                            } else {
+                                Modifier
+                            },
+                        ),
                 )
             }
-        }
-        Text(
-            text = "forgot password?",
-            fontSize = 11.sp,
-            color = Color(0xFF222222),
-            modifier =
-                Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(top = 22.dp)
-                    .clickable {},
-        )
-        Spacer(
-            modifier = Modifier.weight(1f),
-        )
-        Row(
-            modifier =
-                Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .padding(bottom = 20.dp),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = "New member? ",
-                fontSize = 15.sp,
-                color = Color(0xFF111111),
-            )
-            Text(
-                text = "Register",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (isLoading) Color.Gray else Color(0xFF022BFF),
-                modifier =
-                    Modifier.then(
-                        if (!isLoading) {
-                            Modifier.clickable {
-                                viewModel.onEvent(GetStartedEvent.RegisterClicked)
-                            }
-                        } else {
-                            Modifier
-                        },
-                    ),
-            )
         }
     }
 }

@@ -53,12 +53,15 @@ kotlin {
 
         commonMain {
             dependencies {
-                // AndroidX Lifecycle KMP
+
+                // Lifecycle
                 api(libs.androidx.lifecycle.viewmodel)
                 api(libs.androidx.lifecycle.runtime)
 
+                // Kotlin
                 api(libs.kotlin.stdlib)
                 api(libs.kotlinx.coroutines.core)
+
 
                 // Ktor
                 implementation(libs.ktor.client.core)
@@ -75,13 +78,12 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
 
+                // Compose
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material3)
                 api(compose.ui)
-
                 api(compose.components.resources)
-
                 api(compose.materialIconsExtended)
             }
         }
@@ -117,6 +119,11 @@ kotlin {
 
                 // Android Location APIs
                 implementation(libs.play.services.location)
+
+                implementation(libs.androidx.navigation.compose)
+                implementation(libs.androidx.core.splashscreen)
+
+                implementation(libs.firebase.config)
             }
         }
 
