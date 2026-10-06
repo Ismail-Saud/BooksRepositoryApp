@@ -45,6 +45,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.booksrepositoryapp.ui.loading.LoadingScreen
 
 @Composable
 fun CheckoutScreen(
@@ -82,6 +83,9 @@ fun CheckoutScreen(
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator(color = Color.Black)
             }
+        }
+        is CheckoutState.ProcessingPayment -> {
+            LoadingScreen(showDialog = true)
         }
         is CheckoutState.Error -> {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

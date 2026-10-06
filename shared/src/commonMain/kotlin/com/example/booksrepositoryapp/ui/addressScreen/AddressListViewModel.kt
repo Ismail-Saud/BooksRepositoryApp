@@ -6,10 +6,11 @@ import com.example.booksrepositoryapp.data.source.local.uiModels.AddressUiModel
 import com.example.booksrepositoryapp.data.source.remote.firebase.authentication.AuthRepository
 import com.example.booksrepositoryapp.domain.model.Address
 import com.example.booksrepositoryapp.domain.repository.AddressRepository
-import com.example.booksrepositoryapp.helper.locationHelper.LocationHelper
+import com.example.booksrepositoryapp.manager.locationManager.LocationHelper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -39,7 +40,7 @@ class AddressListViewModel (
                     if (event.currentCount < event.maxAllowed) {
                         addEmptyAddress()
                     } else {
-                        _effect.send(AddressListEffect.ShowToast("Maximum address limit reached"))
+                        _effect.send(AddressListEffect.ShowMessage("Maximum address limit reached"))
                     }
                 }
                 is AddressListEvent.DeleteAddress -> {
@@ -74,7 +75,7 @@ class AddressListViewModel (
                 val location = locationHelper.getLocationFromAddress(fullAddress)
                 if (location == null) {
                     _effect.send(
-                        AddressListEffect.ShowToast(
+                        AddressListEffect.ShowMessage(
                             "Could not find this address"
                         )
                     )
@@ -94,13 +95,13 @@ class AddressListViewModel (
                     addressId = address.id
                 )
                 _effect.send(
-                    AddressListEffect.ShowToast(
+                    AddressListEffect.ShowMessage(
                         "Address saved successfully"
                     )
                 )
             } catch (e: Exception) {
                 _effect.send(
-                    AddressListEffect.ShowToast(
+                    AddressListEffect.ShowMessage(
                         "Failed to save address: ${e.message}"
                     )
                 )
@@ -127,7 +128,7 @@ class AddressListViewModel (
                     }
                 }
             } catch (e: Exception) {
-                _effect.send(AddressListEffect.ShowToast("Failed to fetch address: ${e.message}"))
+                _effect.send(AddressListEffect.ShowMessage("Failed to fetch address: ${e.message}"))
             } finally {
                 setFetchingLocation(addressId, false)
             }
@@ -146,9 +147,12 @@ class AddressListViewModel (
                 isSaving = saving[address.id] ?: false
             )
         }
+    }.catch {
+        emit(emptyList())
     }
 
     val addressCount = addressRepo.getAddressCount(userId)
+        .catch { emit(0) }
 
     fun setFetchingLocation(addressId: String, isFetching: Boolean) {
         _isFetchingLocation.value += (addressId to isFetching)
@@ -160,32 +164,44 @@ class AddressListViewModel (
 
     fun addEmptyAddress() {
         viewModelScope.launch {
-            val address = Address(
-                house = "",
-                street = "",
-                area = "",
-                city = "",
-                postalCode = "",
-                country = "",
-                fullAddress = "",
-                latitude = 0.0,
-                longitude = 0.0,
-                isSelected = false,
-                createdAt = Clock.System.now().toEpochMilliseconds()
-            )
-            addressRepo.addAddress(userId, address)
+            try {
+                val address = Address(
+                    house = "",
+                    street = "",
+                    area = "",
+                    city = "",
+                    postalCode = "",
+                    country = "",
+                    fullAddress = "",
+                    latitude = 0.0,
+                    longitude = 0.0,
+                    isSelected = false,
+                    createdAt = Clock.System.now().toEpochMilliseconds()
+                )
+                addressRepo.addAddress(userId, address)
+            } catch (e: Exception) {
+                _effect.send(AddressListEffect.ShowMessage(e.message ?: "Failed to add address"))
+            }
         }
     }
 
     fun deleteAddress(addressId: String) {
         viewModelScope.launch {
-            addressRepo.deleteAddress(userId, addressId)
+            try {
+                addressRepo.deleteAddress(userId, addressId)
+            } catch (e: Exception) {
+                _effect.send(AddressListEffect.ShowMessage(e.message ?: "Failed to delete address"))
+            }
         }
     }
 
     fun deleteAllAddresses() {
         viewModelScope.launch {
-            addressRepo.deleteAllAddresses(userId)
+            try {
+                addressRepo.deleteAllAddresses(userId)
+            } catch (e: Exception) {
+                _effect.send(AddressListEffect.ShowMessage(e.message ?: "Failed to delete addresses"))
+            }
         }
     }
 }

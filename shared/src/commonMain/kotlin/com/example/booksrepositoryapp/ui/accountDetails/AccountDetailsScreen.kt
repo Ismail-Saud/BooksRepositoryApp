@@ -12,10 +12,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Delete
@@ -31,8 +34,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHost
@@ -53,13 +56,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.example.booksrepositoryapp.helper.cameraHelper.CameraHelper
+import com.example.booksrepositoryapp.manager.cameraManager.CameraHelper
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheet
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -281,22 +285,93 @@ fun ProfilePictureSheetContent(
     onGalleryClicked: () -> Unit,
     onRemoveClicked: () -> Unit,
 ) {
-    Column(modifier = Modifier.padding(16.dp)) {
-        ListItem(
-            headlineContent = { Text("Take a photo") },
-            leadingContent = { Icon(Icons.Default.CameraAlt, contentDescription = null) },
-            modifier = Modifier.clickable { onCameraClicked() },
+    Column(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp)
+                .padding(top = 8.dp, bottom = 24.dp),
+    ) {
+        Text(
+            text = "Profile photo",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color(0xFF111111),
         )
-        ListItem(
-            headlineContent = { Text("Choose from gallery") },
-            leadingContent = { Icon(Icons.Default.Photo, contentDescription = null) },
-            modifier = Modifier.clickable { onGalleryClicked() },
+        Spacer(modifier = Modifier.height(16.dp))
+        PhotoOptionRow(
+            icon = Icons.Default.CameraAlt,
+            label = "Take a photo",
+            onClick = onCameraClicked,
+        )
+        PhotoOptionRow(
+            icon = Icons.Default.Photo,
+            label = "Choose from gallery",
+            onClick = onGalleryClicked,
         )
         if (showRemoveOption) {
-            ListItem(
-                headlineContent = { Text("Remove photo") },
-                leadingContent = { Icon(Icons.Default.Delete, contentDescription = null) },
-                modifier = Modifier.clickable { onRemoveClicked() },
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                thickness = 1.dp,
+                color = Color(0xFFEEEEEE),
+            )
+            PhotoOptionRow(
+                icon = Icons.Default.Delete,
+                label = "Remove photo",
+                onClick = onRemoveClicked,
+                isDestructive = true,
+            )
+        }
+    }
+}
+
+@Composable
+private fun PhotoOptionRow(
+    icon: ImageVector,
+    label: String,
+    onClick: () -> Unit,
+    isDestructive: Boolean = false,
+) {
+    val contentColor = if (isDestructive) Color(0xFFD32F2F) else Color(0xFF111111)
+    val iconBackground = if (isDestructive) Color(0xFFFDECEA) else Color(0xFFF2F2F2)
+    Row(
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(12.dp))
+                .clickable(onClick = onClick)
+                .padding(vertical = 10.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier =
+                Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(iconBackground),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(22.dp),
+            )
+        }
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            text = label,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            color = contentColor,
+            modifier = Modifier.weight(1f),
+        )
+        if (!isDestructive) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = null,
+                tint = Color(0xFFBDBDBD),
             )
         }
     }

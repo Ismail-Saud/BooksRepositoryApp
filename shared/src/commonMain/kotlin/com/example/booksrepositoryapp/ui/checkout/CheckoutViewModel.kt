@@ -7,6 +7,7 @@ import com.example.booksrepositoryapp.domain.model.Address
 import com.example.booksrepositoryapp.domain.repository.AddressRepository
 import com.example.booksrepositoryapp.domain.repository.CartRepository
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class CheckoutViewModel (
     authRepo: AuthRepository,
@@ -55,8 +57,10 @@ class CheckoutViewModel (
 
     private fun processPayment() {
         viewModelScope.launch {
+            _checkoutState.value = CheckoutState.ProcessingPayment
             try {
                 cartRepo.clearCart(userId)
+                delay(2000.milliseconds)
                 _effect.send(CheckoutEffect.NavigateToSuccess)
             } catch (e: Exception) {
                 _effect.send(CheckoutEffect.ShowError(e.message?: "Error Occurred"))

@@ -5,7 +5,7 @@ import com.example.booksrepositoryapp.data.source.remote.ktor.ApiService
 import com.example.booksrepositoryapp.data.util.refreshResult.RefreshResult
 import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.domain.repository.BooksRepository
-import com.example.booksrepositoryapp.helper.networkHelper.NetworkHelper
+import com.example.booksrepositoryapp.manager.networkManager.NetworkManager
 import com.example.booksrepositoryapp.util.generateRandomAmount
 import com.example.booksrepositoryapp.util.generateRandomRating
 import kotlinx.coroutines.flow.Flow
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 class BooksRepositoryImpl(
     private val booksApi: ApiService,
     private val localDataSource: BooksLocalDataSource,
-    private val networkHelper: NetworkHelper
+    private val networkHelper: NetworkManager
 ) : BooksRepository {
 
     override fun getBooks(category: String): Flow<List<Book>> {

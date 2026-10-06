@@ -17,4 +17,12 @@
     <string name="category_drama">Drama</string>
     <string name="category_young_adult">Young Adult</string>
     <string name="category_history">History</string>
+    <string name="category_biography">Biography</string>
+    <string name="category_literature">Literature</string>
+    <string name="category_juvenile">Juvenile</string>
+    <string name="category_story">Story</string>
+    <string name="category_humor">Humor</string>
+    <string name="category_politics">Politics</string>
+    <string name="category_adventure">Adventure</string>
+    <string name="category_satire">Satire</string>
 </resources>

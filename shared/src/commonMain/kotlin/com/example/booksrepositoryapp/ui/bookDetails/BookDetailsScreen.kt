@@ -28,7 +28,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -37,6 +36,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -65,6 +66,8 @@ fun BookDetailsScreen(
         SnackbarHostState()
     }
 
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         viewModel.effect.collect { effect ->
             when (effect) {
@@ -73,61 +76,56 @@ fun BookDetailsScreen(
                 }
 
                 is BookDetailsEffect.ShowMessage -> {
-                    snackbarHostState.showSnackbar(
-                        message = effect.message,
-                    )
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar(
+                            message = effect.message,
+                        )
+                    }
                 }
             }
         }
     }
 
-    Scaffold(
-        snackbarHost = {
-            SnackbarHost(
-                hostState = snackbarHostState,
-            )
-        },
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-        ) {
-            when (val currentState = state) {
-                BookDetailsState.Idle -> Unit
-                BookDetailsState.Loading -> {
-                    BookDetailsShimmer()
+    Box(
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        when (val currentState = state) {
+            BookDetailsState.Idle -> Unit
+            BookDetailsState.Loading -> {
+                BookDetailsShimmer()
+            }
+            is BookDetailsState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = currentState.message,
+                    )
                 }
-                is BookDetailsState.Error -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            text = currentState.message,
-                        )
-                    }
-                }
-                is BookDetailsState.Success -> {
-                    currentState.books?.let { book ->
-                        BookDetailsContent(
-                            book = book,
-                            isAddingToCart = currentState.isAddingToCart,
-                            onBackClick = {
-                                viewModel.onEvent(
-                                    BookDetailsEvent.BackClicked,
-                                )
-                            },
-                            onAddToCartClick = {
-                                viewModel.onEvent(
-                                    BookDetailsEvent.AddToCartClicked,
-                                )
-                            },
-                        )
-                    }
+            }
+            is BookDetailsState.Success -> {
+                currentState.books?.let { book ->
+                    BookDetailsContent(
+                        book = book,
+                        isAddingToCart = currentState.isAddingToCart,
+                        onBackClick = {
+                            onBackClick()
+                        },
+                        onAddToCartClick = {
+                            viewModel.onEvent(
+                                BookDetailsEvent.AddToCartClicked,
+                            )
+                        },
+                    )
                 }
             }
         }
+
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
     }
 }
 

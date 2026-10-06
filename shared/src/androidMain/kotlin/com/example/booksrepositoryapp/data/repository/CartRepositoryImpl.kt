@@ -15,6 +15,7 @@ class CartRepositoryImpl (
     private val firestore: FirebaseFirestore
 ) : CartRepository {
     override suspend fun insertCartItem(userId: String, cart: Cart) {
+        if (userId.isEmpty()) return
         val cartRef = firestore
             .collection("users")
             .document(userId)
@@ -31,13 +32,19 @@ class CartRepositoryImpl (
     }
 
     override fun getCart(userId: String?): Flow<List<Cart>> = callbackFlow {
+        if (userId.isNullOrEmpty()) {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
         val listener = firestore
             .collection("users")
-            .document(userId.toString())
+            .document(userId)
             .collection("cart")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    trySend(emptyList())
+                    close()
                     return@addSnapshotListener
                 }
                 val cartItems = snapshot?.documents?.mapNotNull {
@@ -51,6 +58,7 @@ class CartRepositoryImpl (
     }
 
     override suspend fun updateCartItem(userId: String, bookId: String, quantity: Int) {
+        if (userId.isEmpty()) return
         firestore
             .collection("users")
             .document(userId)
@@ -61,6 +69,7 @@ class CartRepositoryImpl (
     }
 
     override suspend fun deleteCartItem(userId: String, bookId: String) {
+        if (userId.isEmpty()) return
         firestore
             .collection("users")
             .document(userId)
@@ -71,6 +80,7 @@ class CartRepositoryImpl (
     }
 
     override suspend fun clearCart(userId: String) {
+        if (userId.isEmpty()) return
         val cartItems = firestore
             .collection("users")
             .document(userId)

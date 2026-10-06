@@ -1,4 +1,4 @@
-package com.example.booksrepositoryapp.helper.cameraHelper
+package com.example.booksrepositoryapp.manager.cameraManager
 
 import android.Manifest
 import android.app.Activity
@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import java.io.File
 
-class AndroidCameraHelper(
+class AndroidCameraManager(
     private val context: Context,
 ) : CameraHelper {
 

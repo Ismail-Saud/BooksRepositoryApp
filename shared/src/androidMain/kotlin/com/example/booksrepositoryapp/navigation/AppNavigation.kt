@@ -202,16 +202,20 @@ fun AppNavigation(
                             when (effect) {
                                 GetStartedEffect.NavigateToHome -> {
                                     navController.navigate(Routes.BooksCategory.route) {
-                                        popUpTo(Routes.Register.route) {
+                                        popUpTo(Routes.LandingPage.route) {
                                             inclusive = true
                                         }
                                     }
                                 }
                                 GetStartedEffect.NavigateToRegister -> {
-                                    navController.navigate(Routes.Register.route)
+                                    navController.navigate(Routes.Register.route) {
+                                        popUpTo(Routes.GetStarted.route) {
+                                            inclusive = true
+                                        }
+                                    }
                                 }
                                 GetStartedEffect.NavigateBack -> {
-                                    navController.navigate(Routes.LandingPage.route)
+                                    navController.popBackStack()
                                 }
                                 else -> {}
                             }
@@ -226,16 +230,20 @@ fun AppNavigation(
                             when (effect) {
                                 RegisterEffect.NavigateToHome -> {
                                     navController.navigate(Routes.BooksCategory.route) {
-                                        popUpTo(Routes.Register.route) {
+                                        popUpTo(Routes.LandingPage.route) {
                                             inclusive = true
                                         }
                                     }
                                 }
                                 RegisterEffect.NavigateToGetStarted -> {
-                                    navController.navigate(Routes.GetStarted.route)
+                                    navController.navigate(Routes.GetStarted.route) {
+                                        popUpTo(Routes.Register.route) {
+                                            inclusive = true
+                                        }
+                                    }
                                 }
                                 RegisterEffect.NavigateBack -> {
-                                    navController.navigate(Routes.LandingPage.route)
+                                    navController.popBackStack()
                                 }
                                 else -> {}
                             }
@@ -258,7 +266,7 @@ fun AppNavigation(
                     BooksListScreen(
                         viewModel = viewModel,
                         onBackClick = {
-                            navController.navigateUp()
+                            navController.popBackStack()
                         },
                         onNavigate = { effect ->
                             val cleanedWorkId = Uri.encode(effect.workId)
@@ -273,7 +281,7 @@ fun AppNavigation(
                     BookDetailsScreen(
                         viewModel = viewModel,
                         onBackClick = {
-                            navController.navigateUp()
+                            navController.popBackStack()
                         },
                     )
                 }
@@ -298,7 +306,7 @@ fun AppNavigation(
                         isCheckoutEnabled = remoteConfig.getBoolean("checkout_enabled"),
                         onNavigate = { effect ->
                             when (effect) {
-                                CheckoutEffect.NavigateBack -> navController.navigateUp()
+                                CheckoutEffect.NavigateBack -> navController.popBackStack()
                                 CheckoutEffect.NavigateToAddressList -> navController.navigate(Routes.AddressList.route)
                                 CheckoutEffect.NavigateToSuccess -> {
                                     navController.navigate(Routes.Success.route) {
@@ -326,7 +334,7 @@ fun AppNavigation(
                         viewModel = viewModel,
                         maxAddresses = remoteConfig.getLong("max_addresses"),
                         onBackClick = {
-                            navController.navigateUp()
+                            navController.popBackStack()
                         },
                     )
                 }
@@ -337,8 +345,9 @@ fun AppNavigation(
                         onNavigate = { effect ->
                             if (effect is AccountDetailsEffect.NavigateToLandingPage) {
                                 navController.navigate(Routes.LandingPage.route) {
-                                    launchSingleTop = true
-                                    restoreState = false
+                                    popUpTo(0) {
+                                        inclusive = true
+                                    }
                                 }
                             }
                         },

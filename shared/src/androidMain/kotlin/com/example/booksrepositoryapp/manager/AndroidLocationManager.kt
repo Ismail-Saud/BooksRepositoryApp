@@ -1,4 +1,4 @@
-package com.example.booksrepositoryapp.helper
+package com.example.booksrepositoryapp.manager
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -19,16 +19,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.booksrepositoryapp.helper.locationHelper.LocationCoordinates
-import com.example.booksrepositoryapp.helper.locationHelper.LocationHelper
-import com.example.booksrepositoryapp.helper.locationHelper.LocationLauncher
+import com.example.booksrepositoryapp.manager.locationManager.LocationCoordinates
+import com.example.booksrepositoryapp.manager.locationManager.LocationHelper
+import com.example.booksrepositoryapp.manager.locationManager.LocationLauncher
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Locale
 
-class AndroidLocationHelper(
+class AndroidLocationManager(
     private val context: Context,
 ) : LocationHelper {
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)

@@ -15,6 +15,11 @@ class AddressRepositoryImpl (
     private val firestore: FirebaseFirestore
 ) : AddressRepository {
     override fun getAddresses(userId: String): Flow<List<Address>> = callbackFlow {
+        if (userId.isEmpty()) {
+            trySend(emptyList())
+            close()
+            return@callbackFlow
+        }
         val listener = firestore
             .collection("users")
             .document(userId)
@@ -22,7 +27,8 @@ class AddressRepositoryImpl (
             .orderBy("createdAt")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    trySend(emptyList())
+                    close()
                     return@addSnapshotListener
                 }
                 val addresses = snapshot?.documents?.mapNotNull {
@@ -36,6 +42,7 @@ class AddressRepositoryImpl (
     }
 
     override suspend fun addAddress(userId: String, address: Address) {
+        if (userId.isEmpty()) return
         val ref = firestore
             .collection("users")
             .document(userId)
@@ -46,6 +53,7 @@ class AddressRepositoryImpl (
     }
 
     override suspend fun updateAddress(userId: String, address: Address) {
+        if (userId.isEmpty()) return
         firestore
             .collection("users")
             .document(userId)
@@ -56,6 +64,7 @@ class AddressRepositoryImpl (
     }
 
     override suspend fun deleteAddress(userId: String, addressId: String) {
+        if (userId.isEmpty()) return
         firestore
             .collection("users")
             .document(userId)
@@ -66,6 +75,7 @@ class AddressRepositoryImpl (
     }
 
     override suspend fun deleteAllAddresses(userId: String) {
+        if (userId.isEmpty()) return
         val addresses = firestore
             .collection("users")
             .document(userId)
@@ -80,6 +90,7 @@ class AddressRepositoryImpl (
     }
 
     override suspend fun updateSelectedAddress(userId: String, addressId: String) {
+        if (userId.isEmpty()) return
         val addressesRef = firestore
             .collection("users")
             .document(userId)
@@ -94,6 +105,11 @@ class AddressRepositoryImpl (
     }
 
     override fun getSelectedAddress(userId: String): Flow<Address?> = callbackFlow {
+        if (userId.isEmpty()) {
+            trySend(null)
+            close()
+            return@callbackFlow
+        }
         val listener = firestore
             .collection("users")
             .document(userId)
@@ -102,7 +118,8 @@ class AddressRepositoryImpl (
             .limit(1)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    trySend(null)
+                    close()
                     return@addSnapshotListener
                 }
                 val address = snapshot
@@ -122,6 +139,11 @@ class AddressRepositoryImpl (
     }
 
     override fun getAddressCount(userId: String): Flow<Int> = callbackFlow {
+        if (userId.isEmpty()) {
+            trySend(0)
+            close()
+            return@callbackFlow
+        }
         val listener = firestore
             .collection("users")
             .document(userId)
@@ -129,7 +151,8 @@ class AddressRepositoryImpl (
             .orderBy("createdAt")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    close(error)
+                    trySend(0)
+                    close()
                     return@addSnapshotListener
                 }
                 trySend(snapshot?.size() ?: 0)

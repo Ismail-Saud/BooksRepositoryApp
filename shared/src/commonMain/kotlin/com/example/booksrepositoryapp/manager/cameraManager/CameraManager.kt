@@ -1,4 +1,4 @@
-package com.example.booksrepositoryapp.helper.cameraHelper
+package com.example.booksrepositoryapp.manager.cameraManager
 
 import androidx.compose.runtime.Composable
 

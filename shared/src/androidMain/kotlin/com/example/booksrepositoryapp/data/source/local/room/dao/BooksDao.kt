@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface BooksDao {
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertBooks (books: List<BookDetailsModel>)
 
     @Query("UPDATE book_details SET description = :description WHERE workId = :key")

@@ -48,7 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.booksrepositoryapp.data.source.local.uiModels.AddressUiModel
-import com.example.booksrepositoryapp.helper.locationHelper.LocationHelper
+import com.example.booksrepositoryapp.manager.locationManager.LocationHelper
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheet
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
@@ -92,7 +92,7 @@ fun AddressScreen(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is AddressListEffect.NavigateBack -> onBackClick()
-                is AddressListEffect.ShowToast -> {
+                is AddressListEffect.ShowMessage -> {
                     snackbarHostState.showSnackbar(effect.message)
                 }
                 is AddressListEffect.RequestLocation -> {

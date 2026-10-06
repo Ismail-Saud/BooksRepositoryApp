@@ -4,7 +4,7 @@ import com.example.booksrepositoryapp.data.source.local.localDataSources.BooksLo
 import com.example.booksrepositoryapp.data.source.remote.ktor.ApiService
 import com.example.booksrepositoryapp.data.util.refreshResult.RefreshResult
 import com.example.booksrepositoryapp.domain.model.Book
-import com.example.booksrepositoryapp.helper.networkHelper.NetworkHelper
+import com.example.booksrepositoryapp.manager.networkManager.NetworkManager
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
@@ -53,7 +53,7 @@ class FakeBooksLocalDataSource : BooksLocalDataSource {
     }
 }
 
-class FakeNetworkHelper(var isAvailable: Boolean = true) : NetworkHelper {
+class FakeNetworkManager(var isAvailable: Boolean = true) : NetworkManager {
     override fun isNetworkAvailable(): Boolean = isAvailable
 }
 
@@ -78,7 +78,7 @@ class BooksRepositoryTest {
     @Test
     fun testOfflineRefresh() = runTest {
         val fakeLocal = FakeBooksLocalDataSource()
-        val fakeNetwork = FakeNetworkHelper(isAvailable = false)
+        val fakeNetwork = FakeNetworkManager(isAvailable = false)
         val apiService = createApiService("{}")
         val repository = BooksRepositoryImpl(apiService, fakeLocal, fakeNetwork)
 
@@ -89,7 +89,7 @@ class BooksRepositoryTest {
     @Test
     fun testRefreshFailure() = runTest {
         val fakeLocal = FakeBooksLocalDataSource()
-        val fakeNetwork = FakeNetworkHelper(isAvailable = true)
+        val fakeNetwork = FakeNetworkManager(isAvailable = true)
         val mockEngine = MockEngine { throw Exception("Server error") }
         val client = HttpClient(mockEngine) {
             install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
@@ -104,7 +104,7 @@ class BooksRepositoryTest {
     @Test
     fun testPreservingLocalPriceAndRating() = runTest {
         val fakeLocal = FakeBooksLocalDataSource()
-        val fakeNetwork = FakeNetworkHelper(isAvailable = true)
+        val fakeNetwork = FakeNetworkManager(isAvailable = true)
 
         val existingBook = Book(
             id = "/works/OL100W",
@@ -146,7 +146,7 @@ class BooksRepositoryTest {
     @Test
     fun testInsertingRefreshedBooksIntoLocalDataSource() = runTest {
         val fakeLocal = FakeBooksLocalDataSource()
-        val fakeNetwork = FakeNetworkHelper(isAvailable = true)
+        val fakeNetwork = FakeNetworkManager(isAvailable = true)
 
         val responseJson = """
             {

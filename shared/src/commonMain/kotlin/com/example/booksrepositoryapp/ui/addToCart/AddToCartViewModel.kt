@@ -47,32 +47,38 @@ class AddToCartViewModel (
 
     fun increaseQuantity(cart: Cart) {
         viewModelScope.launch {
-            cartRepo.updateCartItem(
-                userId = userId,
-                bookId = cart.bookId,
-                quantity = cart.quantity + 1
-            )
+            try {
+                cartRepo.updateCartItem(
+                    userId = userId,
+                    bookId = cart.bookId,
+                    quantity = cart.quantity + 1
+                )
+            } catch (_: Exception) { }
         }
     }
 
     fun decreaseQuantity(cart: Cart) {
         if (cart.quantity > 1) {
             viewModelScope.launch {
-                cartRepo.updateCartItem(
-                    userId = userId,
-                    bookId = cart.bookId,
-                    quantity = cart.quantity - 1
-                )
+                try {
+                    cartRepo.updateCartItem(
+                        userId = userId,
+                        bookId = cart.bookId,
+                        quantity = cart.quantity - 1
+                    )
+                } catch (_: Exception) { }
             }
         }
     }
 
     fun removeCartItem(cart: Cart) {
         viewModelScope.launch {
-            cartRepo.deleteCartItem(
-                userId = userId,
-                bookId = cart.bookId,
-            )
+            try {
+                cartRepo.deleteCartItem(
+                    userId = userId,
+                    bookId = cart.bookId,
+                )
+            } catch (_: Exception) { }
         }
     }
 

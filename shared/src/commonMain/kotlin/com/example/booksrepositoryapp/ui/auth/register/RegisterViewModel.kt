@@ -56,18 +56,18 @@ class RegisterViewModel (
                             )
                             userRepo.createUserProfile(domainUser)
                             _registerUser.value = RegisterState.Success
-                            sendEffect(RegisterEffect.ShowToast("Signup Successful"))
+                            sendEffect(RegisterEffect.ShowMessage("Signup Successful"))
                             sendEffect(RegisterEffect.NavigateToHome)
                         }
                         result.onFailure { exception ->
                             val errorMessage = exception.message ?: "Registration Failed"
                             _registerUser.value = RegisterState.Error(errorMessage)
-                            sendEffect(RegisterEffect.ShowToast(errorMessage))
+                            sendEffect(RegisterEffect.ShowMessage(errorMessage))
                         }
                     } catch (e: Exception) {
                         val errorMessage = e.message ?: "An unexpected error occurred"
                         _registerUser.value = RegisterState.Error(errorMessage)
-                        sendEffect(RegisterEffect.ShowToast(errorMessage))
+                        sendEffect(RegisterEffect.ShowMessage(errorMessage))
                     }
                 }
             }
@@ -76,7 +76,7 @@ class RegisterViewModel (
 
     private fun sendError(message: String) {
         _registerUser.value = RegisterState.Error(message)
-        _effect.trySend(RegisterEffect.ShowToast(message))
+        _effect.trySend(RegisterEffect.ShowMessage(message))
     }
 
     private fun sendEffect(effect: RegisterEffect) {

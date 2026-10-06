@@ -17,6 +17,7 @@ class UserRepositoryImpl (
     private val context: Context
 ) : UserRepository {
     override suspend fun createUserProfile(user: User) {
+        if (user.id.isEmpty()) return
         firestore
             .collection("users")
             .document(user.id)
@@ -25,6 +26,7 @@ class UserRepositoryImpl (
     }
 
     override suspend fun getUserProfile(uid: String): User? {
+        if (uid.isEmpty()) return null
         return firestore
             .collection("users")
             .document(uid)
@@ -34,6 +36,7 @@ class UserRepositoryImpl (
     }
 
     override suspend fun updateProfilePicture(uid: String, profilePicture: String?) {
+        if (uid.isEmpty()) return
         firestore
             .collection("users")
             .document(uid)

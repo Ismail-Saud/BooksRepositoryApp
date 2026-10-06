@@ -22,7 +22,7 @@ class BookDetailsViewModel (
     private val _bookDetailState = MutableStateFlow<BookDetailsState>(BookDetailsState.Idle)
     val bookDetailState = _bookDetailState.asStateFlow()
 
-    private val _effect = Channel<BookDetailsEffect>()
+    private val _effect = Channel<BookDetailsEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
     private val workId: String = savedStateHandle["workId"] ?: ""
@@ -37,9 +37,7 @@ class BookDetailsViewModel (
         when (event) {
             BookDetailsEvent.AddToCartClicked -> addToCart()
             BookDetailsEvent.BackClicked -> {
-                viewModelScope.launch {
-                    _effect.send(BookDetailsEffect.NavigateBack)
-                }
+                _effect.trySend(BookDetailsEffect.NavigateBack)
             }
             is BookDetailsEvent.LoadBookDetails -> getBookDetails(event.workId)
         }

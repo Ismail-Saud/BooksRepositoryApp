@@ -1,4 +1,4 @@
-package com.example.booksrepositoryapp.helper.locationHelper
+package com.example.booksrepositoryapp.manager.locationManager
 
 import androidx.compose.runtime.Composable
 

@@ -1,22 +1,22 @@
 package com.example.booksrepositoryapp.di
 
-import com.example.booksrepositoryapp.helper.AndroidLocationHelper
-import com.example.booksrepositoryapp.helper.cameraHelper.AndroidCameraHelper
-import com.example.booksrepositoryapp.helper.cameraHelper.CameraHelper
-import com.example.booksrepositoryapp.helper.locationHelper.LocationHelper
-import com.example.booksrepositoryapp.helper.networkHelper.AndroidNetworkHelper
-import com.example.booksrepositoryapp.helper.networkHelper.NetworkHelper
+import com.example.booksrepositoryapp.manager.AndroidLocationManager
+import com.example.booksrepositoryapp.manager.cameraManager.AndroidCameraManager
+import com.example.booksrepositoryapp.manager.cameraManager.CameraHelper
+import com.example.booksrepositoryapp.manager.locationManager.LocationHelper
+import com.example.booksrepositoryapp.manager.networkManager.AndroidNetworkManager
+import com.example.booksrepositoryapp.manager.networkManager.NetworkManager
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val androidNetworkModule = module {
-    single<NetworkHelper> {
-        AndroidNetworkHelper(androidContext())
+    single<NetworkManager> {
+        AndroidNetworkManager(androidContext())
     }
     single<LocationHelper> {
-        AndroidLocationHelper(androidContext())
+        AndroidLocationManager(androidContext())
     }
     single<CameraHelper> {
-        AndroidCameraHelper(androidContext())
+        AndroidCameraManager(androidContext())
     }
 }
