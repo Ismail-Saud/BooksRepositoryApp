@@ -24,6 +24,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -37,6 +38,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.booksrepositoryapp.domain.model.Category
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -49,14 +54,33 @@ fun BookCategoryScreen(
     val state by viewModel.categoryState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(Unit) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                is BooksCategoryEffect.ShowError -> {
-                    snackbarHostState.showSnackbar(message = effect.message)
-                }
-                is BooksCategoryEffect.NavigateToBooksList -> {
-                    onNavigate(effect)
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var isResumed by remember {
+        mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, _ ->
+            isResumed = lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is BooksCategoryEffect.ShowError -> {
+                        snackbarHostState.showSnackbar(message = effect.message)
+                    }
+                    is BooksCategoryEffect.NavigateToBooksList -> {
+                        if (isResumed) {
+                            onNavigate(effect)
+                        }
+                    }
                 }
             }
         }
@@ -71,9 +95,12 @@ fun BookCategoryScreen(
         is BooksCategoryState.Success -> {
             BookCategoryContent(
                 categories = currentState.categories,
+                isClickable = isResumed,
                 onSearchQueryChanged = { viewModel.onEvent(BooksCategoryEvent.SearchQueryChanged(it)) },
                 onCategoryClicked = { apiValue, title ->
-                    viewModel.onEvent(BooksCategoryEvent.CategoryClicked(apiValue, title))
+                    if (isResumed) {
+                        viewModel.onEvent(BooksCategoryEvent.CategoryClicked(apiValue, title))
+                    }
                 },
             )
         }
@@ -96,6 +123,7 @@ fun BookCategoryScreen(
 @Composable
 fun BookCategoryContent(
     categories: List<Category>,
+    isClickable: Boolean = true,
     onSearchQueryChanged: (String) -> Unit,
     onCategoryClicked: (String, String) -> Unit,
 ) {
@@ -130,6 +158,7 @@ fun BookCategoryContent(
             items(categories) { category ->
                 CategoryCard(
                     category = category,
+                    isClickable = isClickable,
                     onCategoryClicked = onCategoryClicked,
                 )
             }
@@ -140,6 +169,7 @@ fun BookCategoryContent(
 @Composable
 fun CategoryCard(
     category: Category,
+    isClickable: Boolean = true,
     onCategoryClicked: (String, String) -> Unit,
 ) {
     val title = stringResource(category.titleResource())
@@ -150,7 +180,7 @@ fun CategoryCard(
             Modifier
                 .fillMaxWidth()
                 .height(120.dp)
-                .clickable { onCategoryClicked(category.apiValue, title) },
+                .clickable(enabled = isClickable) { onCategoryClicked(category.apiValue, title) },
         elevation = CardDefaults.cardElevation(4.dp),
     ) {
         Box {

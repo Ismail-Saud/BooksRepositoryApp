@@ -4,7 +4,7 @@ import com.example.booksrepositoryapp.domain.model.Address
 
 sealed class CheckoutState {
     object Loading : CheckoutState()
-    data class Success(val address: Address?) : CheckoutState()
+    data class Success(val address: Address?, val total: Double) : CheckoutState()
     data class Error(val message: String) : CheckoutState()
     object ProcessingPayment : CheckoutState()
 }

@@ -19,7 +19,14 @@ val commonViewModelModule = module {
     factoryOf(::BooksListViewModel)
     factoryOf(::BookDetailsViewModel)
     factoryOf(::AddToCartViewModel)
-    factoryOf(::CheckoutViewModel)
+    factory { parameters ->
+        CheckoutViewModel(
+            authRepo = get(),
+            addressRepo = get(),
+            cartRepo = get(),
+            shippingFee = parameters.get<Double>()
+        )
+    }
     factoryOf(::AddressListViewModel)
     factoryOf(::AccountDetailsViewModel)
 }

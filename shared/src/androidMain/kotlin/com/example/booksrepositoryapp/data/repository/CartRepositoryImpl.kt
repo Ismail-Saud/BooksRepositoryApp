@@ -33,25 +33,27 @@ class CartRepositoryImpl (
 
     override fun getCart(userId: String?): Flow<List<Cart>> = callbackFlow {
         if (userId.isNullOrEmpty()) {
-            trySend(emptyList())
-            close()
+            close(IllegalArgumentException("User ID is empty"))
             return@callbackFlow
         }
+
         val listener = firestore
             .collection("users")
             .document(userId)
             .collection("cart")
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
-                    trySend(emptyList())
-                    close()
+                    close(error)
                     return@addSnapshotListener
                 }
+
                 val cartItems = snapshot?.documents?.mapNotNull {
                     it.toObject(CartModelFB::class.java)?.toDomain()
                 } ?: emptyList()
+
                 trySend(cartItems)
             }
+
         awaitClose {
             listener.remove()
         }
@@ -67,6 +69,8 @@ class CartRepositoryImpl (
             .update("quantity", quantity)
             .await()
     }
+
+
 
     override suspend fun deleteCartItem(userId: String, bookId: String) {
         if (userId.isEmpty()) return

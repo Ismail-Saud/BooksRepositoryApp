@@ -11,7 +11,7 @@ plugins {
 kotlin {
 
     android {
-        namespace = "com.example.shared"
+        namespace = "com.example.booksrepositoryapp.shared"
 
         compileSdk {
             version = release(37)
@@ -85,6 +85,9 @@ kotlin {
                 api(compose.ui)
                 api(compose.components.resources)
                 api(compose.materialIconsExtended)
+
+                // Compose Multiplatform Navigation
+                implementation(libs.navigation.compose)
             }
         }
 
@@ -120,7 +123,6 @@ kotlin {
                 // Android Location APIs
                 implementation(libs.play.services.location)
 
-                implementation(libs.androidx.navigation.compose)
                 implementation(libs.androidx.core.splashscreen)
 
                 implementation(libs.firebase.config)

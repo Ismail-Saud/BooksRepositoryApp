@@ -79,11 +79,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
 
-    // AndroidX Navigation
-    implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.navigation.common.ktx)
-    implementation(libs.androidx.navigation.ui.ktx)
-
     // Firebase BOM & Services used in app
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)

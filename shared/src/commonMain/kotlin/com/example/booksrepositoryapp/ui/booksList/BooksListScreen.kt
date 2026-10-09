@@ -36,6 +36,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,6 +53,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.domain.model.Category
 import com.example.booksrepositoryapp.ui.bookCategory.imageResource
@@ -72,14 +77,38 @@ fun BooksListScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val lifecycleOwner = LocalLifecycleOwner.current
+    var isResumed by remember {
+        mutableStateOf(lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED))
+    }
 
-    LaunchedEffect(Unit) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                is BooksListEffect.NavigateToBookDetails -> onNavigate(effect)
-                BooksListEffect.NavigateBack -> onBackClick()
-                is BooksListEffect.ShowError -> {
-                    snackbarHostState.showSnackbar(message = effect.message)
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, _ ->
+            isResumed = lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    is BooksListEffect.NavigateToBookDetails -> {
+                        if (isResumed) {
+                            onNavigate(effect)
+                        }
+                    }
+                    BooksListEffect.NavigateBack -> {
+                        if (isResumed) {
+                            onBackClick()
+                        }
+                    }
+                    is BooksListEffect.ShowError -> {
+                        snackbarHostState.showSnackbar(message = effect.message)
+                    }
                 }
             }
         }
@@ -206,8 +235,11 @@ fun BooksListScreen(
                         ) { book ->
                             BookCard(
                                 book = book,
+                                isClickable = isResumed,
                                 onClick = {
-                                    viewModel.onEvent(BooksListEvent.BookClicked(book.id))
+                                    if (isResumed) {
+                                        viewModel.onEvent(BooksListEvent.BookClicked(book.id))
+                                    }
                                 },
                             )
                         }
@@ -233,6 +265,7 @@ fun BooksListScreen(
 @Composable
 fun BookCard(
     book: Book,
+    isClickable: Boolean = true,
     onClick: () -> Unit,
 ) {
     val category = Category(book.category)
@@ -244,7 +277,7 @@ fun BookCard(
             Modifier
                 .fillMaxWidth()
                 .height(250.dp)
-                .clickable {
+                .clickable(enabled = isClickable) {
                     onClick()
                 },
         shape = RoundedCornerShape(8.dp),

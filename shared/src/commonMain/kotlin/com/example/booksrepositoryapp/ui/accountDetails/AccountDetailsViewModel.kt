@@ -21,13 +21,14 @@ class AccountDetailsViewModel (
     addressRepo: AddressRepository
 ) : ViewModel() {
 
-    val id = authRepo.getCurrentUserId() ?: ""
+    private val userId: String
+        get() = authRepo.getCurrentUserId() ?: ""
     private val _userState = MutableStateFlow<AccountDetailsState>(AccountDetailsState.Idle)
     val userState: StateFlow<AccountDetailsState> = _userState
     private val _user = MutableStateFlow<User?>(null)
     val user: StateFlow<User?> = _user
 
-    private val _effect = Channel<AccountDetailsEffect>()
+    private val _effect = Channel<AccountDetailsEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
     fun onEvent(event: AccountDetailsEvent) {
@@ -52,15 +53,10 @@ class AccountDetailsViewModel (
     }
 
     fun getUser() {
-        val uid = authRepo.getCurrentUserId()
-        if (uid == null) {
-            _userState.value = AccountDetailsState.Error("User is not logged in")
-            return
-        }
         viewModelScope.launch {
             _userState.value = AccountDetailsState.Loading
             try {
-                val user = userRepo.getUserProfile(uid)
+                val user = userRepo.getUserProfile(userId)
                 if (user != null) {
                     _user.value = user
                     _userState.value = AccountDetailsState.Success(user)
@@ -73,7 +69,7 @@ class AccountDetailsViewModel (
         }
     }
 
-    val selectedAddress: Flow<Address?> = addressRepo.getSelectedAddress(id)
+    val selectedAddress: Flow<Address?> = addressRepo.getSelectedAddress(userId)
         .catch { emit(null) }
 
     fun logout() {
@@ -81,11 +77,10 @@ class AccountDetailsViewModel (
     }
 
     fun saveUserProfilePicture(imageUri: String) {
-        val uid = authRepo.getCurrentUserId() ?: return
         viewModelScope.launch {
             try {
                 val oldFileName = _user.value?.profilePicture
-                userRepo.saveProfilePicture(uid = uid, imageUri = imageUri, oldFileName = oldFileName)
+                userRepo.saveProfilePicture(uid = userId, imageUri = imageUri, oldFileName = oldFileName)
                 getUser()
             } catch (e: Exception) {
                 _userState.value = AccountDetailsState.Error(e.message ?: "Failed to save profile picture")
@@ -94,13 +89,12 @@ class AccountDetailsViewModel (
     }
 
     fun removeUserProfilePicture() {
-        val uid = authRepo.getCurrentUserId() ?: return
         viewModelScope.launch {
             try {
                 _user.value?.profilePicture?.let { fileName ->
                     userRepo.deleteLocalProfilePicture(fileName)
                 }
-                userRepo.updateProfilePicture(uid = uid, profilePicture = null)
+                userRepo.updateProfilePicture(uid = userId, profilePicture = null)
                 getUser()
             } catch (e: Exception) {
                 _userState.value = AccountDetailsState.Error(e.message ?: "Failed to remove profile picture")

@@ -1,11 +1,12 @@
 package com.example.booksrepositoryapp.data.source.local.room.entity
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 
-@Entity(tableName = "book_details")
+@Entity(
+    tableName = "book_details",
+    primaryKeys = ["workId", "category"]
+)
 data class BookDetailsModel(
-    @PrimaryKey
     val workId: String,
     val category: String,
     val title: String,

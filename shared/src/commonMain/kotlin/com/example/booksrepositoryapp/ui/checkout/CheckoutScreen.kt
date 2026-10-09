@@ -49,7 +49,6 @@ import com.example.booksrepositoryapp.ui.loading.LoadingScreen
 
 @Composable
 fun CheckoutScreen(
-    total: Double,
     onNavigate: (CheckoutEffect) -> Unit,
     viewModel: CheckoutViewModel,
     isCheckoutEnabled: Boolean = true,
@@ -94,6 +93,7 @@ fun CheckoutScreen(
         }
         is CheckoutState.Success -> {
             val selectedAddress = state.address
+            val total = state.total
 
             var selectedPayment by rememberSaveable {
                 mutableStateOf("COD")

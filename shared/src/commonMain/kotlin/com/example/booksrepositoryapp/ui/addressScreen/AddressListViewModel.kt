@@ -25,7 +25,7 @@ class AddressListViewModel (
     val userId = authRepo.getCurrentUserId() ?: ""
     private val _isFetchingLocation = MutableStateFlow<Map<String, Boolean>>(emptyMap())
     private val _isSaving = MutableStateFlow<Map<String, Boolean>>(emptyMap())
-    private val _effect = Channel<AddressListEffect>()
+    private val _effect = Channel<AddressListEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
     fun onEvent(event: AddressListEvent) {

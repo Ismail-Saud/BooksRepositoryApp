@@ -14,9 +14,10 @@ import kotlinx.coroutines.launch
 
 class AddToCartViewModel (
     private val cartRepo: CartRepository,
-    authRepo: AuthRepository,
+    private val authRepo: AuthRepository,
 ) : ViewModel() {
-    private val userId = authRepo.getCurrentUserId() ?: ""
+    private val userId: String
+        get() = authRepo.getCurrentUserId() ?: ""
     private val _addToCartState = MutableStateFlow<AddToCartState>(AddToCartState.Idle)
     val addToCartState = _addToCartState.asStateFlow()
     private val _effect = Channel<AddToCartEffect>(Channel.BUFFERED)

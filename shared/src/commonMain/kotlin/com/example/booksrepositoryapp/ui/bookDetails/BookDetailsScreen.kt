@@ -37,6 +37,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -68,18 +71,21 @@ fun BookDetailsScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                BookDetailsEffect.NavigateBack -> {
-                    onBackClick()
-                }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.effect.collect { effect ->
+                when (effect) {
+                    BookDetailsEffect.NavigateBack -> {
+                        onBackClick()
+                    }
 
-                is BookDetailsEffect.ShowMessage -> {
-                    coroutineScope.launch {
-                        snackbarHostState.showSnackbar(
-                            message = effect.message,
-                        )
+                    is BookDetailsEffect.ShowMessage -> {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = effect.message,
+                            )
+                        }
                     }
                 }
             }
