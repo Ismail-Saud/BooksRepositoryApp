@@ -52,6 +52,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.cart
+import booksrepositoryapp.shared.generated.resources.order_summary
+import booksrepositoryapp.shared.generated.resources.proceed_to_checkout
+import booksrepositoryapp.shared.generated.resources.shipping
+import booksrepositoryapp.shared.generated.resources.subtotal
+import booksrepositoryapp.shared.generated.resources.total
 import com.example.booksrepositoryapp.domain.model.Cart
 import com.example.booksrepositoryapp.domain.model.Category
 import com.example.booksrepositoryapp.ui.bookCategory.imageResource
@@ -141,7 +148,7 @@ fun AddToCartScreen(
                                     .height(48.dp),
                         ) {
                             Text(
-                                text = "Cart",
+                                text = stringResource(Res.string.cart),
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF111111),
@@ -239,20 +246,20 @@ fun OrderSummary(
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
-            text = "Order Summary",
+            text = stringResource(Res.string.order_summary),
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF222222),
             modifier = Modifier.padding(bottom = 12.dp),
         )
-        SummaryRow("Subtotal", subTotal)
+        SummaryRow(stringResource(Res.string.subtotal), subTotal)
         Spacer(modifier = Modifier.height(10.dp))
-        SummaryRow("Shipping", shipping)
+        SummaryRow(stringResource(Res.string.shipping), shipping)
         Spacer(modifier = Modifier.height(12.dp))
         HorizontalDivider(color = Color(0xFF444444), thickness = 1.dp)
         Spacer(modifier = Modifier.height(10.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Text(text = "Total", fontSize = 18.sp, color = Color(0xFF222222))
+            Text(text = stringResource(Res.string.total), fontSize = 18.sp, color = Color(0xFF222222))
             Text(text = "$${total.formatTwoDecimals()}", fontSize = 18.sp, color = Color(0xFF222222))
         }
     }
@@ -298,7 +305,7 @@ fun CheckoutButton(
                 disabledContentColor = Color.White,
             ),
     ) {
-        Text(text = "Proceed to Checkout", fontSize = 14.sp)
+        Text(text = stringResource(Res.string.proceed_to_checkout), fontSize = 14.sp)
     }
 }
 

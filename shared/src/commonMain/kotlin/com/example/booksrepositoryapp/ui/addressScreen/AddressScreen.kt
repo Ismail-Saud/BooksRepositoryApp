@@ -47,10 +47,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.add_delivery_address
+import booksrepositoryapp.shared.generated.resources.address_list
+import booksrepositoryapp.shared.generated.resources.delete_all_delivery_addresses
+import booksrepositoryapp.shared.generated.resources.delivery_address
 import com.example.booksrepositoryapp.data.source.local.uiModels.AddressUiModel
 import com.example.booksrepositoryapp.manager.locationManager.LocationHelper
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheet
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @Composable
@@ -169,7 +175,7 @@ fun AddressScreen(
                     )
                 }
                 Text(
-                    text = "Address List",
+                    text = stringResource(Res.string.address_list),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.Center),
@@ -207,7 +213,14 @@ fun AddressScreen(
                     .padding(start = 20.dp, end = 20.dp, bottom = 20.dp),
             ) {
                 OutlinedButton(
-                    onClick = { viewModel.onEvent(AddressListEvent.AddAddress(addressCount, maxAddresses.toInt())) },
+                    onClick = {
+                        viewModel.onEvent(
+                            AddressListEvent.AddAddress(
+                                addressCount,
+                                maxAddresses.toInt()
+                            )
+                        )
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -218,11 +231,15 @@ fun AddressScreen(
                         contentColor = Color(0xFF333333),
                     ),
                 ) {
-                    Text("Add Delivery Address")
+                    Text(text = stringResource(Res.string.add_delivery_address))
                 }
+
                 Spacer(modifier = Modifier.height(18.dp))
+
                 OutlinedButton(
-                    onClick = { viewModel.onEvent(AddressListEvent.DeleteAllAddresses) },
+                    onClick = {
+                        viewModel.onEvent(AddressListEvent.DeleteAllAddresses)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
@@ -233,7 +250,7 @@ fun AddressScreen(
                         contentColor = Color(0xFF333333),
                     ),
                 ) {
-                    Text("Delete All Addresses")
+                    Text(text = stringResource(Res.string.delete_all_delivery_addresses))
                 }
             }
         }
@@ -276,7 +293,7 @@ fun AddressItem(
                 value = addressText,
                 onValueChange = { addressText = it },
                 modifier = Modifier.weight(1f),
-                label = { Text("Delivery Address") },
+                label = { stringResource(Res.string.delivery_address) },
                 maxLines = 3,
                 textStyle = LocalTextStyle.current.copy(color = Color.White, fontSize = 16.sp),
                 colors = OutlinedTextFieldDefaults.colors(

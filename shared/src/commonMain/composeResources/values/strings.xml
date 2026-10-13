@@ -1,12 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <resources>
     <string name="landing_description">
         Read more and stress less with our online book shopping app. Shop from anywhere you are and discover titles that you love. Happy reading!
     </string>
 
+    <string name="app_logo">App Logo</string>
+
     <string name="get_started">Get Started</string>
     <string name="register">Register</string>
 
-    <string name="app_logo">App Logo</string>
+    <string name="login_description">Please fill in your details to log in.</string>
+    <string name="signup_description">Please fill in your details to sign up.</string>
+    <string name="username">Username</string>
+    <string name="email">E-mail</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="forgot_password">forgot password</string>
+    <string name="new_member">New member?</string>
+    <string name="already_a_member">Already a member?</string>
+
+    <string name="home">Home</string>
+    <string name="cart">Cart</string>
+    <string name="account">Account</string>
+
+    <string name="search_category">Search Category</string>
     <string name="category_fantasy">Fantasy</string>
     <string name="category_fiction">Fiction</string>
     <string name="category_horror">Horror</string>
@@ -25,4 +42,42 @@
     <string name="category_politics">Politics</string>
     <string name="category_adventure">Adventure</string>
     <string name="category_satire">Satire</string>
+
+    <string name="search_book">Search by Title/Author</string>
+
+    <string name="author">Author</string>
+    <string name="category">Category</string>
+    <string name="rating">Rating</string>
+    <string name="pricing">Pricing</string>
+    <string name="add_to_cart">Add to Cart</string>
+    <string name="description">Description</string>
+
+    <string name="order_summary">Order Summary</string>
+    <string name="subtotal">Subtotal</string>
+    <string name="shipping">Shipping</string>
+    <string name="total">Total</string>
+    <string name="proceed_to_checkout">Proceed to Checkout</string>
+
+    <string name="checkout">Checkout</string>
+    <string name="delivery_address">Delivery Address</string>
+    <string name="select_delivery_address">Select Delivery Address</string>
+    <string name="payment_method">Payment Method</string>
+    <string name="credit_debit_card">Credit / Debit Card</string>
+    <string name="card_number">Card Number</string>
+    <string name="card_holder_name">Card Holder Name</string>
+    <string name="cash_on_delivery">Cash on Delivery</string>
+    <string name="pay">Pay</string>
+
+    <string name="add_delivery_address">Add Delivery Address</string>
+    <string name="delete_all_delivery_addresses">Delete All Addresses</string>
+
+    <string name="address_list">Address List</string>
+
+    <string name="processing_order">Processing Order</string>
+
+    <string name="address">Address</string>
+    <string name="name">Name</string>
+    <string name="language">Language</string>
+    <string name="select_language">Select language</string>
+    <string name="logout">Log out</string>
 </resources>

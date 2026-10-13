@@ -42,6 +42,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.search_category
 import com.example.booksrepositoryapp.domain.model.Category
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -138,7 +140,7 @@ fun BookCategoryContent(
                 searchQuery = it
                 onSearchQueryChanged(it)
             },
-            label = { Text("Search Category") },
+            label = { Text(stringResource(Res.string.search_category)) },
             trailingIcon = {
                 Icon(Icons.Default.Search, contentDescription = "Search")
             },

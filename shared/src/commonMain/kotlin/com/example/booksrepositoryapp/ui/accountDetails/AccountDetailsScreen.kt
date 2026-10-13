@@ -33,11 +33,15 @@ import androidx.compose.material.icons.filled.Photo
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -62,10 +66,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.account
+import booksrepositoryapp.shared.generated.resources.address
+import booksrepositoryapp.shared.generated.resources.email
+import booksrepositoryapp.shared.generated.resources.language
+import booksrepositoryapp.shared.generated.resources.logout
+import booksrepositoryapp.shared.generated.resources.name
 import coil3.compose.AsyncImage
+import com.example.booksrepositoryapp.localization.AppLanguage
+import com.example.booksrepositoryapp.localization.customAppLocale
 import com.example.booksrepositoryapp.manager.cameraManager.CameraHelper
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheet
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,6 +87,7 @@ import org.koin.compose.koinInject
 fun AccountDetailsScreen(
     viewModel: AccountDetailsViewModel,
     onNavigate: (AccountDetailsEffect) -> Unit,
+    onLanguageSelected: (AppLanguage) -> Unit,
     cameraHelper: CameraHelper = koinInject(),
 ) {
     val userState by viewModel.userState.collectAsState()
@@ -81,6 +96,12 @@ fun AccountDetailsScreen(
     var showPictureSheet by rememberSaveable { mutableStateOf(false) }
     var showRemovePictureSheet by rememberSaveable { mutableStateOf(false) }
     var showCameraSettingsSheet by rememberSaveable { mutableStateOf(false) }
+    var selectedLanguage = when (customAppLocale) {
+        "ur" -> "اردو"
+        "en" -> "English"
+        else -> "English"
+    }
+    var languageDropdownExpanded by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
 
@@ -135,7 +156,7 @@ fun AccountDetailsScreen(
             ) {
                 item {
                     Text(
-                        text = "Account",
+                        text = stringResource(Res.string.account),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
@@ -181,22 +202,94 @@ fun AccountDetailsScreen(
 
                 item {
                     AccountInfoCard(
-                        label = "Name:",
+                        label = "${stringResource(Res.string.name)}:",
                         value = user?.username ?: "No name",
                         modifier = Modifier.padding(top = 32.dp),
                     )
                     AccountInfoCard(
-                        label = "E-mail:",
+                        label = "${stringResource(Res.string.email)}:",
                         value = user?.email ?: "No email",
                         modifier = Modifier.padding(top = 16.dp),
                     )
 
                     AccountInfoCard(
-                        label = "Address:",
+                        label = "${stringResource(Res.string.address)}:",
                         value = selectedAddress?.fullAddress ?: "No address selected",
                         modifier = Modifier.padding(top = 16.dp),
                     )
                 }
+
+
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp),
+                        horizontalAlignment = Alignment.Start,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.language),
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = Color.Black,
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        ExposedDropdownMenuBox(
+                            expanded = languageDropdownExpanded,
+                            onExpandedChange = {
+                                languageDropdownExpanded = it
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            OutlinedTextField(
+                                value = selectedLanguage,
+                                onValueChange = {},
+                                readOnly = true,
+                                singleLine = true,
+                                modifier = Modifier
+                                    .menuAnchor()
+                                    .fillMaxWidth(),
+                                trailingIcon = {
+                                    ExposedDropdownMenuDefaults.TrailingIcon(
+                                        expanded = languageDropdownExpanded,
+                                    )
+                                },
+                                colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = Color.Black,
+                                    unfocusedBorderColor = Color.LightGray,
+                                    focusedTextColor = Color.Black,
+                                    unfocusedTextColor = Color.Black,
+                                ),
+                            )
+
+                            val languages = AppLanguage.entries
+
+                            ExposedDropdownMenu(
+                                expanded = languageDropdownExpanded,
+                                onDismissRequest = {
+                                    languageDropdownExpanded = false
+                                }
+                            ) {
+                                languages.forEach { language ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(text = language.displayName)
+                                        },
+                                        onClick = {
+                                            selectedLanguage = language.displayName
+                                            languageDropdownExpanded = false
+
+                                            onLanguageSelected(language)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
 
                 item {
                     OutlinedButton(
@@ -214,7 +307,7 @@ fun AccountDetailsScreen(
                             contentColor = Color.Black,
                         ),
                     ) {
-                        Text(text = "Log out", fontSize = 14.sp)
+                        Text(text = stringResource(Res.string.logout), fontSize = 14.sp)
                     }
                 }
             }

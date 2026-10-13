@@ -45,7 +45,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.email
+import booksrepositoryapp.shared.generated.resources.forgot_password
+import booksrepositoryapp.shared.generated.resources.get_started
+import booksrepositoryapp.shared.generated.resources.login_description
+import booksrepositoryapp.shared.generated.resources.new_member
+import booksrepositoryapp.shared.generated.resources.password
+import booksrepositoryapp.shared.generated.resources.register
+import booksrepositoryapp.shared.generated.resources.username
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun GetStartedScreen(
@@ -107,7 +117,7 @@ fun GetStartedScreen(
                     )
                 }
                 Text(
-                    text = "Get Started",
+                    text = stringResource(Res.string.get_started),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF111111),
@@ -115,7 +125,7 @@ fun GetStartedScreen(
                 )
             }
             Text(
-                text = "Please fill your details to login.",
+                text = stringResource(Res.string.login_description),
                 fontSize = 12.sp,
                 color = Color(0xFF333333),
                 modifier =
@@ -133,7 +143,7 @@ fun GetStartedScreen(
                     email = it
                 },
                 label = {
-                    Text("Username/email")
+                    Text("${stringResource(Res.string.username)}/${stringResource(Res.string.email)}")
                 },
                 singleLine = true,
                 keyboardOptions =
@@ -165,7 +175,7 @@ fun GetStartedScreen(
                     password = it
                 },
                 label = {
-                    Text("Password")
+                    Text(stringResource(Res.string.password))
                 },
                 singleLine = true,
                 visualTransformation =
@@ -236,13 +246,13 @@ fun GetStartedScreen(
                     )
                 } else {
                     Text(
-                        text = "Get Started",
+                        text = stringResource(Res.string.get_started),
                         fontSize = 12.sp,
                     )
                 }
             }
             Text(
-                text = "forgot password?",
+                text = stringResource(Res.string.forgot_password),
                 fontSize = 11.sp,
                 color = Color(0xFF222222),
                 modifier =
@@ -263,12 +273,12 @@ fun GetStartedScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "New member? ",
+                    text = "${stringResource(Res.string.new_member)} ",
                     fontSize = 15.sp,
                     color = Color(0xFF111111),
                 )
                 Text(
-                    text = "Register",
+                    text = stringResource(Res.string.register),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (isLoading) Color.Gray else Color(0xFF022BFF),

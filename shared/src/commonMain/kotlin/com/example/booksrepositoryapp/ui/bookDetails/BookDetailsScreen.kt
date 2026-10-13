@@ -51,6 +51,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.add_to_cart
+import booksrepositoryapp.shared.generated.resources.author
+import booksrepositoryapp.shared.generated.resources.category
+import booksrepositoryapp.shared.generated.resources.description
+import booksrepositoryapp.shared.generated.resources.pricing
+import booksrepositoryapp.shared.generated.resources.rating
 import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.domain.model.Category
 import com.example.booksrepositoryapp.ui.bookCategory.imageResource
@@ -259,17 +266,17 @@ fun BookDetailsContent(
                         .weight(1f),
             ) {
                 Text(
-                    text = "Author : ${book.author}",
+                    text = "${stringResource(Res.string.author)} : ${book.author}",
                     fontSize = 18.sp,
                     color = Color(0xFF212121),
                 )
                 Text(
-                    text = "Category : $categoryTitle",
+                    text = "${stringResource(Res.string.category)} : $categoryTitle",
                     fontSize = 18.sp,
                     modifier = Modifier.padding(top = 10.dp),
                 )
                 Text(
-                    text = "Rating : ${book.rating}/5",
+                    text = "${stringResource(Res.string.rating)} : ${book.rating}/5",
                     fontSize = 18.sp,
                     modifier = Modifier.padding(top = 10.dp),
                 )
@@ -278,7 +285,7 @@ fun BookDetailsContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = "Pricing:",
+                        text = "${stringResource(Res.string.pricing)}:",
                         fontSize = 18.sp,
                     )
                     Text(
@@ -311,7 +318,7 @@ fun BookDetailsContent(
                         )
                     } else {
                         Text(
-                            text = "Add to Cart",
+                            text = stringResource(Res.string.add_to_cart),
                             fontSize = 18.sp,
                             color = Color.White,
                         )
@@ -320,7 +327,7 @@ fun BookDetailsContent(
             }
         }
         Text(
-            text = "Description:",
+            text = "${stringResource(Res.string.description)}:",
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF212121),

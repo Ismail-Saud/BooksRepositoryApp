@@ -45,7 +45,18 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.card_holder_name
+import booksrepositoryapp.shared.generated.resources.card_number
+import booksrepositoryapp.shared.generated.resources.cash_on_delivery
+import booksrepositoryapp.shared.generated.resources.checkout
+import booksrepositoryapp.shared.generated.resources.credit_debit_card
+import booksrepositoryapp.shared.generated.resources.delivery_address
+import booksrepositoryapp.shared.generated.resources.pay
+import booksrepositoryapp.shared.generated.resources.payment_method
+import booksrepositoryapp.shared.generated.resources.select_delivery_address
 import com.example.booksrepositoryapp.ui.loading.LoadingScreen
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun CheckoutScreen(
@@ -156,7 +167,7 @@ fun CheckoutScreen(
                     }
 
                     Text(
-                        text = "Checkout",
+                        text = stringResource(Res.string.checkout),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.align(Alignment.Center),
@@ -193,7 +204,7 @@ fun CheckoutScreen(
                     }
                     item {
                         Text(
-                            text = "Delivery Address",
+                            text = stringResource(Res.string.delivery_address),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 32.dp),
@@ -243,12 +254,12 @@ fun CheckoutScreen(
                                     contentColor = Color(0xFF333333),
                                 ),
                         ) {
-                            Text("Select Delivery Address")
+                            Text(stringResource(Res.string.select_delivery_address))
                         }
                     }
                     item {
                         Text(
-                            text = "Payment Method",
+                            text = stringResource(Res.string.payment_method),
                             fontSize = 24.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(top = 32.dp),
@@ -268,7 +279,7 @@ fun CheckoutScreen(
                                     },
                                 )
                                 Text(
-                                    text = "Credit / Debit Card",
+                                    text = stringResource(Res.string.credit_debit_card),
                                     fontSize = 18.sp,
                                 )
                             }
@@ -283,7 +294,7 @@ fun CheckoutScreen(
                                     },
                                 )
                                 Text(
-                                    text = "Cash on Delivery",
+                                    text = stringResource(Res.string.cash_on_delivery),
                                     fontSize = 18.sp,
                                 )
                             }
@@ -309,7 +320,7 @@ fun CheckoutScreen(
                                             .fillMaxWidth()
                                             .padding(top = 24.dp),
                                     label = {
-                                        Text("Card Number")
+                                        Text(stringResource(Res.string.card_number))
                                     },
                                     keyboardOptions =
                                         KeyboardOptions(
@@ -342,7 +353,7 @@ fun CheckoutScreen(
                                             .fillMaxWidth()
                                             .padding(top = 16.dp),
                                     label = {
-                                        Text("Card Holder Name")
+                                        Text(stringResource(Res.string.card_holder_name))
                                     },
                                     keyboardOptions =
                                         KeyboardOptions(
@@ -461,7 +472,7 @@ fun CheckoutScreen(
                 ) {
                     Text(
                         text = if (isCheckoutEnabled) {
-                            "Pay $${total.formatPrice()}"
+                            "${stringResource(Res.string.pay)} $${total.formatPrice()}"
                         } else {
                             "Checkout Disabled"
                         },

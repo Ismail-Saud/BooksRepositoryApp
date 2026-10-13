@@ -25,6 +25,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.account
+import booksrepositoryapp.shared.generated.resources.cart
+import booksrepositoryapp.shared.generated.resources.home
+import com.example.booksrepositoryapp.localization.AppLanguage
+import com.example.booksrepositoryapp.navigation.routes.DoubleNavType
 import com.example.booksrepositoryapp.navigation.routes.Route
 import com.example.booksrepositoryapp.ui.accountDetails.AccountDetailsEffect
 import com.example.booksrepositoryapp.ui.accountDetails.AccountDetailsScreen
@@ -51,16 +57,19 @@ import com.example.booksrepositoryapp.ui.checkout.CheckoutViewModel
 import com.example.booksrepositoryapp.ui.landingPage.LandingPage
 import com.example.booksrepositoryapp.ui.maintenancePage.MaintenanceScreen
 import com.example.booksrepositoryapp.ui.successPayment.SuccessScreen
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.reflect.typeOf
 
 @Composable
 fun AppNavigation(
-    isLoggedIn: Boolean = false,
-    shippingFee: Double = 5.0,
-    maxAddresses: Long = 5L,
-    isCheckoutEnabled: Boolean = true,
-    isMaintenanceMode: Boolean = false,
+    isLoggedIn: Boolean,
+    shippingFee: Double,
+    maxAddresses: Long,
+    isCheckoutEnabled: Boolean,
+    isMaintenanceMode: Boolean,
+    onLanguageSelected: (AppLanguage) -> Unit,
     navController: NavHostController = rememberNavController(),
     modifier: Modifier = Modifier,
 ) {
@@ -97,8 +106,8 @@ fun AppNavigation(
                                 popUpTo<Route.BooksCategory> { saveState = true }
                             }
                         },
-                        icon = { Icon(Default.Home, contentDescription = "Home") },
-                        label = { Text("Home") },
+                        icon = { Icon(Default.Home, contentDescription = stringResource(Res.string.home)) },
+                        label = { Text(stringResource(Res.string.home)) },
                     )
                     NavigationBarItem(
                         selected = currentDestination?.hasRoute<Route.AddToCart>() == true,
@@ -109,8 +118,8 @@ fun AppNavigation(
                                 popUpTo<Route.BooksCategory> { saveState = true }
                             }
                         },
-                        icon = { Icon(Default.ShoppingCart, contentDescription = "Cart") },
-                        label = { Text("Cart") },
+                        icon = { Icon(Default.ShoppingCart, contentDescription = stringResource(Res.string.cart)) },
+                        label = { Text(stringResource(Res.string.cart)) },
                     )
                     NavigationBarItem(
                         selected = currentDestination?.hasRoute<Route.Account>() == true,
@@ -121,8 +130,8 @@ fun AppNavigation(
                                 popUpTo<Route.BooksCategory> { saveState = true }
                             }
                         },
-                        icon = { Icon(Default.Person, contentDescription = "Account") },
-                        label = { Text("Account") },
+                        icon = { Icon(Default.Person, contentDescription = stringResource(Res.string.account)) },
+                        label = { Text(stringResource(Res.string.account)) },
                     )
                 }
             }
@@ -234,13 +243,15 @@ fun AppNavigation(
                     shippingFee = shippingFee,
                     onNavigate = { effect ->
                         if (backStackEntry.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                            navController.navigate(Route.Checkout(effect.total.toString()))
+                            navController.navigate(Route.Checkout(effect.total))
                         }
                     },
                 )
             }
 
-            composable<Route.Checkout> { backStackEntry ->
+            composable<Route.Checkout>(
+                typeMap = mapOf(typeOf<Double>() to DoubleNavType),
+            ) { backStackEntry ->
                 val viewModel: CheckoutViewModel = koinViewModel(
                     parameters = { parametersOf(shippingFee) }
                 )
@@ -295,10 +306,13 @@ fun AppNavigation(
                     onNavigate = { effect ->
                         if (effect is AccountDetailsEffect.NavigateToLandingPage) {
                             navController.navigate(Route.LandingPage) {
-                                popUpTo(0) { inclusive = true }
+                                popUpTo(0) {
+                                    inclusive = true
+                                }
                             }
                         }
                     },
+                    onLanguageSelected = onLanguageSelected
                 )
             }
         }

@@ -88,6 +88,10 @@ kotlin {
 
                 // Compose Multiplatform Navigation
                 implementation(libs.navigation.compose)
+
+                // Data Store
+                implementation(libs.androidx.datastore.core)
+                implementation(libs.androidx.datastore.preferences.core)
             }
         }
 

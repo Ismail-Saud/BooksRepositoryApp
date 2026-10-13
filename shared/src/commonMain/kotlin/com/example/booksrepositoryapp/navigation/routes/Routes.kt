@@ -1,5 +1,7 @@
 package com.example.booksrepositoryapp.navigation.routes
 
+import androidx.core.bundle.Bundle
+import androidx.navigation.NavType
 import kotlinx.serialization.Serializable
 
 sealed interface Route {
@@ -31,7 +33,7 @@ sealed interface Route {
 
     @Serializable
     data class Checkout(
-        val total: String,
+        val total: Double,
     ) : Route
 
     @Serializable
@@ -42,4 +44,22 @@ sealed interface Route {
 
     @Serializable
     data object Account : Route
+}
+
+val DoubleNavType = object : NavType<Double>(isNullableAllowed = false) {
+    override fun get(bundle: Bundle, key: String): Double {
+        return bundle.getDouble(key)
+    }
+
+    override fun parseValue(value: String): Double {
+        return value.toDouble()
+    }
+
+    override fun serializeAsValue(value: Double): String {
+        return value.toString()
+    }
+
+    override fun put(bundle: Bundle, key: String, value: Double) {
+        bundle.putDouble(key, value)
+    }
 }

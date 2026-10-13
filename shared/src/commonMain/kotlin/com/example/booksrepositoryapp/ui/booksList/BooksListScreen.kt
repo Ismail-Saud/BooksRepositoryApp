@@ -57,6 +57,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.search_book
 import com.example.booksrepositoryapp.domain.model.Book
 import com.example.booksrepositoryapp.domain.model.Category
 import com.example.booksrepositoryapp.ui.bookCategory.imageResource
@@ -158,7 +160,7 @@ fun BooksListScreen(
                     viewModel.onEvent(BooksListEvent.SearchQueryChanged(query.trim()))
                 },
                 label = {
-                    Text("Search")
+                    Text(stringResource(Res.string.search_book))
                 },
                 trailingIcon = {
                     Icon(

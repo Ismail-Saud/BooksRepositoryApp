@@ -45,7 +45,16 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.already_a_member
+import booksrepositoryapp.shared.generated.resources.confirm_password
+import booksrepositoryapp.shared.generated.resources.email
+import booksrepositoryapp.shared.generated.resources.password
+import booksrepositoryapp.shared.generated.resources.register
+import booksrepositoryapp.shared.generated.resources.signup_description
+import booksrepositoryapp.shared.generated.resources.username
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun RegisterScreen(
@@ -110,7 +119,7 @@ fun RegisterScreen(
                     )
                 }
                 Text(
-                    text = "Register",
+                    text = stringResource(Res.string.register),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF111111),
@@ -118,7 +127,7 @@ fun RegisterScreen(
                 )
             }
             Text(
-                text = "Please fill your details to signup.",
+                text = stringResource(Res.string.signup_description),
                 fontSize = 12.sp,
                 color = Color(0xFF333333),
                 modifier = Modifier.padding(start = 16.dp, top = 58.dp),
@@ -126,7 +135,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("Username") },
+                label = { Text(stringResource(Res.string.username)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 colors =
@@ -148,7 +157,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
-                label = { Text("Email") },
+                label = { Text(stringResource(Res.string.email)) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 colors =
@@ -171,7 +180,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(Res.string.password)) },
                 singleLine = true,
                 visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -202,7 +211,7 @@ fun RegisterScreen(
             OutlinedTextField(
                 value = confirmPassword,
                 onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
+                label = { Text(stringResource(Res.string.confirm_password)) },
                 singleLine = true,
                 visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
@@ -248,7 +257,7 @@ fun RegisterScreen(
                 if (isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(12.dp), color = Color.White)
                 } else {
-                    Text(text = "Register", fontSize = 12.sp)
+                    Text(text = stringResource(Res.string.register), fontSize = 12.sp)
                 }
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -259,7 +268,7 @@ fun RegisterScreen(
                         .padding(bottom = 20.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(text = "Already a member? ", fontSize = 15.sp, color = Color(0xFF111111))
+                Text(text = "${stringResource(Res.string.already_a_member)} ", fontSize = 15.sp, color = Color(0xFF111111))
                 Text(
                     text = "SignIn",
                     fontSize = 15.sp,
