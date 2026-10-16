@@ -50,14 +50,13 @@ import androidx.compose.ui.unit.sp
 import booksrepositoryapp.shared.generated.resources.Res
 import booksrepositoryapp.shared.generated.resources.add_delivery_address
 import booksrepositoryapp.shared.generated.resources.address_list
-import booksrepositoryapp.shared.generated.resources.delete_all_delivery_addresses
-import booksrepositoryapp.shared.generated.resources.delivery_address
 import booksrepositoryapp.shared.generated.resources.delete
 import booksrepositoryapp.shared.generated.resources.delete_address_message
 import booksrepositoryapp.shared.generated.resources.delete_address_title
 import booksrepositoryapp.shared.generated.resources.delete_all_delivery_addresses
 import booksrepositoryapp.shared.generated.resources.delete_all_message
 import booksrepositoryapp.shared.generated.resources.delete_all_title
+import booksrepositoryapp.shared.generated.resources.delivery_address
 import booksrepositoryapp.shared.generated.resources.go_to_settings
 import booksrepositoryapp.shared.generated.resources.location_permission_message
 import booksrepositoryapp.shared.generated.resources.location_permission_required
