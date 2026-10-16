@@ -1,35 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="landing_description">زیادہ پڑھیں اور کم پریشان ہوں۔ ہماری آن لائن کتابوں کی خریداری کی ایپ کے ذریعے کہیں سے بھی خریداری کریں اور اپنی پسندیدہ کتابیں دریافت کریں۔ مطالعے سے لطف اندوز ہوں!</string>
+    <string name="landing_description">ہماری آن لائن کتابوں کی خریداری کی ایپ کے ساتھ زیادہ پڑھیں اور کم پریشان ہوں۔ کہیں سے بھی خریداری کریں اور اپنی پسندیدہ کتابیں دریافت کریں۔ مطالعے سے لطف اندوز ہوں!</string>
 
     <string name="app_logo">ایپ کا لوگو</string>
 
     <string name="get_started">شروع کریں</string>
     <string name="register">رجسٹر کریں</string>
 
-    <string name="login_description">براہِ کرم لاگ اِن کرنے کے لیے اپنی تفصیلات درج کریں۔</string>
-    <string name="signup_description">براہِ کرم سائن اپ کرنے کے لیے اپنی تفصیلات درج کریں۔</string>    <string name="login">لاگ اِن</string>
-    <string name="signup">سائن اپ</string>
-    <string name="username">صارف کا نام</string>
+    <string name="login_description">لاگ اِن کرنے کے لیے اپنی تفصیلات درج کریں۔</string>
+    <string name="signup_description">اکاؤنٹ بنانے کے لیے اپنی تفصیلات درج کریں۔</string>
+    <string name="username">صارف نام</string>
     <string name="email">ای میل</string>
     <string name="password">پاس ورڈ</string>
     <string name="confirm_password">پاس ورڈ کی تصدیق کریں</string>
     <string name="forgot_password">پاس ورڈ بھول گئے؟</string>
-    <string name="new_member">کیا آپ نئے صارف ہیں؟</string>
-    <string name="already_a_member">کیا آپ پہلے سے رکن ہیں؟</string>
+    <string name="new_member">نئے صارف ہیں؟</string>
+    <string name="already_a_member">پہلے سے رکن ہیں؟</string>
 
     <string name="home">ہوم</string>
     <string name="cart">کارٹ</string>
     <string name="account">اکاؤنٹ</string>
 
-    <string name="search_category">زمرہ تلاش کریں</string>
-    <string name="category_fantasy">فینٹسی</string>
+    <string name="search_category">کیٹیگری تلاش کریں</string>
+    <string name="category_fantasy">تصوراتی ادب</string>
     <string name="category_fiction">افسانوی ادب</string>
-    <string name="category_horror">خوفناک ادب</string>
-    <string name="category_non_fiction">حقیقت پر مبنی ادب</string>
+    <string name="category_horror">خوف و دہشت</string>
+    <string name="category_non_fiction">غیر افسانوی ادب</string>
     <string name="category_classic">کلاسیکی ادب</string>
-    <string name="category_crime">جرائم پر مبنی ادب</string>
-    <string name="category_sci_fi">سائنس فکشن</string>
+    <string name="category_crime">جرائم</string>
+    <string name="category_sci_fi">سائنسی فکشن</string>
     <string name="category_drama">ڈراما</string>
     <string name="category_young_adult">نوجوانوں کا ادب</string>
     <string name="category_history">تاریخ</string>
@@ -42,20 +41,20 @@
     <string name="category_adventure">مہم جوئی</string>
     <string name="category_satire">طنز و مزاح</string>
 
-    <string name="search_book">کتاب کا عنوان یا مصنف تلاش کریں</string>
+    <string name="search_book">عنوان یا مصنف کے نام سے تلاش کریں</string>
 
     <string name="author">مصنف</string>
-    <string name="category">زمرہ</string>
+    <string name="category">کیٹیگری</string>
     <string name="rating">درجہ بندی</string>
     <string name="pricing">قیمت</string>
     <string name="add_to_cart">کارٹ میں شامل کریں</string>
     <string name="description">تفصیل</string>
 
     <string name="order_summary">آرڈر کا خلاصہ</string>
-    <string name="subtotal">ذیلی کل</string>
+    <string name="subtotal">ذیلی مجموعہ</string>
     <string name="shipping">ترسیل کے اخراجات</string>
     <string name="total">کل رقم</string>
-    <string name="proceed_to_checkout">ادائیگی کے لیے آگے بڑھیں</string>
+    <string name="proceed_to_checkout">چیک آؤٹ کی طرف بڑھیں</string>
 
     <string name="checkout">چیک آؤٹ</string>
     <string name="delivery_address">ترسیل کا پتہ</string>
@@ -64,8 +63,8 @@
     <string name="credit_debit_card">کریڈٹ / ڈیبٹ کارڈ</string>
     <string name="card_number">کارڈ نمبر</string>
     <string name="card_holder_name">کارڈ ہولڈر کا نام</string>
-    <string name="cash_on_delivery">وصولی پر نقد ادائیگی</string>
-    <string name="pay">ادائیگی</string>
+    <string name="cash_on_delivery">وصولی کے وقت ادائیگی</string>
+    <string name="pay">ادائیگی کریں</string>
 
     <string name="add_delivery_address">ترسیل کا پتہ شامل کریں</string>
     <string name="delete_all_delivery_addresses">تمام پتے حذف کریں</string>
@@ -79,4 +78,65 @@
     <string name="language">زبان</string>
     <string name="select_language">زبان منتخب کریں</string>
     <string name="logout">لاگ آؤٹ</string>
+
+    <!-- Profile & Account Details -->
+    <string name="no_name">کوئی نام نہیں</string>
+    <string name="no_email">کوئی ای میل نہیں</string>
+    <string name="no_address_selected">کوئی پتہ منتخب نہیں کیا گیا</string>
+    <string name="remove_profile_picture_title">پروفائل تصویر ہٹائیں</string>
+    <string name="remove_profile_picture_message">کیا آپ واقعی اپنی پروفائل تصویر ہٹانا چاہتے ہیں؟</string>
+    <string name="remove">ہٹائیں</string>
+    <string name="camera_permission_title">کیمرے کی اجازت درکار ہے</string>
+    <string name="camera_permission_message">کیمرے کی اجازت مستقل طور پر مسترد کر دی گئی ہے۔ پروفائل تصویر لینے کے لیے براہِ کرم سیٹنگز میں اجازت فعال کریں۔</string>
+    <string name="camera_permission_required">تصویر لینے کے لیے کیمرے کی اجازت ضروری ہے۔</string>
+    <string name="open_settings">سیٹنگز کھولیں</string>
+    <string name="profile_photo">پروفائل تصویر</string>
+    <string name="take_a_photo">تصویر لیں</string>
+    <string name="choose_from_gallery">گیلری سے منتخب کریں</string>
+    <string name="remove_photo">تصویر ہٹائیں</string>
+
+    <!-- Cart -->
+    <string name="remove_item_title">آئٹم ہٹائیں</string>
+    <string name="remove_item_message">کیا آپ اس آئٹم کو کارٹ سے ہٹانا چاہتے ہیں؟</string>
+
+    <!-- Address Management -->
+    <string name="location_permission_required">آپ کا پتہ معلوم کرنے کے لیے لوکیشن کی اجازت ضروری ہے۔</string>
+    <string name="location_permission_title">اجازت درکار ہے</string>
+    <string name="location_permission_message">لوکیشن تک رسائی مستقل طور پر مسترد کر دی گئی ہے۔ جاری رکھنے کے لیے براہِ کرم سیٹنگز میں اجازت فعال کریں۔</string>
+    <string name="go_to_settings">سیٹنگز پر جائیں</string>
+    <string name="delete_all_title">سب حذف کریں</string>
+    <string name="delete_all_message">کیا آپ واقعی تمام پتے حذف کرنا چاہتے ہیں؟</string>
+    <string name="delete_address_title">پتہ حذف کریں</string>
+    <string name="delete_address_message">کیا آپ یہ پتہ حذف کرنا چاہتے ہیں؟</string>
+    <string name="delete">حذف کریں</string>
+
+    <!-- Checkout -->
+    <string name="checkout_disabled_maintenance">دیکھ بھال کے کام کی وجہ سے چیک آؤٹ فی الحال بند ہے۔</string>
+    <string name="address_not_found">پتہ نہیں ملا</string>
+    <string name="invalid_card_number">کارڈ نمبر درست نہیں ہے</string>
+    <string name="invalid_card_holder_name">کارڈ ہولڈر کا نام درست نہیں ہے</string>
+    <string name="mm_yy">ماہ/سال</string>
+    <string name="cvv">سی وی وی</string>
+    <string name="checkout_disabled">چیک آؤٹ بند ہے</string>
+
+    <!-- Common & Dialogs -->
+    <string name="cancel">منسوخ کریں</string>
+    <string name="retry">دوبارہ کوشش کریں</string>
+
+    <!-- Price Filter -->
+    <string name="price_filter">قیمت کا فلٹر</string>
+    <string name="price">قیمت</string>
+    <string name="apply_filter">فلٹر لاگو کریں</string>
+    <string name="reset_filter">فلٹر ری سیٹ کریں</string>
+
+    <!-- Maintenance Screen -->
+    <string name="maintenance_title">ہم جلد واپس آئیں گے!</string>
+    <string name="maintenance_message">ایپ کی دیکھ بھال کا کام جاری ہے۔ براہِ کرم کچھ دیر بعد دوبارہ کوشش کریں۔</string>
+
+    <!-- Payment Success -->
+    <string name="payment_received">ادائیگی موصول ہو گئی!</string>
+    <string name="order_validated">آپ کے آرڈر کی تصدیق ہو گئی ہے۔</string>
+
+    <!-- Loading -->
+    <string name="processing_order_dots">آرڈر پر کارروائی جاری ہے...</string>
 </resources>

@@ -52,6 +52,16 @@ import booksrepositoryapp.shared.generated.resources.add_delivery_address
 import booksrepositoryapp.shared.generated.resources.address_list
 import booksrepositoryapp.shared.generated.resources.delete_all_delivery_addresses
 import booksrepositoryapp.shared.generated.resources.delivery_address
+import booksrepositoryapp.shared.generated.resources.delete
+import booksrepositoryapp.shared.generated.resources.delete_address_message
+import booksrepositoryapp.shared.generated.resources.delete_address_title
+import booksrepositoryapp.shared.generated.resources.delete_all_delivery_addresses
+import booksrepositoryapp.shared.generated.resources.delete_all_message
+import booksrepositoryapp.shared.generated.resources.delete_all_title
+import booksrepositoryapp.shared.generated.resources.go_to_settings
+import booksrepositoryapp.shared.generated.resources.location_permission_message
+import booksrepositoryapp.shared.generated.resources.location_permission_required
+import booksrepositoryapp.shared.generated.resources.location_permission_title
 import com.example.booksrepositoryapp.data.source.local.uiModels.AddressUiModel
 import com.example.booksrepositoryapp.manager.locationManager.LocationHelper
 import com.example.booksrepositoryapp.ui.conformationBottomSheet.ConfirmationBottomSheet
@@ -74,6 +84,7 @@ fun AddressScreen(
     var showDeleteAllDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val locationPermissionRequiredMessage = stringResource(Res.string.location_permission_required)
 
     val locationLauncher = locationHelper.rememberLocationLauncher(
         onLocationReceived = { addressId, latitude, longitude ->
@@ -81,7 +92,7 @@ fun AddressScreen(
         },
         onPermissionDenied = {
             coroutineScope.launch {
-                snackbarHostState.showSnackbar("Location permission is required to get your address.")
+                snackbarHostState.showSnackbar(locationPermissionRequiredMessage)
             }
         },
         onPermissionPermanentlyDenied = {
@@ -115,9 +126,9 @@ fun AddressScreen(
 
     if (showPermissionDialog) {
         ConfirmationBottomSheet(
-            title = "Permission Required",
-            message = "Location access was permanently denied. Please enable it in Settings to continue.",
-            positiveButtonText = "Go to Settings",
+            title = stringResource(Res.string.location_permission_title),
+            message = stringResource(Res.string.location_permission_message),
+            positiveButtonText = stringResource(Res.string.go_to_settings),
             onConfirm = {
                 locationHelper.openAppSettings()
                 showPermissionDialog = false
@@ -128,9 +139,9 @@ fun AddressScreen(
 
     if (showDeleteAllDialog) {
         ConfirmationBottomSheet(
-            title = "Delete All",
-            message = "Are you sure you want to delete all addresses?",
-            positiveButtonText = "Delete All",
+            title = stringResource(Res.string.delete_all_title),
+            message = stringResource(Res.string.delete_all_message),
+            positiveButtonText = stringResource(Res.string.delete_all_delivery_addresses),
             onConfirm = {
                 viewModel.onEvent(AddressListEvent.ConfirmDeleteAllAddresses)
                 showDeleteAllDialog = false
@@ -141,9 +152,9 @@ fun AddressScreen(
 
     if (addressToDeleteId != null) {
         ConfirmationBottomSheet(
-            title = "Delete Address",
-            message = "Do you want to delete this address?",
-            positiveButtonText = "Delete",
+            title = stringResource(Res.string.delete_address_title),
+            message = stringResource(Res.string.delete_address_message),
+            positiveButtonText = stringResource(Res.string.delete),
             onConfirm = {
                 addressToDeleteId?.let { id ->
                     viewModel.onEvent(AddressListEvent.ConfirmDeleteAddress(id))

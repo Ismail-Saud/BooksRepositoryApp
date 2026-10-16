@@ -69,10 +69,24 @@ import androidx.compose.ui.unit.sp
 import booksrepositoryapp.shared.generated.resources.Res
 import booksrepositoryapp.shared.generated.resources.account
 import booksrepositoryapp.shared.generated.resources.address
+import booksrepositoryapp.shared.generated.resources.camera_permission_message
+import booksrepositoryapp.shared.generated.resources.camera_permission_required
+import booksrepositoryapp.shared.generated.resources.camera_permission_title
+import booksrepositoryapp.shared.generated.resources.choose_from_gallery
 import booksrepositoryapp.shared.generated.resources.email
 import booksrepositoryapp.shared.generated.resources.language
 import booksrepositoryapp.shared.generated.resources.logout
 import booksrepositoryapp.shared.generated.resources.name
+import booksrepositoryapp.shared.generated.resources.no_address_selected
+import booksrepositoryapp.shared.generated.resources.no_email
+import booksrepositoryapp.shared.generated.resources.no_name
+import booksrepositoryapp.shared.generated.resources.open_settings
+import booksrepositoryapp.shared.generated.resources.profile_photo
+import booksrepositoryapp.shared.generated.resources.remove
+import booksrepositoryapp.shared.generated.resources.remove_photo
+import booksrepositoryapp.shared.generated.resources.remove_profile_picture_message
+import booksrepositoryapp.shared.generated.resources.remove_profile_picture_title
+import booksrepositoryapp.shared.generated.resources.take_a_photo
 import coil3.compose.AsyncImage
 import com.example.booksrepositoryapp.localization.AppLanguage
 import com.example.booksrepositoryapp.localization.customAppLocale
@@ -104,6 +118,7 @@ fun AccountDetailsScreen(
     var languageDropdownExpanded by rememberSaveable { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val cameraPermissionRequiredMessage = stringResource(Res.string.camera_permission_required)
 
     val cameraLauncher = cameraHelper.rememberCameraLauncher(
         onImageCaptured = { imageUri ->
@@ -111,7 +126,7 @@ fun AccountDetailsScreen(
         },
         onPermissionDenied = {
             coroutineScope.launch {
-                snackbarHostState.showSnackbar("Camera permission is required to take a picture.")
+                snackbarHostState.showSnackbar(cameraPermissionRequiredMessage)
             }
         },
         onPermissionPermanentlyDenied = {
@@ -183,7 +198,7 @@ fun AccountDetailsScreen(
                         if (imageModel != null) {
                             AsyncImage(
                                 model = imageModel,
-                                contentDescription = "Profile",
+                                contentDescription = stringResource(Res.string.profile_photo),
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -192,7 +207,7 @@ fun AccountDetailsScreen(
                         } else {
                             Icon(
                                 imageVector = Icons.Default.AccountCircle,
-                                contentDescription = "Profile",
+                                contentDescription = stringResource(Res.string.profile_photo),
                                 tint = Color.White,
                                 modifier = Modifier.size(50.dp),
                             )
@@ -203,18 +218,18 @@ fun AccountDetailsScreen(
                 item {
                     AccountInfoCard(
                         label = "${stringResource(Res.string.name)}:",
-                        value = user?.username ?: "No name",
+                        value = user?.username ?: stringResource(Res.string.no_name),
                         modifier = Modifier.padding(top = 32.dp),
                     )
                     AccountInfoCard(
                         label = "${stringResource(Res.string.email)}:",
-                        value = user?.email ?: "No email",
+                        value = user?.email ?: stringResource(Res.string.no_email),
                         modifier = Modifier.padding(top = 16.dp),
                     )
 
                     AccountInfoCard(
                         label = "${stringResource(Res.string.address)}:",
-                        value = selectedAddress?.fullAddress ?: "No address selected",
+                        value = selectedAddress?.fullAddress ?: stringResource(Res.string.no_address_selected),
                         modifier = Modifier.padding(top = 16.dp),
                     )
                 }
@@ -342,9 +357,9 @@ fun AccountDetailsScreen(
 
     if (showRemovePictureSheet) {
         ConfirmationBottomSheet(
-            title = "Remove Profile Picture",
-            message = "Are you sure to remove your profile picture?",
-            positiveButtonText = "Remove",
+            title = stringResource(Res.string.remove_profile_picture_title),
+            message = stringResource(Res.string.remove_profile_picture_message),
+            positiveButtonText = stringResource(Res.string.remove),
             onConfirm = {
                 viewModel.onEvent(AccountDetailsEvent.RemoveProfilePictureClicked)
                 showRemovePictureSheet = false
@@ -357,9 +372,9 @@ fun AccountDetailsScreen(
 
     if (showCameraSettingsSheet) {
         ConfirmationBottomSheet(
-            title = "Camera Permission Required",
-            message = "Camera permission is permanently denied. Please enable it in Settings to capture a profile picture.",
-            positiveButtonText = "Open Settings",
+            title = stringResource(Res.string.camera_permission_title),
+            message = stringResource(Res.string.camera_permission_message),
+            positiveButtonText = stringResource(Res.string.open_settings),
             onConfirm = {
                 showCameraSettingsSheet = false
                 cameraHelper.openAppSettings()
@@ -387,7 +402,7 @@ fun ProfilePictureSheetContent(
                 .padding(top = 8.dp, bottom = 24.dp),
     ) {
         Text(
-            text = "Profile photo",
+            text = stringResource(Res.string.profile_photo),
             fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
             color = Color(0xFF111111),
@@ -395,12 +410,12 @@ fun ProfilePictureSheetContent(
         Spacer(modifier = Modifier.height(16.dp))
         PhotoOptionRow(
             icon = Icons.Default.CameraAlt,
-            label = "Take a photo",
+            label = stringResource(Res.string.take_a_photo),
             onClick = onCameraClicked,
         )
         PhotoOptionRow(
             icon = Icons.Default.Photo,
-            label = "Choose from gallery",
+            label = stringResource(Res.string.choose_from_gallery),
             onClick = onGalleryClicked,
         )
         if (showRemoveOption) {
@@ -411,7 +426,7 @@ fun ProfilePictureSheetContent(
             )
             PhotoOptionRow(
                 icon = Icons.Default.Delete,
-                label = "Remove photo",
+                label = stringResource(Res.string.remove_photo),
                 onClick = onRemoveClicked,
                 isDestructive = true,
             )

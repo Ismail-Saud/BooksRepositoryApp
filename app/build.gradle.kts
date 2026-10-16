@@ -26,14 +26,68 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            isDebuggable = true
+            isMinifyEnabled = false
+            isShrinkResources = false
+            buildConfigField("Boolean", "ENABLE_LOGS", "true")
+            buildConfigField("Boolean", "ENABLE_CRASHLYTICS", "false")
+            buildConfigField("Boolean", "ENABLE_PERFORMANCE_MONITORING", "false")
+            buildConfigField("Long", "NETWORK_TIMEOUT_SECONDS", "30L")
+            buildConfigField("String", "HTTP_LOG_LEVEL", "\"BODY\"")
+        }
         release {
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            isMinifyEnabled = false
-            isShrinkResources = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             signingConfig = signingConfigs.getByName("debug")
+            buildConfigField("Boolean", "ENABLE_LOGS", "false")
+            buildConfigField("Boolean", "ENABLE_CRASHLYTICS", "true")
+            buildConfigField("Boolean", "ENABLE_PERFORMANCE_MONITORING", "true")
+            buildConfigField("Long", "NETWORK_TIMEOUT_SECONDS", "15L")
+            buildConfigField("String", "HTTP_LOG_LEVEL", "\"NONE\"")
+        }
+    }
+
+    flavorDimensions += "environment"
+
+    productFlavors {
+        create("dev") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            manifestPlaceholders["appName"] = "BooksApp (Dev)"
+            buildConfigField("String", "BASE_URL", "\"https://dev-api.example.com/\"")
+            buildConfigField("Boolean", "FEATURE_MOCK_DATA", "true")
+            buildConfigField("Boolean", "SHOW_DEBUG_MENU", "true")
+        }
+        create("staging") {
+            dimension = "environment"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            manifestPlaceholders["appName"] = "BooksApp (Staging)"
+            buildConfigField("String", "BASE_URL", "\"https://staging-api.example.com/\"")
+            buildConfigField("Boolean", "FEATURE_MOCK_DATA", "false")
+            buildConfigField("Boolean", "SHOW_DEBUG_MENU", "true")
+        }
+        create("prod") {
+            dimension = "environment"
+            manifestPlaceholders["appName"] = "BooksRepositoryApp"
+            buildConfigField("String", "BASE_URL", "\"https://api.example.com/\"")
+            buildConfigField("Boolean", "FEATURE_MOCK_DATA", "false")
+            buildConfigField("Boolean", "SHOW_DEBUG_MENU", "false")
+        }
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/INDEX.LIST"
         }
     }
     compileOptions {

@@ -20,12 +20,8 @@ import booksrepositoryapp.shared.generated.resources.category_sci_fi
 import booksrepositoryapp.shared.generated.resources.category_story
 import booksrepositoryapp.shared.generated.resources.category_young_adult
 import booksrepositoryapp.shared.generated.resources.classic_bg
-import booksrepositoryapp.shared.generated.resources.crime_bg
-import booksrepositoryapp.shared.generated.resources.drama_bg
 import booksrepositoryapp.shared.generated.resources.fantasy_bg
-import booksrepositoryapp.shared.generated.resources.horror_bg
 import booksrepositoryapp.shared.generated.resources.non_fiction_bg
-import booksrepositoryapp.shared.generated.resources.sci_fi_bg
 import booksrepositoryapp.shared.generated.resources.young_adult_bg
 import com.example.booksrepositoryapp.domain.model.Category
 import org.jetbrains.compose.resources.DrawableResource
@@ -37,7 +33,7 @@ fun Category.titleResource(): StringResource {
         "fantasy" -> Res.string.category_fantasy
         "fiction" -> Res.string.category_fiction
         "horror" -> Res.string.category_horror
-        "non_fiction" -> Res.string.category_non_fiction
+        "non-fiction" -> Res.string.category_non_fiction
         "classic" -> Res.string.category_classic
         "crime" -> Res.string.category_crime
         "sci_fi" -> Res.string.category_sci_fi
@@ -61,7 +57,7 @@ fun Category.imageResource(): DrawableResource {
         "fantasy" -> Res.drawable.non_fiction_bg
         "fiction" -> Res.drawable.classic_bg
         "horror" -> Res.drawable.fantasy_bg
-        "non_fiction" -> Res.drawable.young_adult_bg
+        "non-fiction" -> Res.drawable.young_adult_bg
         "classic" -> Res.drawable.non_fiction_bg
         "crime" -> Res.drawable.classic_bg
         "sci_fi" -> Res.drawable.fantasy_bg

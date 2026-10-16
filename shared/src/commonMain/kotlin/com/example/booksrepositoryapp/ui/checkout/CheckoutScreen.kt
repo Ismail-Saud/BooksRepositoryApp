@@ -50,8 +50,15 @@ import booksrepositoryapp.shared.generated.resources.card_holder_name
 import booksrepositoryapp.shared.generated.resources.card_number
 import booksrepositoryapp.shared.generated.resources.cash_on_delivery
 import booksrepositoryapp.shared.generated.resources.checkout
+import booksrepositoryapp.shared.generated.resources.checkout_disabled
+import booksrepositoryapp.shared.generated.resources.checkout_disabled_maintenance
 import booksrepositoryapp.shared.generated.resources.credit_debit_card
 import booksrepositoryapp.shared.generated.resources.delivery_address
+import booksrepositoryapp.shared.generated.resources.address_not_found
+import booksrepositoryapp.shared.generated.resources.cvv
+import booksrepositoryapp.shared.generated.resources.invalid_card_holder_name
+import booksrepositoryapp.shared.generated.resources.invalid_card_number
+import booksrepositoryapp.shared.generated.resources.mm_yy
 import booksrepositoryapp.shared.generated.resources.pay
 import booksrepositoryapp.shared.generated.resources.payment_method
 import booksrepositoryapp.shared.generated.resources.select_delivery_address
@@ -66,12 +73,14 @@ fun CheckoutScreen(
 ) {
     val checkoutState by viewModel.checkoutState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-
+    val message = stringResource(
+        Res.string.checkout_disabled_maintenance
+    )
 
     LaunchedEffect(isCheckoutEnabled) {
         if (!isCheckoutEnabled) {
             snackbarHostState.showSnackbar(
-                message = "Checkout is currently under maintenance",
+                message = message,
                 duration = SnackbarDuration.Long,
             )
         }
@@ -194,7 +203,7 @@ fun CheckoutScreen(
                                 border = BorderStroke(1.dp, Color.Red),
                             ) {
                                 Text(
-                                    text = "Checkout is currently disabled for maintenance.",
+                                    text = stringResource(Res.string.checkout_disabled_maintenance),
                                     color = Color.Red,
                                     modifier = Modifier.padding(16.dp),
                                     fontWeight = FontWeight.Bold,
@@ -223,7 +232,7 @@ fun CheckoutScreen(
                                 ),
                         ) {
                             Text(
-                                text = selectedAddress?.fullAddress ?: "Address not found",
+                                    text = selectedAddress?.fullAddress ?: stringResource(Res.string.address_not_found),
                                 color = Color.White,
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
@@ -333,7 +342,7 @@ fun CheckoutScreen(
                                     showCardErrors && !viewModel.isValidCardNumber(cardNumber)
                                 ) {
                                     Text(
-                                        text = "Invalid card number",
+                                        text = stringResource(Res.string.invalid_card_number),
                                         color = Color.Red,
                                         fontSize = 12.sp,
                                         modifier =
@@ -366,7 +375,7 @@ fun CheckoutScreen(
                                     showCardErrors && !viewModel.isValidCardHolderName(cardHolder)
                                 ) {
                                     Text(
-                                        text = "Invalid card holder name",
+                                        text = stringResource(Res.string.invalid_card_holder_name),
                                         color = Color.Red,
                                         fontSize = 12.sp,
                                         modifier =
@@ -407,7 +416,7 @@ fun CheckoutScreen(
                                                 .weight(1f)
                                                 .padding(end = 8.dp),
                                         label = {
-                                            Text("MM/YY")
+                                            Text(stringResource(Res.string.mm_yy))
                                         },
                                         keyboardOptions =
                                             KeyboardOptions(
@@ -428,7 +437,7 @@ fun CheckoutScreen(
                                                 .weight(1f)
                                                 .padding(start = 8.dp),
                                         label = {
-                                            Text("CVV")
+                                            Text(stringResource(Res.string.cvv))
                                         },
                                         keyboardOptions =
                                             KeyboardOptions(
@@ -474,7 +483,7 @@ fun CheckoutScreen(
                         text = if (isCheckoutEnabled) {
                             "${stringResource(Res.string.pay)} $${total.formatPrice()}"
                         } else {
-                            "Checkout Disabled"
+                            stringResource(Res.string.checkout_disabled)
                         },
                         fontSize = 16.sp,
                     )

@@ -23,6 +23,101 @@
           "other_platform_oauth_client": []
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097318033403:android:8ebd8e17724a66df770d5e",
+        "android_client_info": {
+          "package_name": "com.example.booksrepositoryapp.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDStavLtnLkc4QzGwtIF6LPoH-r2vyfQZE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097318033403:android:8ebd8e17724a66df770d5e",
+        "android_client_info": {
+          "package_name": "com.example.booksrepositoryapp.dev"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDStavLtnLkc4QzGwtIF6LPoH-r2vyfQZE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097318033403:android:8ebd8e17724a66df770d5e",
+        "android_client_info": {
+          "package_name": "com.example.booksrepositoryapp.dev.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDStavLtnLkc4QzGwtIF6LPoH-r2vyfQZE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097318033403:android:8ebd8e17724a66df770d5e",
+        "android_client_info": {
+          "package_name": "com.example.booksrepositoryapp.staging"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDStavLtnLkc4QzGwtIF6LPoH-r2vyfQZE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1097318033403:android:8ebd8e17724a66df770d5e",
+        "android_client_info": {
+          "package_name": "com.example.booksrepositoryapp.staging.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDStavLtnLkc4QzGwtIF6LPoH-r2vyfQZE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"

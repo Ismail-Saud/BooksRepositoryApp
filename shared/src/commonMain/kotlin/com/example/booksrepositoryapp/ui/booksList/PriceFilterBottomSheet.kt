@@ -19,6 +19,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.apply_filter
+import booksrepositoryapp.shared.generated.resources.price
+import booksrepositoryapp.shared.generated.resources.price_filter
+import booksrepositoryapp.shared.generated.resources.reset_filter
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +49,7 @@ fun PriceFilterBottomSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Price Filter",
+                    text = stringResource(Res.string.price_filter),
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
@@ -61,7 +67,7 @@ fun PriceFilterBottomSheet(
                 modifier = Modifier.height(20.dp),
             )
             Text(
-                text = "Price: $${priceRange.start.toInt()} - $${priceRange.endInclusive.toInt()}",
+                text = "${stringResource(Res.string.price)}: $${priceRange.start.toInt()} - $${priceRange.endInclusive.toInt()}",
                 fontSize = 16.sp,
             )
             Spacer(
@@ -87,7 +93,7 @@ fun PriceFilterBottomSheet(
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Apply Filter")
+                Text(stringResource(Res.string.apply_filter))
             }
             Spacer(
                 modifier = Modifier.height(8.dp),
@@ -98,7 +104,7 @@ fun PriceFilterBottomSheet(
                 },
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Text("Reset Filter")
+                Text(stringResource(Res.string.reset_filter))
             }
             Spacer(
                 modifier = Modifier.height(20.dp),

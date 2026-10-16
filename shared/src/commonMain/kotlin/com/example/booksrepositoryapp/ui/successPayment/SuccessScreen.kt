@@ -17,6 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.order_validated
+import booksrepositoryapp.shared.generated.resources.payment_received
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SuccessScreen(onGoToHome: () -> Unit) {
@@ -70,7 +74,7 @@ fun SuccessScreen(onGoToHome: () -> Unit) {
                 }
             }
             Text(
-                text = "Payment received!",
+                text = stringResource(Res.string.payment_received),
                 modifier = Modifier.padding(top = 18.dp),
                 color = Color.Black,
                 fontSize = 18.sp,
@@ -78,7 +82,7 @@ fun SuccessScreen(onGoToHome: () -> Unit) {
             )
 
             Text(
-                text = "Your order has been validated.",
+                text = stringResource(Res.string.order_validated),
                 modifier = Modifier.padding(top = 4.dp),
                 color = Color(0xFF7A7A7A),
                 fontSize = 13.sp,

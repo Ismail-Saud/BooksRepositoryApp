@@ -5,9 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import java.util.Locale
 import androidx.compose.ui.platform.LocalResources
+import java.util.Locale
 
 actual object LocalAppLocale {
 
@@ -48,7 +47,6 @@ actual object LocalAppLocale {
             LocalConfiguration provides configuration,
             localeState provides locale.toLanguageTag()
         ).let {
-            // Use the two providers together.
             androidx.compose.runtime.CompositionLocalProvider(
                 values = it,
                 content = {}

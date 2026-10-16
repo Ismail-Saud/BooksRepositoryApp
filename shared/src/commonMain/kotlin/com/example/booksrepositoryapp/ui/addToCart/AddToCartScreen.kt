@@ -56,6 +56,9 @@ import booksrepositoryapp.shared.generated.resources.Res
 import booksrepositoryapp.shared.generated.resources.cart
 import booksrepositoryapp.shared.generated.resources.order_summary
 import booksrepositoryapp.shared.generated.resources.proceed_to_checkout
+import booksrepositoryapp.shared.generated.resources.remove
+import booksrepositoryapp.shared.generated.resources.remove_item_message
+import booksrepositoryapp.shared.generated.resources.remove_item_title
 import booksrepositoryapp.shared.generated.resources.shipping
 import booksrepositoryapp.shared.generated.resources.subtotal
 import booksrepositoryapp.shared.generated.resources.total
@@ -121,9 +124,9 @@ fun AddToCartScreen(
                     }
                     if (showConfirmation && selectedCart != null) {
                         ConfirmationBottomSheet(
-                            title = "Remove Item",
-                            message = "Remove this item from your cart?",
-                            positiveButtonText = "Remove",
+                            title = stringResource(Res.string.remove_item_title),
+                            message = stringResource(Res.string.remove_item_message),
+                            positiveButtonText = stringResource(Res.string.remove),
                             onConfirm = {
                                 selectedCart?.let { cartItem ->
                                     viewModel.onEvent(AddToCartEvent.RemoveItem(cartItem))

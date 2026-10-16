@@ -34,24 +34,28 @@ class RegisterViewModel (
     }
 
     fun register(username: String, email: String, password: String, confirmPass: String) {
+        val trimmedUsername = username.trim()
+        val trimmedEmail = email.trim()
+        val trimmedPassword = password.trim()
+        val trimmedConfirmPass = confirmPass.trim()
         when {
-            username.isBlank() -> sendError("Enter username")
-            !usernamePattern.matches(username) -> sendError("Enter valid username")
-            email.isBlank() -> sendError("Enter email")
-            !emailPattern.matches(email) -> sendError("Enter valid email")
-            password.isBlank() -> sendError("Enter password")
-            !passwordPattern.matches(password) -> sendError("Enter valid password")
-            password != confirmPass -> sendError("Password does not match")
+            trimmedUsername.isBlank() -> sendError("Enter username")
+            !usernamePattern.matches(trimmedUsername) -> sendError("Enter valid username")
+            trimmedEmail.isBlank() -> sendError("Enter email")
+            !emailPattern.matches(trimmedEmail) -> sendError("Enter valid email")
+            trimmedPassword.isBlank() -> sendError("Enter password")
+            !passwordPattern.matches(trimmedPassword) -> sendError("Password must be at least 8 characters")
+            trimmedPassword != trimmedConfirmPass -> sendError("Passwords do not match")
             else -> {
                 viewModelScope.launch {
                     _registerUser.value = RegisterState.Loading
                     try {
-                        val result = authRepo.createUser(username, email, password)
+                        val result = authRepo.createUser(trimmedUsername, trimmedEmail, trimmedPassword)
                         result.onSuccess { uid ->
                             val domainUser = User(
                                 id = uid,
-                                username = username,
-                                email = email,
+                                username = trimmedUsername,
+                                email = trimmedEmail,
                                 profilePicture = null
                             )
                             userRepo.createUserProfile(domainUser)

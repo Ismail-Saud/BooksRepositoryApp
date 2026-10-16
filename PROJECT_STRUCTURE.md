@@ -1,6 +1,6 @@
 # BooksRepositoryApp — Current Folder Structure
 
-Generated from the repository contents on October 6, 2026. Generated `.git/`, `.gradle/`, `.kotlin/`, and build output folders are omitted.
+Generated from the repository contents on October 16, 2026. Generated `.git/`, `.gradle/`, `.kotlin/`, and build output folders are omitted.
 
 ```text
 BooksRepositoryApp/
@@ -18,7 +18,7 @@ BooksRepositoryApp/
 │           │   ├── drawable/                         # Android-only drawable resources
 │           │   ├── layout/activity_main.xml
 │           │   ├── mipmap-{anydpi-v26,hdpi,mdpi,xhdpi,xxhdpi,xxxhdpi}/
-│           │   ├── values/{array,colors,strings,style,themes}.xml
+│           │   ├── values/{array,colors,ic_launcher_background,strings,style,themes}.xml
 │           │   └── xml/{backup_rules,data_extraction_rules,file_path}.xml
 │           └── java/com/example/booksrepositoryapp/ui/theme/
 │               ├── Color.kt
@@ -30,18 +30,24 @@ BooksRepositoryApp/
 │       ├── commonMain/
 │       │   ├── composeResources/
 │       │   │   ├── drawable/                          # Shared Compose image resources
-│       │   │   └── values/strings.xml
+│       │   │   └── values{-ur,}/strings.xml           # Shared strings (English & Urdu)
 │       │   └── kotlin/
 │       │       ├── com/example/booksrepositoryapp/
 │       │       │   ├── data/
 │       │       │   │   ├── repository/BooksRepositoryImp.kt
-│       │       │   │   ├── source/local/{localDataSources,uiModels}/*
-│       │       │   │   ├── source/remote/firebase/{authentication,firestore}/*
-│       │       │   │   ├── source/remote/ktor/{ApiService.kt,dto,httpClient}/*
+│       │       │   │   ├── source/local/localDataSources/BooksLocalDataSource.kt
+│       │       │   │   ├── source/local/uiModels/AddressUiModel.kt
+│       │       │   │   ├── source/remote/firebase/authentication/{AuthRepository.kt,UserProfile.kt}
+│       │       │   │   ├── source/remote/ktor/{ApiService.kt,dto,httpClient/HttpClient.kt}
 │       │       │   │   └── util/refreshResult/RefreshResult.kt
-│       │       │   ├── di/{NetworkModule,RepositoryModule,ViewModelModules}.kt
+│       │       │   ├── di/{NetworkModule.kt,RepositoryModule.kt,ViewModelModules.kt}
 │       │       │   ├── domain/{model,repository,usecase}/*.kt
-│       │       │   ├── manager/{cameraManager,locationManager,networkManager}/*
+│       │       │   ├── localization/{AppLanguage.kt,LanguageManager.kt,LanguagePreferences.kt,LocalAppLocale.kt}
+│       │       │   ├── manager/
+│       │       │   │   ├── cameraManager/CameraManager.kt
+│       │       │   │   ├── locationManager/{LocationCoordinates.kt,LocationManager.kt}
+│       │       │   │   └── networkManager/NetworkManager.kt
+│       │       │   ├── navigation/{AppNavigation.kt,routes/Routes.kt}
 │       │       │   ├── ui/
 │       │       │   │   ├── accountDetails/*
 │       │       │   │   ├── addressScreen/*
@@ -52,7 +58,7 @@ BooksRepositoryApp/
 │       │       │   │   ├── booksList/*
 │       │       │   │   ├── checkout/*
 │       │       │   │   ├── conformationBottomSheet/ConfirmationBottomSheet.kt
-│       │       │   │   ├── landingPage/{LandingPage,LandingPageResources}.kt
+│       │       │   │   ├── landingPage/{LandingPage.kt,LandingPageResources.kt}
 │       │       │   │   ├── loading/LoadingScreen.kt
 │       │       │   │   ├── maintenancePage/MaintenanceScreen.kt
 │       │       │   │   └── successPayment/SuccessScreen.kt
@@ -66,14 +72,20 @@ BooksRepositoryApp/
 │       │   └── kotlin/
 │       │       ├── com/example/booksrepositoryapp/
 │       │       │   ├── BooksRepositoryApp.kt
-│       │       │   ├── data/{mapper,repository}/*.kt
-│       │       │   ├── data/source/local/{room,roomDataSource}/*
-│       │       │   ├── data/source/remote/firebase/{authentication,firestore}/*
+│       │       │   ├── data/mapper/{AddressMapper.kt,BooksMapper.kt,CartMapper.kt,UserMapper.kt}
+│       │       │   ├── data/repository/{AddressRepositoryImp.kt,CartRepositoryImpl.kt,UserRepositoryImpl.kt}
+│       │       │   ├── data/source/local/room/{AppDatabase.kt,DatabaseInstance.kt,dao/BooksDao.kt,entity/BookDetailsModel.kt}
+│       │       │   ├── data/source/local/roomDataSource/RoomBooksDataSource.kt
+│       │       │   ├── data/source/remote/firebase/authentication/FirebaseAuthRepository.kt
+│       │       │   ├── data/source/remote/firebase/firestore/{AddressModelFB.kt,CartModelFB.kt}
 │       │       │   ├── data/source/remote/ktor/httpClient/HttpClient.kt
-│       │       │   ├── di/{AndroidNetworkModule,AndroidRepositoryModule,FirebaseModule,RoomModule}.kt
+│       │       │   ├── di/{AndroidNetworkModule.kt,AndroidRepositoryModule.kt,FirebaseModule.kt,RoomModule.kt}
+│       │       │   ├── localization/{LanguageDataStore.kt,LocalAppLocale.kt}
 │       │       │   ├── main/MainActivity.kt
-│       │       │   ├── manager/{AndroidLocationManager,cameraManager,networkManager}/*
-│       │       │   └── navigation/{AppNavigation.kt,routes/Routes.kt}
+│       │       │   └── manager/
+│       │       │       ├── AndroidLocationManager.kt
+│       │       │       ├── cameraManager/AndroidCameraManager.kt
+│       │       │       └── networkManager/AndroidNetworkManager.kt
 │       │       └── com/example/shared/Platform.android.kt
 │       ├── androidDeviceTest/kotlin/com/example/booksrepositoryapp/
 │       │   ├── data/repository/FirebaseEmulatorIntegrationTest.kt
@@ -90,7 +102,6 @@ BooksRepositoryApp/
 ├── gradle.properties
 ├── gradlew
 ├── gradlew.bat
-├── local.properties
 ├── PROJECT_STRUCTURE.md
 ├── README.md
 └── settings.gradle.kts
@@ -100,13 +111,13 @@ BooksRepositoryApp/
 
 | Module/source set | Responsibility |
 |---|---|
-| `shared/src/commonMain` | Shared domain models, repositories, use cases, networking contracts, Compose UI, navigation contracts, managers, and shared resources |
-| `shared/src/androidMain` | Android implementations for Room, Firebase, Ktor, dependency injection, managers, and the Android entry point |
+| `shared/src/commonMain` | Shared domain models, repositories, use cases, Ktor networking contracts, Compose UI, navigation contracts, localization manager, Koin DI modules, location/camera manager contracts, and shared resources |
+| `shared/src/androidMain` | Android implementations for Room, Firebase (Auth, Firestore, Remote Config), Ktor OkHttp client, Android location & camera managers, DataStore locale handling, and Android entry point (`MainActivity`) |
 | `shared/src/nativeMain` | Native Ktor HTTP client implementation |
 | `shared/src/iosMain` | iOS platform implementation |
 | `shared/src/commonTest` | Tests shared across platforms |
-| `shared/src/androidDeviceTest` | Tests that require an Android device or emulator |
-| `shared/src/androidHostTest` | Tests executed on the Android host/JVM |
+| `shared/src/androidDeviceTest` | Instrumentation and integration tests requiring an Android device or emulator (Firebase Emulator, Room) |
+| `shared/src/androidHostTest` | Unit tests executed on the JVM host |
 | `app` | Android application configuration, manifest, launcher resources, legacy Android resources, and theme files |
 
 Notation: `{A,B}.kt` represents individual files, `*` represents all files in a directory, and a directory name followed by `/*` represents its current contents.

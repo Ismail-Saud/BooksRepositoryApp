@@ -8,7 +8,7 @@ val categories = listOf(
     Category("fantasy"),
     Category("fiction"),
     Category("horror"),
-    Category("non_fiction"),
+    Category("non-fiction"),
     Category("classic"),
     Category("crime"),
     Category("sci_fi"),

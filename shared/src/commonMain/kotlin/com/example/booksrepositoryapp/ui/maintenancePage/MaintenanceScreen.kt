@@ -17,6 +17,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.maintenance_message
+import booksrepositoryapp.shared.generated.resources.maintenance_title
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun MaintenanceScreen() {
@@ -34,13 +38,13 @@ fun MaintenanceScreen() {
                 tint = Color.Gray,
             )
             Text(
-                text = "We'll be back soon!",
+                text = stringResource(Res.string.maintenance_title),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(top = 16.dp),
             )
             Text(
-                text = "The app is currently under maintenance. Please try again later.",
+                text = stringResource(Res.string.maintenance_message),
                 modifier = Modifier.padding(16.dp),
                 textAlign = TextAlign.Center,
             )

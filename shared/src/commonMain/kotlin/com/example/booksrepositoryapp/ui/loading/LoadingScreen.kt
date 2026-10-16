@@ -18,6 +18,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.processing_order_dots
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoadingScreen(showDialog: Boolean) {
@@ -49,7 +52,7 @@ fun LoadingScreen(showDialog: Boolean) {
                     )
 
                     Text(
-                        text = "Processing Order...",
+                        text = stringResource(Res.string.processing_order_dots),
                         modifier = Modifier.padding(top = 12.dp),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,

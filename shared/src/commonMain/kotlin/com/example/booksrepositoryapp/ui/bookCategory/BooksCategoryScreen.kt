@@ -43,6 +43,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.retry
 import booksrepositoryapp.shared.generated.resources.search_category
 import com.example.booksrepositoryapp.domain.model.Category
 import org.jetbrains.compose.resources.painterResource
@@ -112,7 +113,7 @@ fun BookCategoryScreen(
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(text = currentState.message, color = Color.Red)
                     Button(onClick = { viewModel.onEvent(BooksCategoryEvent.RefreshCategories) }) {
-                        Text("Retry")
+                        Text(stringResource(Res.string.retry))
                     }
                 }
             }

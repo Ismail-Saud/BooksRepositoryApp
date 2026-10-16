@@ -33,6 +33,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import booksrepositoryapp.shared.generated.resources.Res
+import booksrepositoryapp.shared.generated.resources.cancel
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -131,7 +134,7 @@ fun ConfirmationBottomSheet(
                     border = BorderStroke(1.dp, Color(0xFFDADADA)),
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(Res.string.cancel),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Color(0xFF111111),

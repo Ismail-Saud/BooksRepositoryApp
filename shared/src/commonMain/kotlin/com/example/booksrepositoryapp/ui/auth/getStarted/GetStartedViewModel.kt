@@ -18,6 +18,8 @@ class GetStartedViewModel (
     private val _effect = Channel<GetStartedEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
+    private val emailPattern = Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$")
+
     fun onEvent(event: GetStartedEvent) {
         when (event) {
             is GetStartedEvent.GetStartedClicked -> login(event.email, event.password)
@@ -27,19 +29,35 @@ class GetStartedViewModel (
     }
 
     fun login(email: String, password: String) {
-        viewModelScope.launch {
-            _getStartedState.value = GetStartedState.Loading
-            val result = authRepo.login(email, password)
-            result.onSuccess {
-                _getStartedState.value = GetStartedState.Success
-                sendEffect(GetStartedEffect.ShowMessage("Login Successful"))
-                sendEffect(GetStartedEffect.NavigateToHome)
-            }
-            result.onFailure { exception ->
-                _getStartedState.value = GetStartedState.Error(exception.message ?: "Login Failed")
-                sendEffect(GetStartedEffect.ShowMessage(exception.message ?: "Login Failed"))
+        val trimmedEmail = email.trim()
+        val trimmedPassword = password.trim()
+        when {
+            trimmedEmail.isBlank() -> sendError("Enter email")
+            !emailPattern.matches(trimmedEmail) -> sendError("Enter valid email")
+            trimmedPassword.isBlank() -> sendError("Enter password")
+            trimmedPassword.length < 6 -> sendError("Password must be at least 6 characters")
+            else -> {
+                viewModelScope.launch {
+                    _getStartedState.value = GetStartedState.Loading
+                    val result = authRepo.login(trimmedEmail, trimmedPassword)
+                    result.onSuccess {
+                        _getStartedState.value = GetStartedState.Success
+                        sendEffect(GetStartedEffect.ShowMessage("Login Successful"))
+                        sendEffect(GetStartedEffect.NavigateToHome)
+                    }
+                    result.onFailure { exception ->
+                        val errorMessage = exception.message ?: "Login Failed"
+                        _getStartedState.value = GetStartedState.Error(errorMessage)
+                        sendEffect(GetStartedEffect.ShowMessage(errorMessage))
+                    }
+                }
             }
         }
+    }
+
+    private fun sendError(message: String) {
+        _getStartedState.value = GetStartedState.Error(message)
+        sendEffect(GetStartedEffect.ShowMessage(message))
     }
 
     private fun sendEffect(effect: GetStartedEffect) {
