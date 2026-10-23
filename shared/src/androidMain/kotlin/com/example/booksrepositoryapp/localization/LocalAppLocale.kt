@@ -20,9 +20,7 @@ actual object LocalAppLocale {
         @Composable get() = localeState.current
 
     @Composable
-    actual infix fun provides(
-        value: String?
-    ): ProvidedValue<*> {
+    actual infix fun provides(value: String?): ProvidedValue<*> {
         val configuration = Configuration(
             LocalConfiguration.current
         )

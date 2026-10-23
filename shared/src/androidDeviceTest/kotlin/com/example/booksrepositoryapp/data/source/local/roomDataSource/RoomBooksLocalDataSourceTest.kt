@@ -6,6 +6,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.booksrepositoryapp.data.source.local.room.AppDatabase
 import com.example.booksrepositoryapp.domain.model.Book
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.flow.first
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -51,5 +52,30 @@ class RoomBooksLocalDataSourceTest {
             book.copy(description = "A fantasy novel."),
             dataSource.getBookDetails(book.id)
         )
+    }
+
+    @Test
+    fun booksAreReadOnlyForTheirRequestedCategory() = runTest {
+        val fantasyBook = Book(
+            id = "/works/OL2W",
+            category = "fantasy",
+            title = "The Hobbit",
+            author = "J.R.R. Tolkien",
+            coverId = 2,
+            rating = 4.8,
+            price = 19.99,
+            description = null
+        )
+        val fictionBook = fantasyBook.copy(
+            id = "/works/OL3W",
+            category = "fiction",
+            title = "1984"
+        )
+
+        dataSource.insertBooks(listOf(fantasyBook, fictionBook))
+
+        assertEquals(listOf(fantasyBook), dataSource.getBooksByCategory("fantasy").first())
+        assertEquals(listOf(fictionBook), dataSource.getAllBooksByCategory("fiction"))
+        assertEquals(emptyList(), dataSource.getAllBooksByCategory("history"))
     }
 }

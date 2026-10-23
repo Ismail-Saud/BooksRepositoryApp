@@ -31,8 +31,7 @@ fun AppEnvironment(content: @Composable () -> Unit) {
         LocalAppLocale provides customAppLocale
     ) {
         key(customAppLocale) {
-            val language = customAppLocale
-                ?: LocalAppLocale.current
+            val language = customAppLocale ?: LocalAppLocale.current
 
             val direction = if (
                 language.startsWith("ur", ignoreCase = true)
