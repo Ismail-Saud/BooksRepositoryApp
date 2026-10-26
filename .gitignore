@@ -1,5 +1,6 @@
 # Gradle and build outputs
 .gradle/
+.gradle-test-cache/
 **/build/
 **/release/
 **/debug/
